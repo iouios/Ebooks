@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --FONT_BLACK: #000000;
+  --FONT_WHITE: #FFFFFF;
+  --FONT_YELLOW: #CC9600;
+  --FONT_BROWN: #4B330B;
+  --FONT_GRAY: #636363;
+  
+  --ELEMENT_YELLOW: #CC9600;
+  --ELEMENT_BROWN: #4B330B;
+  --ELEMENT_GRAY: #6F6F6F;
+  --ELEMENT_BLUE: #64AEF4;
+  --ELEMENT_BLACK: #000000;
+  --ELEMENT_WHITE: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
