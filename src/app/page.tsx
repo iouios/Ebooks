@@ -1,64 +1,162 @@
 "use client";
-import styled from 'styled-components';
-import { useState } from 'react';
+import styled from "styled-components";
+import { useState } from "react";
+import Image from "next/image";
 
-// Define the type for the Menu component props
 interface MenuProps {
-  isMenuOpen: boolean;
+  $isMenuOpen: boolean; // Transient prop
 }
 
-// สร้างคอมโพเนนต์ Button โดยใช้ styled-components
-const Button = styled.button`
-  background-color: #0070f3;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+interface HamburgerProps {
+  $isOpen: boolean; // Transient prop for Hamburger
+}
 
-  &:hover {
-    background-color: #005bb5;
+const Home = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+  return (
+    <div>
+      <Nav>
+        <Grid2>
+          <div>
+            <Image
+              src="/images/Rectangle 3.png"
+              alt="description of image"
+              width={104}
+              height={98}
+            />
+          </div>
+          <Textcenter>
+            <TextcolorNav>Gutendex</TextcolorNav>
+            <TextcolorNav>BOOKPOINT</TextcolorNav>
+          </Textcenter>
+        </Grid2>
+
+        <Menu $isMenuOpen={isMenuOpen}>
+          <Button>Home</Button>
+          <Button>Book</Button>
+          <Button>Bookmark</Button>
+        </Menu>
+
+        <Icon><Image
+              src="/images/Rectangle 4.png"
+              alt="description of image"
+              width={20}
+              height={20}
+            /></Icon>
+        <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
+          <div />
+          <div />
+          <div />
+        </Hamburger>
+      </Nav>
+
+      <div>Main Content</div>
+      <Footer>
+        <div>© 2025 | Gutendex BookPoint</div>
+        <Textcolorfooter>
+          Visit our branches in Galle, Kurunegala, Kandy, and Colombo, and
+          register for our online platform to enjoy maximum benefits!
+        </Textcolorfooter>
+      </Footer>
+    </div>
+  );
+};
+
+const Nav = styled.nav`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* 3 คอลัมน์ในจอใหญ่ */
+  justify-items: center;
+  align-items: center;
+  background-color: var(--FONT_BLACK);
+  color: white;
+  padding: 12px 20px;
+  gap: 10px;
+  width: 1280px;
+  height: 119px;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr 1fr; /* 2 คอลัมน์ในจอเล็ก */
+    gap: 20px; /* เพิ่มช่องว่างระหว่างคอลัมน์ */
   }
 `;
 
-const Nav = styled.nav`
+const Footer = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #282c34;
+  background-color: var(--FONT_BLACK);
   color: white;
   padding: 12px 20px;
+  height: 250px;
+  position: relative;
 
-  /* Center the menu items horizontally when the screen is wide */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 30%;
+    left: %;
+    width: 95%;
+    height: 2px;
+    background-color: var(--FONT_WHITE);
+  }
+
   @media (min-width: 500px) {
     justify-content: center;
     gap: 30px;
   }
 `;
 
+const Grid2 = styled.nav`
+    display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-right: 50%;
+  }
+`;
+
+const Textcenter = styled.div`
+  text-align: center;
+  margin-top: 10%;
+`;
+
+
+const TextcolorNav = styled.nav`
+  color: var(--FONT_YELLOW);
+  font-size: 20px;
+  }
+`;
+
+const Textcolorfooter = styled.nav`
+  color: var(--FONT_YELLOW);
+  }
+`;
+
 const Menu = styled.div<MenuProps>`
-  display: flex;
-  flex-direction: column; /* Stack items vertically */
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
 
   @media (max-width: 500px) {
-    display: ${(props) => (props.isMenuOpen ? 'flex' : 'none')};
+    display: ${(props) => (props.$isMenuOpen ? "flex" : "none")};
     position: absolute;
-    top: 50px; /* Position directly below the hamburger */
+    top: 50px;
     right: 0;
-    width: 200px; /* Adjust the width as you need */
-    height: 100%; /* Cover full screen height */
+    width: 200px;
+    height: 100%;
     background-color: #282c34;
     padding: 20px;
     z-index: 1000;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-    text
+    text-align: center;
+    display: grid;
   }
 `;
 
-const Hamburger = styled.div<{ isOpen: boolean }>`
+const Hamburger = styled.div<HamburgerProps>`
   display: none;
-  flex-direction: column; /* Make it vertical */
+  flex-direction: column;
   gap: 4px;
   cursor: pointer;
   width: 30px;
@@ -76,10 +174,9 @@ const Hamburger = styled.div<{ isOpen: boolean }>`
     display: flex;
   }
 
-  /* Hamburger open state transformations */
   ${(props) =>
-    props.isOpen &&
-    `
+    props.$isOpen &&
+    ` 
     div:nth-child(1) {
       transform: rotate(60deg);
       position: relative;
@@ -96,35 +193,17 @@ const Hamburger = styled.div<{ isOpen: boolean }>`
   `}
 `;
 
-const Home = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const Icon = styled.div`
+  margin-left: 50%;
 
-  const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
 
-  return (
-    <div>
-      <Nav>
-        <div>Gutendex BOOKPOINT</div>
-
-        <Menu isMenuOpen={isMenuOpen}>
-          <div>Home</div>
-          <div>Book</div>
-          <div>Bookmark</div>
-        </Menu>
-
-        {/* Pass the isOpen prop to Hamburger */}
-        <Hamburger isOpen={isMenuOpen} onClick={toggleMenu}>
-          <div />
-          <div />
-          <div />
-        </Hamburger>
-      </Nav>
-
-      <div>Main Content</div>
-      <div>Footer</div>
-      <Button>Click me!</Button>
-    </div>
-  );
-};
+const Button = styled.button`
+  color: white; /* สีตัวอักษร */
+  cursor: pointer;
+`;
 
 export default Home;
