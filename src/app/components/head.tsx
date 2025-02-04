@@ -96,6 +96,7 @@ const Flex = styled.div`
   justify-content: flex-start;  
   align-items: center;  
   margin-right: 0;
+    padding-bottom: 10px;
 
   @media (max-width: 500px) {
     margin-right: 0;
@@ -105,6 +106,7 @@ const Flex = styled.div`
 const Text = styled.div`
   margin-top: 10px;
   padding-left: 10px;
+  padding-bottom: 10px;
   @media (max-width: 500px) {
     margin-top: 0px;
   }
@@ -114,6 +116,7 @@ const TextcolorNav = styled.div`
   color: var(--FONT_YELLOW);
   font-size: 24px;
    font-weight: bold; 
+ 
 
   @media (max-width: 500px) {
     font-size: 16px;
