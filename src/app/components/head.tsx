@@ -18,20 +18,18 @@ const Navbar = () => {
 
   return (
     <Nav>
-      <Grid2>
-        <div>
-          <ResponsiveImage
-            src="/images/Rectangle 3.png"
-            alt="Logo"
-            width={104}
-            height={98}
-          />
-        </div>
-        <Textcenter>
+      <Flex>
+        <ResponsiveImage
+          src="/images/Rectangle 3.png"
+          alt="Logo"
+          width={160}
+          height={50}
+        />
+        <Text>
           <TextcolorNav>Gutendex</TextcolorNav>
           <TextcolorNav>BOOKPOINT</TextcolorNav>
-        </Textcenter>
-      </Grid2>
+        </Text>
+      </Flex>
 
       <Menu $isMenuOpen={isMenuOpen}>
         <Button>Home</Button>
@@ -48,11 +46,22 @@ const Navbar = () => {
         />
       </Icon>
 
-      {/* Hamburger Button */}
       <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
-        <div />
-        <div />
-        <div />
+        {!isMenuOpen ? (
+          <Image
+            src="/images/icon.png"
+            alt="Profile"
+            width={20}
+            height={20}
+          />
+        ) : (
+          <Image
+            src="/images/Vector.png"
+            alt="Close"
+            width={20}
+            height={20}
+          />
+        )}
       </Hamburger>
     </Nav>
   );
@@ -68,7 +77,6 @@ const Nav = styled.nav`
   padding: 12px 20px;
   gap: 10px;
   width: 100%;
-  max-width: 1280px;
   height: 119px;
 
   @media (max-width: 500px) {
@@ -78,28 +86,36 @@ const Nav = styled.nav`
     width: 100%;
     height: 100px;
   }
+
+  /* Align Grid2 to left */
+  justify-content: flex-start; 
 `;
 
-const Grid2 = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-right: 50%;
-    @media (max-width: 500px) {
-    margin-right: 0%;
+const Flex = styled.div`
+  display: flex;
+  justify-content: flex-start;  
+  align-items: center;  
+  margin-right: 0;
+
+  @media (max-width: 500px) {
+    margin-right: 0;
   }
 `;
 
-const Textcenter = styled.div`
-  text-align: center;
-  margin-top: 10%;
+const Text = styled.div`
+  margin-top: 10px;
+  padding-left: 10px;
+  @media (max-width: 500px) {
+    margin-top: 0px;
+  }
 `;
 
 const TextcolorNav = styled.div`
   color: var(--FONT_YELLOW);
-  font-size: 20px;
+  font-size: 24px;
 
   @media (max-width: 500px) {
-    font-size: 14px;
+    font-size: 16px;
   }
 `;
 
@@ -113,10 +129,9 @@ const Menu = styled.div<MenuProps>`
     flex-direction: column;
     position: absolute;
     top: 70px;
-    bottom: 0;
     right: 0px;
     width: 200px;
-    height: px;
+    height: 100%;
     background-color: var(--FONT_BLACK);
     padding: 20px;
     z-index: 1000;
@@ -132,33 +147,11 @@ const Hamburger = styled.div<HamburgerProps>`
   cursor: pointer;
   width: 40px;
   height: 30px;
-  
 
-  div {
-    width: 100%;
-    height: 4px;
-    background-color: white;
-    transition: all 0.3s ease-in-out;
-  }
-
-  @media (max-width: 768px) {
+  @media (max-width: 500px) {
     display: flex;
-    margin-left: 150px;
+    margin-left: 100px;
   }
-
-  ${(props) =>
-    props.$isOpen &&
-    `
-    div:nth-child(1) {
-      transform: rotate(45deg) translateY(10px);
-    }
-    div:nth-child(2) {
-      opacity: 0;
-    }
-    div:nth-child(3) {
-      transform: rotate(-45deg) translateY(-10px);
-    }
-  `}
 `;
 
 const Icon = styled.div`
@@ -176,14 +169,13 @@ const Button = styled.button`
 `;
 
 const ResponsiveImage = styled(Image)`
-  width: 104px;
-  height: 60px;
+  width: auto;
+  height: auto;
 
   @media (max-width: 500px) {
-    width: 150px;
-    height: 80px;
+    width: 120px;  
+    height: 60px;  
   }
 `;
-
 
 export default Navbar;
