@@ -113,9 +113,11 @@ const Text = styled.div`
 const TextcolorNav = styled.div`
   color: var(--FONT_YELLOW);
   font-size: 24px;
+   font-weight: bold; 
 
   @media (max-width: 500px) {
     font-size: 16px;
+     font-weight: bold; 
   }
 `;
 
