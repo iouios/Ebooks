@@ -1,13 +1,11 @@
 "use client";
-const Home = () => {
 
+const HomePage = () => {
   return (
     <div>
-      <h1>Hello World</h1>
-      </div>
+      Hi I am The God
+    </div>
   );
 };
 
-
-
-export default Home;
+export default HomePage;

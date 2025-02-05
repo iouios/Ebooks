@@ -2,7 +2,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import Image from "next/image";
-
+import Link from "next/link";
 interface MenuProps {
   $isMenuOpen: boolean;
 }
@@ -32,8 +32,12 @@ const Navbar = () => {
       </Flex>
 
       <Menu $isMenuOpen={isMenuOpen}>
+      <Link href="/">
         <Button>Home</Button>
+        </Link>
+        <Link href="/book">
         <Button>Book</Button>
+        </Link>
         <Button>Bookmark</Button>
       </Menu>
 

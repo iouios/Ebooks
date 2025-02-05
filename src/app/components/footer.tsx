@@ -29,7 +29,7 @@ const Footers = styled.footer`
   background-color: var(--FONT_BLACK);
   color: var(--FONT_WHITE);
   padding: 12px 20px;
-  height: 250px;
+  height: 200px;
   width: 100%;
   position: fixed;
   bottom: 0;
