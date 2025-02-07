@@ -51,13 +51,13 @@ const BookList: React.FC = () => {
           endMessage={<div>ไม่พบข้อมูลเพิ่มเติม</div>}
         >
           <GridContainer>
-            {books.map((book) => (
-              <div key={`${book.id}-${book.title}`}>
-                
-                <BookCard data={book} />
-              </div>
-            ))}
-          </GridContainer>
+  {books.map((book, index) => (
+    <div key={`${book.id}-${index}`}> {/* ใช้ book.id + index เป็น key */}
+      <BookCard data={book} />
+    </div>
+  ))}
+</GridContainer>
+
         </InfiniteScroll>
       )}
     </Container>

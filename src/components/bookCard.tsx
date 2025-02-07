@@ -46,7 +46,7 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
           <strong>ภาษา:</strong> {data.languages?.join(", ") || "ไม่ระบุ"}
         </Paragraph>
 
-        <BookmarkButton id={data.id} book_id={[data.id]} type="add" />
+        <BookmarkButton id={data.id} book_id={data.id}  />
       </Content>
     </Card>
   );
