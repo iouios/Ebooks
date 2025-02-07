@@ -51,25 +51,29 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id }) => {
       {isBookmarked ? (
         <>
           <Buttombookmarkopen>
-            <Image
-              src="/images/Bookmarkicon.png"
-              alt="Profile"
-              width={20}
-              height={20}
-            />
+            <Icon>
+              <Image
+                src="/images/Bookmarkicon.png"
+                alt="Profile"
+                width={20}
+                height={20}
+              />
+            </Icon>
             <Textcolor>Bookmark</Textcolor>
           </Buttombookmarkopen>
         </>
       ) : (
         <>
           <Buttombookmark>
-            <Image
-              src="/images/Bookmark.png"
-              alt="Profile"
-              width={20}
-              height={20}
-            />
-            <div>Bookmark</div>
+            <Icon>
+              <Image
+                src="/images/Bookmark.png"
+                alt="Profile"
+                width={20}
+                height={20}
+              />
+            </Icon>
+            <Textcolors>Bookmark</Textcolors>
           </Buttombookmark>
         </>
       )}
@@ -78,7 +82,6 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id }) => {
 };
 
 const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
-
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
@@ -86,8 +89,6 @@ const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
 
 const Buttombookmarkopen = styled.div`
   display: flex;
-  justify-content: center;  /* Centers horizontally */
-  align-items: center;      /* Centers vertically */
   background-color: var(--FONT_YELLOW);
   border: 2px solid var(--FONT_YELLOW);
   border-radius: 8px;
@@ -96,16 +97,23 @@ const Buttombookmarkopen = styled.div`
 
 const Buttombookmark = styled.div`
   display: flex;
-  justify-content: center;  /* Centers horizontally */
-  align-items: center;      /* Centers vertically */
   padding: 5px;
   border: 2px solid var(--FONT_YELLOW);
   border-radius: 8px;
 `;
 
-
 const Textcolor = styled.div`
   color: var(--FONT_WHITE);
+  text-align: left;
 `;
+const Textcolors = styled.div`
+  text-align: left;
+`;
+
+const Icon = styled.div`
+  padding-right: 40px;
+  padding-left: 20px;
+`;
+
 
 export default BookmarkButton;

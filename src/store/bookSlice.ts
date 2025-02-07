@@ -32,7 +32,6 @@ const initialState: BookState = {
   next: null,
 };
 
-
 export const fetchBooks = createAsyncThunk(
   'books/fetchBooks',
   async (nextUrl: string | null = null) => {
@@ -60,11 +59,10 @@ const bookSlice = createSlice({
         state.loading = false;
 
         console.log(action.payload);
-    
+
         if (Array.isArray(action.payload.results)) {
           state.books = [...state.books, ...action.payload.results]; 
         }
-
 
         state.next = action.payload.next || null;
       })

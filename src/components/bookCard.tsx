@@ -27,65 +27,89 @@ interface BookCardProps {
 }
 
 const BookCard: React.FC<BookCardProps> = ({ data }) => {
+
+  const truncatedTitle = data.title.length > 10 ? data.title.substring(0,10) + "..." : data.title;
+
+
+  const truncatedAuthors = data.authors
+    .map((author) => author.name)
+    .join(", ");
+  const truncatedAuthorsText = truncatedAuthors.length > 10
+    ? truncatedAuthors.substring(0, 10) + "..."
+    : truncatedAuthors;
+
   return (
     <Card>
-      
-      <CoverImage
-        src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
-        alt={data.title}
-      />
       <Content>
+        <Images>
+          <CoverImage
+            src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
+            alt={data.title}
+          />
+        </Images>
         <Title>
-          <strong>ชื่อ:</strong> {data.title}
+          <strong>ชื่อ:</strong> {truncatedTitle}
         </Title>
         <Paragraph>
-          <strong>ผู้เขียน:</strong>{" "}
-          {data.authors?.map((author) => author.name).join(", ") || "ไม่ทราบ"}
+          <strong>ผู้เขียน:</strong>
+          {truncatedAuthorsText || "ไม่ทราบ"}
         </Paragraph>
         <Paragraph>
           <strong>ภาษา:</strong> {data.languages?.join(", ") || "ไม่ระบุ"}
         </Paragraph>
 
-        <BookmarkButton id={data.id} book_id={data.id}  />
+        <BookmarkButton id={data.id} book_id={data.id} />
       </Content>
     </Card>
   );
 };
 
 const Card = styled.div`
-  border: 1px solid #ddd;
+  border: 1px solid var(--FONT_BLACK);
   padding: 20px;
-  margin-bottom: 20px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--FONT_WHITE);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
   display: flex;
-  gap: 20px; /* เพิ่มระยะห่างระหว่างรูปกับข้อความ */
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
 `;
 
 const CoverImage = styled.img`
-  width: 100px;
-  height: 150px;
+  width: 200px;
+  height: 300px;
   object-fit: cover;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--FONT_BLACK);
+`;
+
+const Images = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Content = styled.div`
-  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Title = styled.h3`
   font-size: 1.6em;
   margin-bottom: 10px;
   color: #333;
+  padding-top: 20px;
 `;
 
 const Paragraph = styled.p`
   font-size: 1em;
   margin-bottom: 8px;
   color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export default BookCard;

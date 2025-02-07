@@ -1,6 +1,6 @@
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import ClientProvider from "../components/ClientProvider"; // Import ClientProvider
+import ClientProvider from "../components/ClientProvider"; 
 import "./globals.css";
 
 export const metadata = {

@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import bookReducer from "./bookSlice"; // นำเข้า Reducer ที่สร้างไว้
-
+import bookReducer from "./bookSlice"; 
 
 export const store = configureStore({
   reducer: {
@@ -8,6 +7,5 @@ export const store = configureStore({
   },
 });
 
-// สร้างประเภทของ RootState
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -3,7 +3,7 @@
 const HomePage = () => {
   return (
     <div>
-      Hi I am The God
+      Hi I am 
     </div>
   );
 };
