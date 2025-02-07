@@ -85,6 +85,7 @@ const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
+  margin-top: 10px;
 `;
 
 const Buttombookmarkopen = styled.div`

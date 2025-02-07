@@ -31,9 +31,7 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
   const truncatedTitle =
     data.title.length > 10 ? data.title.substring(0, 10) + "..." : data.title;
 
-  const truncatedAuthors = data.authors
-    .map((author) => author.name)
-    .join(", ");
+  const truncatedAuthors = data.authors.map((author) => author.name).join(", ");
   const truncatedAuthorsText =
     truncatedAuthors.length > 10
       ? truncatedAuthors.substring(0, 10) + "..."
@@ -41,7 +39,9 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
 
   const summaryText = data.summaries?.[0] || "ไม่มีเรื่องย่อ";
   const truncatedSummary =
-    summaryText.length > 10 ? summaryText.substring(0, 10) + "..." : summaryText;
+    summaryText.length > 10
+      ? summaryText.substring(0, 10) + "..."
+      : summaryText;
 
   return (
     <Card>
@@ -52,14 +52,10 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
             alt={data.title}
           />
         </Images>
-        <Title>
-          <strong>ชื่อ:</strong> {truncatedTitle}
-        </Title>
+        <Title>{truncatedTitle}</Title>
+        <AuthorTitle>{truncatedAuthorsText || "ไม่ทราบ"}</AuthorTitle>
         <Paragraph>
-          <strong>ผู้เขียน:</strong> {truncatedAuthorsText || "ไม่ทราบ"}
-        </Paragraph>
-        <Paragraph>
-          <strong>ภาษา:</strong> {data.languages?.join(", ") || "ไม่ระบุ"}
+          <strong>languages:</strong> {data.languages?.join(", ") || "ไม่ระบุ"}
         </Paragraph>
         <Paragraph>
           <strong>เรื่องย่อ:</strong> {truncatedSummary}
@@ -72,7 +68,7 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
 
 const Card = styled.div`
   border: 1px solid var(--FONT_BLACK);
-  padding: 20px;
+  // padding: 20px;
   background-color: var(--FONT_WHITE);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
@@ -80,6 +76,7 @@ const Card = styled.div`
   justify-content: center;
   align-items: center;
   gap: 20px;
+  font-weight: bold;
 `;
 
 const CoverImage = styled.img`
@@ -88,6 +85,7 @@ const CoverImage = styled.img`
   object-fit: cover;
   border-radius: 5px;
   border: 1px solid var(--FONT_BLACK);
+  box-shadow: 0 2px 4px rgba(0, 0.5, 0.5, 0.5);
 `;
 
 const Images = styled.div`
@@ -104,17 +102,24 @@ const Content = styled.div`
 
 const Title = styled.h3`
   font-size: 1.6em;
-  margin-bottom: 10px;
-  color: #333;
+  color: var(--FONT_BLACK);
   padding-top: 20px;
 `;
 
 const Paragraph = styled.p`
   font-size: 1em;
-  margin-bottom: 8px;
-  color: #555;
+  color: var(--FONT_BROWN);
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const AuthorTitle = styled.p`
+  font-size: 1.6em;
+  margin-bottom: 1px;
+  color: var(--FONT_GRAY);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-bottom: 20px;
 `;
 
 export default BookCard;
