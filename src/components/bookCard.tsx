@@ -14,6 +14,7 @@ interface Book {
   languages: string[];
   subjects: string[];
   download_count: number;
+  summaries: string[];
   coverImage?: string;
   formats: {
     "text/plain"?: string;
@@ -27,16 +28,20 @@ interface BookCardProps {
 }
 
 const BookCard: React.FC<BookCardProps> = ({ data }) => {
-
-  const truncatedTitle = data.title.length > 10 ? data.title.substring(0,10) + "..." : data.title;
-
+  const truncatedTitle =
+    data.title.length > 10 ? data.title.substring(0, 10) + "..." : data.title;
 
   const truncatedAuthors = data.authors
     .map((author) => author.name)
     .join(", ");
-  const truncatedAuthorsText = truncatedAuthors.length > 10
-    ? truncatedAuthors.substring(0, 10) + "..."
-    : truncatedAuthors;
+  const truncatedAuthorsText =
+    truncatedAuthors.length > 10
+      ? truncatedAuthors.substring(0, 10) + "..."
+      : truncatedAuthors;
+
+  const summaryText = data.summaries?.[0] || "ไม่มีเรื่องย่อ";
+  const truncatedSummary =
+    summaryText.length > 10 ? summaryText.substring(0, 10) + "..." : summaryText;
 
   return (
     <Card>
@@ -51,13 +56,14 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
           <strong>ชื่อ:</strong> {truncatedTitle}
         </Title>
         <Paragraph>
-          <strong>ผู้เขียน:</strong>
-          {truncatedAuthorsText || "ไม่ทราบ"}
+          <strong>ผู้เขียน:</strong> {truncatedAuthorsText || "ไม่ทราบ"}
         </Paragraph>
         <Paragraph>
           <strong>ภาษา:</strong> {data.languages?.join(", ") || "ไม่ระบุ"}
         </Paragraph>
-
+        <Paragraph>
+          <strong>เรื่องย่อ:</strong> {truncatedSummary}
+        </Paragraph>
         <BookmarkButton id={data.id} book_id={data.id} />
       </Content>
     </Card>
@@ -74,7 +80,6 @@ const Card = styled.div`
   justify-content: center;
   align-items: center;
   gap: 20px;
-
 `;
 
 const CoverImage = styled.img`

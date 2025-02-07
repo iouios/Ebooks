@@ -11,6 +11,7 @@ interface Book {
   languages: string[];
   subjects: string[];
   download_count: number;
+  summaries: string[];
   formats: {
     'text/plain'?: string;
     'application/epub+zip'?: string;
