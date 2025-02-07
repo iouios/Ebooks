@@ -106,13 +106,15 @@ const Buttombookmark = styled.div`
 const Textcolor = styled.div`
   color: var(--FONT_WHITE);
   text-align: left;
+  padding-right: 20px;
 `;
 const Textcolors = styled.div`
   text-align: left;
+  padding-right: 20px;
 `;
 
 const Icon = styled.div`
-  padding-right: 40px;
+  padding-right: 60px;
   padding-left: 20px;
 `;
 

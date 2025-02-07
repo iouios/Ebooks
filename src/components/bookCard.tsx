@@ -29,38 +29,41 @@ interface BookCardProps {
 
 const BookCard: React.FC<BookCardProps> = ({ data }) => {
   const truncatedTitle =
-    data.title.length > 10 ? data.title.substring(0, 10) + "..." : data.title;
+    data.title.length > 10 ? data.title.substring(0, 20) + "..." : data.title;
 
   const truncatedAuthors = data.authors.map((author) => author.name).join(", ");
   const truncatedAuthorsText =
-    truncatedAuthors.length > 10
-      ? truncatedAuthors.substring(0, 10) + "..."
+    truncatedAuthors.length > 20
+      ? truncatedAuthors.substring(0, 20) + "..."
       : truncatedAuthors;
 
   const summaryText = data.summaries?.[0] || "ไม่มีเรื่องย่อ";
   const truncatedSummary =
     summaryText.length > 10
-      ? summaryText.substring(0, 10) + "..."
+      ? summaryText.substring(0, 20) + "..."
       : summaryText;
 
   return (
     <Card>
+      <Images>
+        <CoverImage
+          src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
+          alt={data.title}
+        />
+      </Images>
       <Content>
-        <Images>
-          <CoverImage
-            src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
-            alt={data.title}
-          />
-        </Images>
-        <Title>{truncatedTitle}</Title>
-        <AuthorTitle>{truncatedAuthorsText || "ไม่ทราบ"}</AuthorTitle>
-        <Paragraph>
-          <strong>languages:</strong> {data.languages?.join(", ") || "ไม่ระบุ"}
-        </Paragraph>
-        <Paragraph>
-          <strong>เรื่องย่อ:</strong> {truncatedSummary}
-        </Paragraph>
-        <BookmarkButton id={data.id} book_id={data.id} />
+        <SetTitle>
+          <Title>{truncatedTitle}</Title>
+          <AuthorTitle>{truncatedAuthorsText || "ไม่ทราบ"}</AuthorTitle>
+          <Paragraph>
+            <strong>languages:</strong>{" "}
+            {data.languages?.join(", ") || "ไม่ระบุ"}
+          </Paragraph>
+          <Paragraph>{truncatedSummary}</Paragraph>
+        </SetTitle>
+        <SetBookmark>
+          <BookmarkButton id={data.id} book_id={data.id} />
+        </SetBookmark>
       </Content>
     </Card>
   );
@@ -72,7 +75,7 @@ const Card = styled.div`
   background-color: var(--FONT_WHITE);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
-  display: flex;
+
   justify-content: center;
   align-items: center;
   gap: 20px;
@@ -86,6 +89,7 @@ const CoverImage = styled.img`
   border-radius: 5px;
   border: 1px solid var(--FONT_BLACK);
   box-shadow: 0 2px 4px rgba(0, 0.5, 0.5, 0.5);
+  margin-top: 50px;
 `;
 
 const Images = styled.div`
@@ -120,6 +124,20 @@ const AuthorTitle = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   padding-bottom: 20px;
+`;
+
+const SetTitle = styled.div`
+  justify-content: center;
+  align-items: center;
+  text-align: start;
+  margin-left: 20px;
+`;
+
+const SetBookmark = styled.div`
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
 `;
 
 export default BookCard;
