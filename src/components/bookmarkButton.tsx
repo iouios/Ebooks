@@ -105,18 +105,20 @@ const Buttombookmark = styled.div`
 
 const Textcolor = styled.div`
   color: var(--FONT_WHITE);
-  text-align: left;
-  padding-right: 20px;
+  align-items: center;
+   padding-right: 70px;
+  padding-left: 20px;
 `;
 const Textcolors = styled.div`
-  text-align: left;
-  padding-right: 20px;
-`;
-
-const Icon = styled.div`
-  padding-right: 60px;
+  align-items: center;
+  padding-right: 70px;
   padding-left: 20px;
 `;
 
+const Icon = styled.div`
+  align-items: center;
+padding-left: 15px;
+padding-right: 20px;
+`;
 
 export default BookmarkButton;

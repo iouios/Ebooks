@@ -105,7 +105,7 @@ const Content = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 1.6em;
+  font-size: 20px;
   color: var(--FONT_BLACK);
   padding-top: 20px;
 `;
@@ -118,7 +118,7 @@ const Paragraph = styled.p`
 `;
 
 const AuthorTitle = styled.p`
-  font-size: 1.6em;
+  font-size: 16px;
   margin-bottom: 1px;
   color: var(--FONT_GRAY);
   overflow: hidden;
