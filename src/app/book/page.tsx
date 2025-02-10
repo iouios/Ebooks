@@ -14,11 +14,11 @@ const BookList: React.FC = () => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!firstLoad) {
+    if (!firstLoad && !loading) {
       dispatch(fetchBooks(null));
       setFirstLoad(true);
     }
-  }, [dispatch, firstLoad]);
+  }, [dispatch, firstLoad, loading]);
 
   useEffect(() => {
     if (!next || !loadMoreRef.current) return;
@@ -26,16 +26,19 @@ const BookList: React.FC = () => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          dispatch(fetchBooks(next)); // โหลดข้อมูลเมื่อถึงขอบล่างสุด
+          dispatch(fetchBooks(next));
         }
       },
-      { threshold: 1.0 } 
+      { threshold: 1.0 }
     );
 
     observerRef.current.observe(loadMoreRef.current);
 
     return () => {
-      if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null; // Cleaning up the observer reference
+      }
     };
   }, [dispatch, next]);
 
@@ -54,15 +57,15 @@ const BookList: React.FC = () => {
         </GridContainer>
       )}
 
-
-      {next && <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>}
+      {next && !loading && <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>}
     </Container>
   );
 };
 
-
 const Container = styled.div`
   padding: 20px;
+  width: 100%;
+  height: 100%;
 `;
 
 const GridContainer = styled.div`
@@ -70,7 +73,10 @@ const GridContainer = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 10px;
-    @media (max-width: 500px) {
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 500px) {
     grid-template-columns: repeat(2, 1fr);
   }
 `;

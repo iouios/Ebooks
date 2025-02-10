@@ -2,80 +2,75 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+
 interface BookmarkButtonProps {
-  id: number;
-  book_id: number;
+  id: number; 
+  book_id: number; 
 }
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
+
   useEffect(() => {
     const bookmarks = localStorage.getItem("bookmarks");
     if (bookmarks) {
       const parsedBookmarks = JSON.parse(bookmarks);
-      if (
-        parsedBookmarks[id] &&
-        parsedBookmarks[id].book_id.includes(book_id)
-      ) {
+     
+      const userBookmark = parsedBookmarks.find((bookmark: { id: number }) => bookmark.id === id);
+      if (userBookmark && userBookmark.book_id.includes(book_id)) {
         setIsBookmarked(true);
       }
     }
-  }, [id, book_id]);
+  }, [book_id, id]);
 
+  
   const handleBookmark = () => {
     const bookmarks = localStorage.getItem("bookmarks");
-    let parsedBookmarks: Record<number, { book_id: number[] }> = {};
+    let parsedBookmarks: { id: number; book_id: number[] }[] = [];
 
     if (bookmarks) {
-      parsedBookmarks = JSON.parse(bookmarks);
+      parsedBookmarks = JSON.parse(bookmarks); 
     }
 
-    if (!parsedBookmarks[id]) {
-      parsedBookmarks[id] = { book_id: [book_id] };
+    
+    const userBookmarkIndex = parsedBookmarks.findIndex((bookmark) => bookmark.id === id);
+
+    if (userBookmarkIndex === -1) {
+      
+      parsedBookmarks.push({ id, book_id: [book_id] });
     } else {
-      const index = parsedBookmarks[id].book_id.indexOf(book_id);
-      if (index === -1) {
-        parsedBookmarks[id].book_id.push(book_id);
+     
+      const userBookmark = parsedBookmarks[userBookmarkIndex];
+
+      if (!userBookmark.book_id.includes(book_id)) {
+        userBookmark.book_id.push(book_id); 
       } else {
-        parsedBookmarks[id].book_id.splice(index, 1);
+        userBookmark.book_id = userBookmark.book_id.filter((id) => id !== book_id); // ลบ book_id
       }
     }
 
+    
     localStorage.setItem("bookmarks", JSON.stringify(parsedBookmarks));
-    setIsBookmarked(!isBookmarked);
+    setIsBookmarked(!isBookmarked); 
   };
 
   return (
     <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarked}>
       {isBookmarked ? (
-        <>
-          <Buttombookmarkopen>
-            <Icon>
-              <Image
-                src="/images/Bookmarkicon.png"
-                alt="Profile"
-                width={20}
-                height={20}
-              />
-            </Icon>
-            <Textcolor>Bookmark</Textcolor>
-          </Buttombookmarkopen>
-        </>
+        <Buttombookmarkopen>
+          <Icon>
+            <Image src="/images/Bookmarkicon.png" alt="Profile" width={20} height={20} />
+          </Icon>
+          <Textcolor>Bookmarked</Textcolor>
+        </Buttombookmarkopen>
       ) : (
-        <>
-          <Buttombookmark>
-            <Icon>
-              <Image
-                src="/images/Bookmark.png"
-                alt="Profile"
-                width={20}
-                height={20}
-              />
-            </Icon>
-            <Textcolors>Bookmark</Textcolors>
-          </Buttombookmark>
-        </>
+        <Buttombookmark>
+          <Icon>
+            <Image src="/images/Bookmark.png" alt="Profile" width={20} height={20} />
+          </Icon>
+          <Textcolors>Bookmark</Textcolors>
+        </Buttombookmark>
       )}
     </ButtonContainer>
   );
@@ -106,9 +101,10 @@ const Buttombookmark = styled.div`
 const Textcolor = styled.div`
   color: var(--FONT_WHITE);
   align-items: center;
-   padding-right: 70px;
+  padding-right: 70px;
   padding-left: 20px;
 `;
+
 const Textcolors = styled.div`
   align-items: center;
   padding-right: 70px;
@@ -117,8 +113,8 @@ const Textcolors = styled.div`
 
 const Icon = styled.div`
   align-items: center;
-padding-left: 15px;
-padding-right: 20px;
+  padding-left: 15px;
+  padding-right: 20px;
 `;
 
 export default BookmarkButton;

@@ -16,7 +16,7 @@ const Footer = () => {
 };
 
 const FooterContainer = styled.div`
-  position: relative; /* เพิ่ม position relative */
+  position: relative; 
   @media (max-width: 500px) {
     display: none;
   }
@@ -31,10 +31,10 @@ const Footers = styled.footer`
   padding: 12px 20px;
   height: 150px;
   width: 100%;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  z-index: 1000; /* เพิ่ม z-index เพื่อให้ Footer อยู่ด้านบน */
+  // position: fixed;
+  // bottom: 0;
+  // left: 0;
+  // z-index: 1000; /* เพิ่ม z-index เพื่อให้ Footer อยู่ด้านบน */
   
   &::before {
     content: "";
