@@ -66,8 +66,6 @@ export const fetchBooks = createAsyncThunk(
 
 );
 
-
-
 const bookSlice = createSlice({
   name: 'books',
   initialState,

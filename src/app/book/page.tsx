@@ -18,9 +18,21 @@ const BookList: React.FC = () => {
   useEffect(() => {
     const storedBookmarks = localStorage.getItem("bookmarks");
     if (storedBookmarks) {
-      const parsedBookmarks = JSON.parse(storedBookmarks);
-      const bookmarks = parsedBookmarks.flatMap((bookmark: { book_id: number[] }) => bookmark.book_id);
-      setBookmarkList(bookmarks);
+      try {
+        const parsedBookmarks = JSON.parse(storedBookmarks);
+
+        // ตรวจสอบว่าเป็นอาร์เรย์หรือไม่
+        if (Array.isArray(parsedBookmarks)) {
+          const bookmarks = parsedBookmarks.flatMap((bookmark: { book_id: number }) => bookmark.book_id);
+          setBookmarkList(bookmarks);
+        } else {
+          console.warn("Bookmarks data is not an array, resetting to []:", parsedBookmarks);
+          setBookmarkList([]); // ถ้าไม่ใช่อาร์เรย์ รีเซ็ตเป็น []
+        }
+      } catch (error) {
+        console.error("Error parsing bookmarks:", error);
+        setBookmarkList([]); // ถ้ามี error รีเซ็ตเป็น []
+      }
     }
   }, []);
 
@@ -40,7 +52,7 @@ const BookList: React.FC = () => {
           dispatch(fetchBooks(next));
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.5 }
     );
 
     observerRef.current.observe(loadMoreRef.current);
@@ -52,6 +64,11 @@ const BookList: React.FC = () => {
       }
     };
   }, [dispatch, next]);
+
+  console.log("Redux Books State:", books);
+console.log("Loading State:", loading);
+console.log("Next Page:", next);
+
 
   return (
     <Container>
