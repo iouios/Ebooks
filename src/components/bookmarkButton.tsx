@@ -6,16 +6,15 @@ interface BookmarkButtonProps {
   id: number;
   book_id: number;
   setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
-  isBookmarked: boolean; 
+  isBookmarked: boolean;
 }
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   id,
   book_id,
   setBookmarkList,
-  isBookmarked, 
+  isBookmarked,
 }) => {
-
   const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
 
   useEffect(() => {
@@ -32,21 +31,27 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
 
   const handleBookmark = () => {
     const storedBookmarks = localStorage.getItem("bookmarks");
+
     const updatedBookmarks: { id: number; book_id: number[] }[] =
       storedBookmarks ? JSON.parse(storedBookmarks) : [];
-  
-    const existingIndex = updatedBookmarks.findIndex((item) => item.id === id);
-  
-    if (existingIndex !== -1) {
- 
-      if (updatedBookmarks[existingIndex].book_id.includes(book_id)) {
-        updatedBookmarks[existingIndex].book_id = updatedBookmarks[existingIndex].book_id.filter((book) => book !== book_id); 
+
+    const bookmarkIndex = updatedBookmarks.findIndex(
+      (bookmark) => bookmark.id === id
+    );
+
+    if (bookmarkIndex !== -1) {
+      const currentBookmark = updatedBookmarks[bookmarkIndex];
+
+      if (currentBookmark.book_id.includes(book_id)) {
+        currentBookmark.book_id = currentBookmark.book_id.filter(
+          (book) => book !== book_id
+        );
       } else {
-        updatedBookmarks[existingIndex].book_id.push(book_id); 
+        currentBookmark.book_id.push(book_id);
       }
-  
-      if (updatedBookmarks[existingIndex].book_id.length === 0) {
-        updatedBookmarks.splice(existingIndex, 1); 
+
+      if (currentBookmark.book_id.length === 0) {
+        updatedBookmarks.splice(bookmarkIndex, 1);
       }
     } else {
       updatedBookmarks.push({
@@ -54,13 +59,17 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         book_id: [book_id],
       });
     }
-  
-    localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
-  
-    const bookmarkIds = updatedBookmarks.map((item) => item.book_id).flat();
-    setBookmarkList(bookmarkIds);
 
-    const isBookmarkedNow = bookmarkIds.includes(book_id);
+    localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+
+    const allBookIds = updatedBookmarks
+      .map((bookmark) => bookmark.book_id)
+      .flat();
+
+    setBookmarkList(allBookIds);
+
+    const isBookmarkedNow = allBookIds.includes(book_id);
+
     setIsBookmarkedState(isBookmarkedNow);
   };
 
