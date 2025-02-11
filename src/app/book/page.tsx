@@ -13,6 +13,17 @@ const BookList: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
+  const [bookmarkList, setBookmarkList] = useState<number[]>([]);
+
+  useEffect(() => {
+    const storedBookmarks = localStorage.getItem("bookmarks");
+    if (storedBookmarks) {
+      const parsedBookmarks = JSON.parse(storedBookmarks);
+      const bookmarks = parsedBookmarks.flatMap((bookmark: { book_id: number[] }) => bookmark.book_id);
+      setBookmarkList(bookmarks);
+    }
+  }, []);
+
   useEffect(() => {
     if (!firstLoad && !loading) {
       dispatch(fetchBooks(null));
@@ -37,7 +48,7 @@ const BookList: React.FC = () => {
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
-        observerRef.current = null; // Cleaning up the observer reference
+        observerRef.current = null;
       }
     };
   }, [dispatch, next]);
@@ -51,12 +62,12 @@ const BookList: React.FC = () => {
         <GridContainer>
           {books.map((book, index) => (
             <div key={`${book.id}-${index}`}>
-              <BookCard data={book} />
+              <BookCard data={book} bookmarkList={bookmarkList} />
             </div>
           ))}
         </GridContainer>
       )}
-
+      {loading && <LoadMoreRef>กำลังโหลด...</LoadMoreRef>}
       {next && !loading && <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>}
     </Container>
   );

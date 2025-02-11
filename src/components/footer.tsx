@@ -31,10 +31,7 @@ const Footers = styled.footer`
   padding: 12px 20px;
   height: 150px;
   width: 100%;
-  // position: fixed;
-  // bottom: 0;
-  // left: 0;
-  // z-index: 1000; /* เพิ่ม z-index เพื่อให้ Footer อยู่ด้านบน */
+
   
   &::before {
     content: "";

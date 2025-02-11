@@ -5,26 +5,17 @@ import Image from "next/image";
 
 interface BookmarkButtonProps {
   id: number; 
-  book_id: number; 
+  book_id: number;
+  bookmarkList: number[]; 
 }
 
-const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id }) => {
+const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id, bookmarkList }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-
   useEffect(() => {
-    const bookmarks = localStorage.getItem("bookmarks");
-    if (bookmarks) {
-      const parsedBookmarks = JSON.parse(bookmarks);
-     
-      const userBookmark = parsedBookmarks.find((bookmark: { id: number }) => bookmark.id === id);
-      if (userBookmark && userBookmark.book_id.includes(book_id)) {
-        setIsBookmarked(true);
-      }
-    }
-  }, [book_id, id]);
+    setIsBookmarked(bookmarkList.includes(book_id)); // ใช้ bookmarkList ตรวจสอบสถานะ
+  }, [bookmarkList, book_id]);
 
-  
   const handleBookmark = () => {
     const bookmarks = localStorage.getItem("bookmarks");
     let parsedBookmarks: { id: number; book_id: number[] }[] = [];
@@ -33,26 +24,22 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id }) => {
       parsedBookmarks = JSON.parse(bookmarks); 
     }
 
-    
     const userBookmarkIndex = parsedBookmarks.findIndex((bookmark) => bookmark.id === id);
 
     if (userBookmarkIndex === -1) {
-      
       parsedBookmarks.push({ id, book_id: [book_id] });
     } else {
-     
       const userBookmark = parsedBookmarks[userBookmarkIndex];
 
       if (!userBookmark.book_id.includes(book_id)) {
-        userBookmark.book_id.push(book_id); 
+        userBookmark.book_id.push(book_id);
       } else {
-        userBookmark.book_id = userBookmark.book_id.filter((id) => id !== book_id); // ลบ book_id
+        userBookmark.book_id = userBookmark.book_id.filter((id) => id !== book_id);
       }
     }
 
-    
     localStorage.setItem("bookmarks", JSON.stringify(parsedBookmarks));
-    setIsBookmarked(!isBookmarked); 
+    setIsBookmarked(!isBookmarked);
   };
 
   return (
@@ -62,7 +49,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id }) => {
           <Icon>
             <Image src="/images/Bookmarkicon.png" alt="Profile" width={20} height={20} />
           </Icon>
-          <Textcolor>Bookmarked</Textcolor>
+          <Textcolor>Bookmark</Textcolor>
         </Buttombookmarkopen>
       ) : (
         <Buttombookmark>

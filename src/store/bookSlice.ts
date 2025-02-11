@@ -35,16 +35,38 @@ const initialState: BookState = {
 
 export const fetchBooks = createAsyncThunk(
   'books/fetchBooks',
-  async (nextUrl: string | null = null) => {
-    const url = nextUrl || 'https://gutendex.com/books'; 
-    const response = await fetch(url);
-    const data = await response.json();
-    return {
-      results: data.results, 
-      next: data.next 
-    };
+  async (nextUrl: string | null = null, { rejectWithValue }) => {
+    try {
+      const url = nextUrl || 'https://gutendex.com/books';
+      const response = await fetch(url);
+
+      // ตรวจสอบสถานะ HTTP ก่อน
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      // ตรวจสอบว่า `results` และ `next` อยู่ใน `data`
+      if (!data.results || !data.next) {
+        throw new Error("Invalid API response structure");
+      }
+
+      return {
+        results: data.results,
+        next: data.next,
+      };
+    } catch (error) {
+      console.error("Fetch error:", error);
+      return rejectWithValue("error"); // ส่งข้อผิดพลาดกลับไป
+    }
+    
   }
+
 );
+
+
 
 const bookSlice = createSlice({
   name: 'books',
@@ -58,16 +80,12 @@ const bookSlice = createSlice({
       })
       .addCase(fetchBooks.fulfilled, (state, action) => {
         state.loading = false;
-
-        console.log(action.payload);
-
         if (Array.isArray(action.payload.results)) {
-          state.books = [...state.books, ...action.payload.results]; 
+          state.books = [...state.books, ...action.payload.results];
         }
-        
-
-        state.next = action.payload.next || null;
+        state.next = action.payload.next || null; 
       })
+      
       .addCase(fetchBooks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'เกิดข้อผิดพลาด';

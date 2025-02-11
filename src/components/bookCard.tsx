@@ -25,9 +25,10 @@ interface Book {
 
 interface BookCardProps {
   data: Book;
+  bookmarkList: number[]; // รับ bookmarkList มาเป็น props
 }
 
-const BookCard: React.FC<BookCardProps> = ({ data }) => {
+const BookCard: React.FC<BookCardProps> = ({ data, bookmarkList }) => {
   const truncatedTitle =
     data.title.length > 10 ? data.title.substring(0, 20) + "..." : data.title;
 
@@ -62,7 +63,7 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
           <Paragraph>{truncatedSummary}</Paragraph>
         </SetTitle>
         <SetBookmark>
-          <BookmarkButton id={data.id} book_id={data.id} />
+          <BookmarkButton id={data.id} book_id={data.id} bookmarkList={bookmarkList} />
         </SetBookmark>
       </Content>
     </Card>
@@ -71,11 +72,9 @@ const BookCard: React.FC<BookCardProps> = ({ data }) => {
 
 const Card = styled.div`
   border: 1px solid var(--FONT_BLACK);
-  // padding: 20px;
   background-color: var(--FONT_WHITE);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
-
   justify-content: center;
   align-items: center;
   gap: 20px;
