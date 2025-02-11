@@ -21,17 +21,16 @@ const BookList: React.FC = () => {
       try {
         const parsedBookmarks = JSON.parse(storedBookmarks);
 
-        // ตรวจสอบว่าเป็นอาร์เรย์หรือไม่
         if (Array.isArray(parsedBookmarks)) {
           const bookmarks = parsedBookmarks.flatMap((bookmark: { book_id: number }) => bookmark.book_id);
           setBookmarkList(bookmarks);
         } else {
           console.warn("Bookmarks data is not an array, resetting to []:", parsedBookmarks);
-          setBookmarkList([]); // ถ้าไม่ใช่อาร์เรย์ รีเซ็ตเป็น []
+          setBookmarkList([]); 
         }
       } catch (error) {
         console.error("Error parsing bookmarks:", error);
-        setBookmarkList([]); // ถ้ามี error รีเซ็ตเป็น []
+        setBookmarkList([]); 
       }
     }
   }, []);
