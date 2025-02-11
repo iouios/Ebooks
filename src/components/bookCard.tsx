@@ -25,24 +25,16 @@ interface Book {
 
 interface BookCardProps {
   data: Book;
-  bookmarkList: number[]; // รับ bookmarkList มาเป็น props
+  bookmarkList: number[];
+  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
-const BookCard: React.FC<BookCardProps> = ({ data, bookmarkList }) => {
-  const truncatedTitle =
-    data.title.length > 10 ? data.title.substring(0, 20) + "..." : data.title;
-
-  const truncatedAuthors = data.authors.map((author) => author.name).join(", ");
-  const truncatedAuthorsText =
-    truncatedAuthors.length > 20
-      ? truncatedAuthors.substring(0, 20) + "..."
-      : truncatedAuthors;
-
-  const summaryText = data.summaries?.[0] || "ไม่มีเรื่องย่อ";
-  const truncatedSummary =
-    summaryText.length > 10
-      ? summaryText.substring(0, 20) + "..."
-      : summaryText;
+const BookCard: React.FC<BookCardProps> = ({
+  data,
+  bookmarkList,
+  setBookmarkList,
+}) => {
+  const isBookmarked = bookmarkList.includes(data.id);
 
   return (
     <Card>
@@ -54,16 +46,32 @@ const BookCard: React.FC<BookCardProps> = ({ data, bookmarkList }) => {
       </Images>
       <Content>
         <SetTitle>
-          <Title>{truncatedTitle}</Title>
-          <AuthorTitle>{truncatedAuthorsText || "ไม่ทราบ"}</AuthorTitle>
+          <Title>
+            {data.title.length > 20
+              ? data.title.substring(0, 20) + "..."
+              : data.title}
+          </Title>
+          <AuthorTitle>
+            {data.authors
+              .map((author) => author.name)
+              .join(", ")
+              .substring(0, 20) + "..."}
+          </AuthorTitle>
           <Paragraph>
-            <strong>languages:</strong>{" "}
+            <strong>Languages:</strong>{" "}
             {data.languages?.join(", ") || "ไม่ระบุ"}
           </Paragraph>
-          <Paragraph>{truncatedSummary}</Paragraph>
+          <Paragraph>
+            {data.summaries?.[0]?.substring(0, 20) + "..." || "ไม่มีเรื่องย่อ"}
+          </Paragraph>
         </SetTitle>
         <SetBookmark>
-          <BookmarkButton id={data.id} book_id={data.id} bookmarkList={bookmarkList} />
+          <BookmarkButton
+            id={data.id}
+            book_id={data.id}
+            isBookmarked={isBookmarked}  
+            setBookmarkList={setBookmarkList}
+          />
         </SetBookmark>
       </Content>
     </Card>

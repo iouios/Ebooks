@@ -1,60 +1,92 @@
-"use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 
 interface BookmarkButtonProps {
-  id: number; 
+  id: number;
   book_id: number;
-  bookmarkList: number[]; 
+  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
+  isBookmarked: boolean; 
 }
 
-const BookmarkButton: React.FC<BookmarkButtonProps> = ({ id, book_id, bookmarkList }) => {
-  const [isBookmarked, setIsBookmarked] = useState(false);
+const BookmarkButton: React.FC<BookmarkButtonProps> = ({
+  id,
+  book_id,
+  setBookmarkList,
+  isBookmarked, 
+}) => {
+
+  const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
 
   useEffect(() => {
-    setIsBookmarked(bookmarkList.includes(book_id)); // ใช้ bookmarkList ตรวจสอบสถานะ
-  }, [bookmarkList, book_id]);
+    const storedBookmarks = localStorage.getItem("bookmarks");
+    const updatedBookmarks: { id: number; book_id: number[] }[] =
+      storedBookmarks ? JSON.parse(storedBookmarks) : [];
+
+    const bookmarkIds = updatedBookmarks.map((item) => item.book_id).flat();
+    setBookmarkList(bookmarkIds);
+
+    const isBookmarkedNow = bookmarkIds.includes(book_id);
+    setIsBookmarkedState(isBookmarkedNow);
+  }, [book_id, setBookmarkList]);
 
   const handleBookmark = () => {
-    const bookmarks = localStorage.getItem("bookmarks");
-    let parsedBookmarks: { id: number; book_id: number[] }[] = [];
-
-    if (bookmarks) {
-      parsedBookmarks = JSON.parse(bookmarks); 
-    }
-
-    const userBookmarkIndex = parsedBookmarks.findIndex((bookmark) => bookmark.id === id);
-
-    if (userBookmarkIndex === -1) {
-      parsedBookmarks.push({ id, book_id: [book_id] });
-    } else {
-      const userBookmark = parsedBookmarks[userBookmarkIndex];
-
-      if (!userBookmark.book_id.includes(book_id)) {
-        userBookmark.book_id.push(book_id);
+    const storedBookmarks = localStorage.getItem("bookmarks");
+    const updatedBookmarks: { id: number; book_id: number[] }[] =
+      storedBookmarks ? JSON.parse(storedBookmarks) : [];
+  
+    const existingIndex = updatedBookmarks.findIndex((item) => item.id === id);
+  
+    if (existingIndex !== -1) {
+ 
+      if (updatedBookmarks[existingIndex].book_id.includes(book_id)) {
+        updatedBookmarks[existingIndex].book_id = updatedBookmarks[existingIndex].book_id.filter((book) => book !== book_id); 
       } else {
-        userBookmark.book_id = userBookmark.book_id.filter((id) => id !== book_id);
+        updatedBookmarks[existingIndex].book_id.push(book_id); 
       }
+  
+      if (updatedBookmarks[existingIndex].book_id.length === 0) {
+        updatedBookmarks.splice(existingIndex, 1); 
+      }
+    } else {
+      updatedBookmarks.push({
+        id: id,
+        book_id: [book_id],
+      });
     }
+  
+    localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
+  
+    const bookmarkIds = updatedBookmarks.map((item) => item.book_id).flat();
+    setBookmarkList(bookmarkIds);
 
-    localStorage.setItem("bookmarks", JSON.stringify(parsedBookmarks));
-    setIsBookmarked(!isBookmarked);
+    const isBookmarkedNow = bookmarkIds.includes(book_id);
+    setIsBookmarkedState(isBookmarkedNow);
   };
 
   return (
-    <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarked}>
-      {isBookmarked ? (
+    <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarkedState}>
+      {isBookmarkedState ? (
         <Buttombookmarkopen>
           <Icon>
-            <Image src="/images/Bookmarkicon.png" alt="Profile" width={20} height={20} />
+            <Image
+              src="/images/Bookmarkicon.png"
+              alt="Bookmarked"
+              width={20}
+              height={20}
+            />
           </Icon>
           <Textcolor>Bookmark</Textcolor>
         </Buttombookmarkopen>
       ) : (
         <Buttombookmark>
           <Icon>
-            <Image src="/images/Bookmark.png" alt="Profile" width={20} height={20} />
+            <Image
+              src="/images/Bookmark.png"
+              alt="Bookmark"
+              width={20}
+              height={20}
+            />
           </Icon>
           <Textcolors>Bookmark</Textcolors>
         </Buttombookmark>

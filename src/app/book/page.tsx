@@ -8,7 +8,9 @@ import styled from "styled-components";
 
 const BookList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { books, loading, next } = useSelector((state: RootState) => state.books);
+  const { books, loading, next } = useSelector(
+    (state: RootState) => state.books
+  );
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -16,22 +18,9 @@ const BookList: React.FC = () => {
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
 
   useEffect(() => {
-    const storedBookmarks = localStorage.getItem("bookmarks");
-    if (storedBookmarks) {
-      try {
-        const parsedBookmarks = JSON.parse(storedBookmarks);
-
-        if (Array.isArray(parsedBookmarks)) {
-          const bookmarks = parsedBookmarks.flatMap((bookmark: { book_id: number }) => bookmark.book_id);
-          setBookmarkList(bookmarks);
-        } else {
-          console.warn("Bookmarks data is not an array, resetting to []:", parsedBookmarks);
-          setBookmarkList([]); 
-        }
-      } catch (error) {
-        console.error("Error parsing bookmarks:", error);
-        setBookmarkList([]); 
-      }
+    const bookmarks = localStorage.getItem("bookmarkList");
+    if (bookmarks) {
+      setBookmarkList(JSON.parse(bookmarks));
     }
   }, []);
 
@@ -64,10 +53,7 @@ const BookList: React.FC = () => {
     };
   }, [dispatch, next]);
 
-  console.log("Redux Books State:", books);
-console.log("Loading State:", loading);
-console.log("Next Page:", next);
-
+  console.log("Bookmark List:", bookmarkList);
 
   return (
     <Container>
@@ -77,14 +63,19 @@ console.log("Next Page:", next);
       ) : (
         <GridContainer>
           {books.map((book, index) => (
-            <div key={`${book.id}-${index}`}>
-              <BookCard data={book} bookmarkList={bookmarkList} />
-            </div>
+            <BookCard
+              key={`${book.id}-${index}`} 
+              data={book}
+              bookmarkList={bookmarkList}
+              setBookmarkList={setBookmarkList}
+            />
           ))}
         </GridContainer>
       )}
       {loading && <LoadMoreRef>กำลังโหลด...</LoadMoreRef>}
-      {next && !loading && <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>}
+      {next && !loading && (
+        <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>
+      )}
     </Container>
   );
 };
