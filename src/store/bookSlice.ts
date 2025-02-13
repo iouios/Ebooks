@@ -12,6 +12,7 @@ interface Book {
   subjects: string[];
   download_count: number;
   summaries: string[];
+  bookshelves: string[];
   formats: {
     'text/plain'?: string;
     'application/epub+zip'?: string;
@@ -20,7 +21,8 @@ interface Book {
 }
 
 interface BookState {
-  books: Book[];
+  books: Book[];         // To store the list of books
+  book: Book | null;     // To store a single book's data, defaulting to null
   loading: boolean;
   error: string | null;
   next: string | null;
@@ -28,6 +30,7 @@ interface BookState {
 
 const initialState: BookState = {
   books: [],
+  book: null, // Add a property to store a single book's data
   loading: false,
   error: null,
   next: null,
@@ -40,7 +43,6 @@ export const fetchBooks = createAsyncThunk(
       const url = nextUrl || 'https://gutendex.com/books';
       const response = await fetch(url);
 
-      // ตรวจสอบสถานะ HTTP ก่อน
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -48,7 +50,6 @@ export const fetchBooks = createAsyncThunk(
       const data = await response.json();
       console.log("API Response:", data);
 
-      // ตรวจสอบว่า `results` และ `next` อยู่ใน `data`
       if (!data.results || !data.next) {
         throw new Error("Invalid API response structure");
       }
@@ -59,12 +60,38 @@ export const fetchBooks = createAsyncThunk(
       };
     } catch (error) {
       console.error("Fetch error:", error);
-      return rejectWithValue("error"); // ส่งข้อผิดพลาดกลับไป
+      return rejectWithValue("error"); 
     }
-    
   }
-
 );
+
+export const fetchBookById = createAsyncThunk(
+  'books/fetchBookById',
+  async (id: number, { rejectWithValue }) => {
+    try {
+      console.log(`Fetching book with ID: ${id}`);
+      const response = await fetch(`https://gutendex.com/books?ids=${id}`); // ✅ ใช้ query `ids` แทน `/books/:id`
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("API Response:", data); // ✅ ตรวจสอบ response จาก API
+
+      if (!data.results || data.results.length === 0) {
+        throw new Error("No book found with this ID");
+      }
+
+      return data.results[0]; // ✅ คืนค่า book object ตัวเดียว
+    } catch (error) {
+      console.error("Fetch error:", error);
+      return rejectWithValue("Error fetching book data");
+    }
+  }
+);
+
+
 
 const bookSlice = createSlice({
   name: 'books',
@@ -81,14 +108,28 @@ const bookSlice = createSlice({
         if (Array.isArray(action.payload.results)) {
           state.books = [...state.books, ...action.payload.results];
         }
-        state.next = action.payload.next || null; 
+        state.next = action.payload.next || null;
+      })
+      .addCase(fetchBooks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'เกิดข้อผิดพลาด';
       })
       
-      .addCase(fetchBooks.rejected, (state, action) => {
+      // Handle fetchBookById
+      .addCase(fetchBookById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBookById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.book = action.payload;  // Store the single book data
+      })
+      .addCase(fetchBookById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'เกิดข้อผิดพลาด';
       });
   },
 });
+
 
 export default bookSlice.reducer;

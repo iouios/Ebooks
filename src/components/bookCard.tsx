@@ -2,6 +2,8 @@
 import React from "react";
 import styled from "styled-components";
 import BookmarkButton from "./bookmarkButton";
+import Link from "next/link";
+
 
 interface Author {
   name: string;
@@ -39,10 +41,13 @@ const BookCard: React.FC<BookCardProps> = ({
   return (
     <Card>
       <Images>
+      <Link href={`/book/${data.id}`}>
+      {/* <Link href="/about"> */}
         <CoverImage
           src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
           alt={data.title}
         />
+        </Link>
       </Images>
       <Content>
         <SetTitle>
