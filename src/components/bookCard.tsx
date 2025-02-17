@@ -72,7 +72,6 @@ const BookCard: React.FC<BookCardProps> = ({
         </SetTitle>
         <SetBookmark>
           <BookmarkButton
-            id={data.id}
             book_id={data.id}
             isBookmarked={isBookmarked}  
             setBookmarkList={setBookmarkList}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../../store/bookSlice";
 import { RootState, AppDispatch } from "../../store/store";
@@ -14,7 +14,6 @@ const BookList: React.FC = () => {
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
 
   useEffect(() => {
@@ -26,10 +25,16 @@ const BookList: React.FC = () => {
 
   useEffect(() => {
     if (!firstLoad && !loading) {
-      dispatch(fetchBooks(null));
+      dispatch(fetchBooks(null));  // ตรวจสอบว่า `fetchBooks(null)` จำเป็นไหมในกรณีเริ่มต้น
       setFirstLoad(true);
     }
   }, [dispatch, firstLoad, loading]);
+
+  const loadMoreBooks = useCallback(() => {
+    if (next) {
+      dispatch(fetchBooks(next));
+    }
+  }, [dispatch, next]);
 
   useEffect(() => {
     if (!next || !loadMoreRef.current) return;
@@ -37,7 +42,7 @@ const BookList: React.FC = () => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          dispatch(fetchBooks(next));
+          loadMoreBooks();
         }
       },
       { threshold: 0.5 }
@@ -46,12 +51,9 @@ const BookList: React.FC = () => {
     observerRef.current.observe(loadMoreRef.current);
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
+      observerRef.current?.disconnect();
     };
-  }, [dispatch, next]);
+  }, [loadMoreBooks, next]);
 
   console.log("Bookmark List:", bookmarkList);
 
@@ -113,5 +115,6 @@ const LoadMoreRef = styled.div`
   font-size: 18px;
   color: gray;
 `;
+
 
 export default BookList;

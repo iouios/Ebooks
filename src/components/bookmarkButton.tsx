@@ -3,74 +3,57 @@ import styled from "styled-components";
 import Image from "next/image";
 
 interface BookmarkButtonProps {
-  id: number;
   book_id: number;
   setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
   isBookmarked: boolean;
 }
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
-  id,
   book_id,
   setBookmarkList,
   isBookmarked,
 }) => {
   const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
 
-  useEffect(() => {
+  const getBookmarkIds = (): number[] => {
     const storedBookmarks = localStorage.getItem("bookmarks");
-    const updatedBookmarks: { id: number; book_id: number[] }[] =
-      storedBookmarks ? JSON.parse(storedBookmarks) : [];
+    let bookmarkIds: number[] = [];
+    if (storedBookmarks) {
+      const parsedData = JSON.parse(storedBookmarks);
+      if (
+        Array.isArray(parsedData) &&
+        parsedData.length > 0 &&
+        typeof parsedData[0] === "object" &&
+        parsedData[0].book_id
+      ) {
+        bookmarkIds = parsedData.map(
+          (item: { book_id: number[] }) => item.book_id[0]
+        );
+      } else {
+        bookmarkIds = parsedData;
+      }
+    }
+    return bookmarkIds;
+  };
 
-    const bookmarkIds = updatedBookmarks.map((item) => item.book_id).flat();
+  useEffect(() => {
+    const bookmarkIds = getBookmarkIds();
     setBookmarkList(bookmarkIds);
-
-    const isBookmarkedNow = bookmarkIds.includes(book_id);
-    setIsBookmarkedState(isBookmarkedNow);
+    setIsBookmarkedState(bookmarkIds.includes(book_id));
   }, [book_id, setBookmarkList]);
 
   const handleBookmark = () => {
-    const storedBookmarks = localStorage.getItem("bookmarks");
+    let bookmarkIds = getBookmarkIds();
 
-    const updatedBookmarks: { id: number; book_id: number[] }[] =
-      storedBookmarks ? JSON.parse(storedBookmarks) : [];
-
-    const bookmarkIndex = updatedBookmarks.findIndex(
-      (bookmark) => bookmark.id === id
-    );
-
-    if (bookmarkIndex !== -1) {
-      const currentBookmark = updatedBookmarks[bookmarkIndex];
-
-      if (currentBookmark.book_id.includes(book_id)) {
-        currentBookmark.book_id = currentBookmark.book_id.filter(
-          (book) => book !== book_id
-        );
-      } else {
-        currentBookmark.book_id.push(book_id);
-      }
-
-      if (currentBookmark.book_id.length === 0) {
-        updatedBookmarks.splice(bookmarkIndex, 1);
-      }
+    if (bookmarkIds.includes(book_id)) {
+      bookmarkIds = bookmarkIds.filter((id) => id !== book_id);
     } else {
-      updatedBookmarks.push({
-        id: id,
-        book_id: [book_id],
-      });
+      bookmarkIds.push(book_id);
     }
 
-    localStorage.setItem("bookmarks", JSON.stringify(updatedBookmarks));
-
-    const allBookIds = updatedBookmarks
-      .map((bookmark) => bookmark.book_id)
-      .flat();
-
-    setBookmarkList(allBookIds);
-
-    const isBookmarkedNow = allBookIds.includes(book_id);
-
-    setIsBookmarkedState(isBookmarkedNow);
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarkIds));
+    setBookmarkList(bookmarkIds);
+    setIsBookmarkedState(bookmarkIds.includes(book_id));
   };
 
   return (

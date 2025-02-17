@@ -6,7 +6,8 @@ const HomePage = () => {
   return (
     <Container>
       <div>
-        <h1>ยินดีต้อนรับสู่บล็อกของฉัน</h1>
+        <h1>The Book Lover's Dreamland Awaits!</h1>
+        <p>Welcome to the ultimate book lover's paradise! Join our community and contribute to the ever-evolving library of stories, where every book has a chance to inspire someone new.</p>
         <ul>
           <li>
             <Link href="/book/1">ไปยังหนังสือ 1</Link>
@@ -22,6 +23,8 @@ const HomePage = () => {
     </Container>
   );
 };
+
+
 
 const Container = styled.div`
   padding: 20px;
