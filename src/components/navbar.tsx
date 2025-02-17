@@ -103,9 +103,11 @@ const Flex = styled.div`
   align-items: center;  
   margin-right: 0;
     padding-bottom: 10px;
+      padding-right: 180px;
 
   @media (max-width: 500px) {
     margin-right: 0;
+      padding-right: 0px;
   }
 `;
 

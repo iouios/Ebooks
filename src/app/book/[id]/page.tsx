@@ -6,6 +6,7 @@ import { fetchBookById } from "../../../store/bookSlice";
 import { RootState, AppDispatch } from "../../../store/store";
 import BookmarkButton from "../../../components/bookmarkButton";
 import styled from "styled-components";
+import Image from "next/image";
 
 const UserPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -58,31 +59,62 @@ const UserPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Read
+                    <Flexread>
+                      <Imagesize
+                        src="/images/Book open back.png"
+                        alt="Bookmark"
+                        width={20}
+                        height={10}
+                      />
+                      Read
+                    </Flexread>
                   </DownloadLink>
                 )}
                 <DownloadCount>
-                  <strong>Download :</strong> {book.download_count}
+                  <FlexDownload>
+                    <ImageDownload
+                      src="/images/Download.png"
+                      alt="Bookmark"
+                      width={10}
+                      height={10}
+                    />
+                    <strong>Download :</strong> {book.download_count}
+                  </FlexDownload>
                 </DownloadCount>
               </Center>
             </BookInfo>
             <BookDetails>
               <Category>
-                <strong>Category:</strong> {book.bookshelves.join(", ")}
+                <strong>
+                  <FlexCategory>
+                    <ImageCategory
+                      src="/images/Book open.png"
+                      alt="Bookmark"
+                      width={20}
+                      height={10}
+                    />
+                    Category
+                  </FlexCategory>
+                </strong>
+                <CategorysContainer>
+                  {book.bookshelves.map((shelf, index) => (
+                    <Categorys key={index}>
+                      {shelf.replace("Browsing: ", "")}
+                    </Categorys>
+                  ))}
+                </CategorysContainer>
               </Category>
               <Flex>
                 <LeftSide>About This Book</LeftSide>
-                <RightSide><BookmarkButton
-                id={1}
-                book_id={book.id}
-                setBookmarkList={setBookmarkList}
-                isBookmarked={bookmarkList.includes(book.id)}
-              /></RightSide>
-                
+                <RightSide>
+                  <BookmarkButton
+                    book_id={book.id}
+                    setBookmarkList={setBookmarkList}
+                    isBookmarked={bookmarkList.includes(book.id)}
+                  />
+                </RightSide>
               </Flex>
-              <Summary>
-                {book.summaries.join(", ")}
-              </Summary>
+              <Summary>{book.summaries.join(", ")}</Summary>
             </BookDetails>
           </BookContainer>
         </>
@@ -102,11 +134,15 @@ const Main = styled.div`
 
 const BookContainer = styled.div`
   display: flex;
+  width: 100%;
+  height: 100vh;
 `;
 
 const BookInfo = styled.div`
   background-color: var(--FONT_BLACK);
-  padding: 20px;
+  padding: 0 60px;
+  padding: 20 0px;
+  
 `;
 
 const Title = styled.h1`
@@ -117,7 +153,7 @@ const Title = styled.h1`
 
 const Author = styled.p`
   font-size: 18px;
-  color: var(--FONT_YELLOW);
+  color: #FFDD7E;
 `;
 
 const ImageWrapper = styled.div`
@@ -134,27 +170,29 @@ const BookImage = styled.img`
   border-radius: 5px;
 `;
 
-const DownloadCount = styled.p`
+const DownloadCount = styled.div`
+  display: flex;
   font-size: 16px;
   color: var(--FONT_YELLOW);
-  margin-top: 10px;
 `;
 
 const DownloadLink = styled.a`
   display: inline-block;
   padding: 5px;
   background: var(--FONT_WHITE);
-
+  margin: 10px;
+  padding: 0 10px;
+  border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
-  border-radius: 5px;
-
+  border-radius: 8px;
 `;
 
 const BookDetails = styled.div`
   margin: 60px;
 `;
 
-const Category = styled.p`
+const Category = styled.div`
+  display: flex;
   font-size: 16px;
   font-weight: bold;
 `;
@@ -164,21 +202,22 @@ const Summary = styled.p`
 `;
 
 const Center = styled.div`
-text-align: center;
+  text-align: center;
 `;
 
 const Flex = styled.div`
   display: flex;
-  justify-content: space-between; 
-  align-items: flex-start; 
+  justify-content: space-between;
+  align-items: flex-start;
   width: 100%;
-  gap: 20px; 
+  gap: 20px;
 `;
 
 const LeftSide = styled.div`
   padding: 40px;
   border-radius: 10px;
   font-size: 26px;
+  font-weight: bold;
 `;
 
 const RightSide = styled.div`
@@ -186,5 +225,83 @@ const RightSide = styled.div`
   border-radius: 10px;
 `;
 
+const Flexread = styled.div`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+`;
+
+const FlexCategory = styled.div`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  background: var(--FONT_WHITE);
+  margin: 10px;
+  padding-top: 12px;
+  text-decoration: none;
+  font-size: 24px;
+`;
+
+const FlexDownload = styled.div`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  padding: 0 10px;
+  padding: 5px;
+  margin: 10px;
+  text-decoration: none;
+`;
+
+const Imagesize = styled(Image)`
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  margin-top: 3px;
+
+  @media (max-width: 500px) {
+  }
+`;
+
+const ImageCategory = styled(Image)`
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  margin-top: 3px;
+
+  @media (max-width: 500px) {
+  }
+`;
+
+const ImageDownload = styled(Image)`
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  margin-left: 35px;
+
+  @media (max-width: 500px) {
+  }
+`;
+
+const CategorysContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  margin: 20px 0;
+`;
+
+
+const Categorys = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: var(--ELEMENT_BROWN);
+  color: var(--FONT_WHITE);
+  text-decoration: none;
+  border-radius: 25px;
+  min-width: 100px;
+  text-align: center;
+`;
 
 export default UserPage;

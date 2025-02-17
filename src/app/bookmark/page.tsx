@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-// import Link from "next/link";
-import BookCard from "../../components/bookCard";  // Import BookCard component
 
 interface Author {
   name: string;
@@ -16,7 +14,7 @@ interface Book {
   subjects: string[];
   download_count: number;
   summaries: string[];
-  coverImage?: string;
+  bookshelves: string[];
   formats: {
     "text/plain"?: string;
     "application/epub+zip"?: string;
@@ -24,51 +22,85 @@ interface Book {
   };
 }
 
-const Bookmark: React.FC = () => {
+const BookList: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedBookmarks = localStorage.getItem("bookmarkList");
-    if (storedBookmarks) {
-      const bookmarkIds: number[] = JSON.parse(storedBookmarks); // ดึง book_id จาก localStorage
-      fetchBooks(bookmarkIds);  // เรียกฟังก์ชัน fetchBooks
-    } else {
-      setLoading(false); // ไม่มีข้อมูลใน localStorage
-    }
-  }, []);
-
-  const fetchBooks = async (bookmarkIds: number[]) => {
+  // ฟังก์ชันดึงข้อมูลหนังสือแต่ละเล่มจาก API โดยใช้ book_id
+  const fetchBookById = async (bookId: number): Promise<Book | null> => {
     try {
-      const bookPromises = bookmarkIds.map((bookId) =>
-        fetch(`https://gutendex.com/books/${bookId}`).then((res) => res.json())
-      );
-      const booksData = await Promise.all(bookPromises); // รอให้ข้อมูลทั้งหมดถูกดึงเสร็จ
-      setBooks(booksData);  // เก็บข้อมูลหนังสือใน state
-      setLoading(false);  // เปลี่ยนสถานะการโหลด
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const response = await fetch(`https://gutendex.com/books/${bookId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: Book = await response.json();
+      return data;
     } catch (err) {
-      setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
-      setLoading(false);  // หยุดการโหลด
+      console.error(`Error fetching book with id ${bookId}:`, err);
+      return null;
     }
   };
 
+  // ดึง bookmarkList จาก localStorage แล้ว loop ดึงข้อมูลหนังสือแต่ละเล่ม
+  useEffect(() => {
+    const fetchBooksFromBookmarks = async () => {
+      setLoading(true);
+      try {
+        const storedBookmarks = localStorage.getItem("bookmarkList");
+        if (!storedBookmarks) {
+          setError("ไม่พบข้อมูล bookmark ใน localStorage");
+          setLoading(false);
+          return;
+        }
+
+        const bookmarkIds: number[] = JSON.parse(storedBookmarks);
+        const booksFetched: Book[] = [];
+
+        // loop ดึงข้อมูลหนังสือแต่ละเล่ม (อาจใช้ Promise.all หากต้องการดึงแบบขนาน)
+        for (const id of bookmarkIds) {
+          const bookData = await fetchBookById(id);
+          if (bookData) {
+            booksFetched.push(bookData);
+          }
+        }
+        setBooks(booksFetched);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooksFromBookmarks();
+  }, []);
+
+  if (loading) {
+    return <p>กำลังโหลดข้อมูล...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
+  console.log("หนังสือ",books,"err", error);
+
   return (
     <Container>
-      <Main>Your Bookmarked Books</Main>
-      {loading && <p>กำลังโหลดข้อมูล...</p>}
-      {error && <p>{error}</p>}
-      {books.length === 0 && !loading && !error && <p>ไม่มีข้อมูลหนังสือในรายการ</p>}
-      {books.length > 0 && (
+      <Main>รายการหนังสือที่บันทึกไว้</Main>
+      {books.length === 0 ? (
+        <p>ไม่พบหนังสือ</p>
+      ) : (
         <GridContainer>
           {books.map((book) => (
-            <BookCard
-              key={book.id}  // ใช้ book.id เป็น key สำหรับแต่ละหนังสือ
-              data={book}  // ส่งข้อมูลหนังสือไปให้ BookCard
-              bookmarkList={[]}
-              setBookmarkList={() => {}}
-            />
+            <BookCard key={book.id}>
+              <Title>{book.title}</Title>
+              <Author>
+                ผู้แต่ง: {book.authors.map((a) => a.name).join(", ")}
+              </Author>
+              {/* สามารถเพิ่มข้อมูลอื่นๆ ที่ต้องการแสดง */}
+            </BookCard>
           ))}
         </GridContainer>
       )}
@@ -79,14 +111,17 @@ const Bookmark: React.FC = () => {
 const Container = styled.div`
   padding: 20px;
   width: 100%;
-  height: 100%;
+`;
+
+const Main = styled.h1`
+  text-align: center;
+  margin-bottom: 20px;
 `;
 
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  padding: 10px;
   @media (max-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -95,11 +130,20 @@ const GridContainer = styled.div`
   }
 `;
 
-const Main = styled.div`
-  padding: 20px;ง
-  font-size: 40px;
-  text-align: center;
-  font-weight: bold;
+const BookCard = styled.div`
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
 `;
 
-export default Bookmark;
+const Title = styled.h2`
+  font-size: 20px;
+  margin-bottom: 10px;
+`;
+
+const Author = styled.p`
+  font-size: 16px;
+  color: #555;
+`;
+
+export default BookList;
