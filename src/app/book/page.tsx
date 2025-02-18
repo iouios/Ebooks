@@ -6,7 +6,7 @@ import { RootState, AppDispatch } from "../../store/store";
 import BookCard from "../../components/bookCard";
 import styled from "styled-components";
 
-const BookList: React.FC = () => {
+const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { books, loading, next } = useSelector(
     (state: RootState) => state.books
@@ -117,4 +117,4 @@ const LoadMoreRef = styled.div`
 `;
 
 
-export default BookList;
+export default AllBook;

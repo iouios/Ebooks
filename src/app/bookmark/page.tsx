@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import BookCard from "../../components/bookCard"; 
 
 interface Author {
   name: string;
@@ -26,8 +27,8 @@ const BookList: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bookmarkList, setBookmarkList] = useState<number[]>([]); 
 
-  // ฟังก์ชันดึงข้อมูลหนังสือแต่ละเล่มจาก API โดยใช้ book_id
   const fetchBookById = async (bookId: number): Promise<Book | null> => {
     try {
       const response = await fetch(`https://gutendex.com/books/${bookId}`);
@@ -42,29 +43,41 @@ const BookList: React.FC = () => {
     }
   };
 
-  // ดึง bookmarkList จาก localStorage แล้ว loop ดึงข้อมูลหนังสือแต่ละเล่ม
   useEffect(() => {
     const fetchBooksFromBookmarks = async () => {
       setLoading(true);
       try {
-        const storedBookmarks = localStorage.getItem("bookmarkList");
+        const storedBookmarks = localStorage.getItem("bookmarks");
+        console.log("Stored Bookmarks:", storedBookmarks);
+
         if (!storedBookmarks) {
           setError("ไม่พบข้อมูล bookmark ใน localStorage");
           setLoading(false);
           return;
         }
 
-        const bookmarkIds: number[] = JSON.parse(storedBookmarks);
-        const booksFetched: Book[] = [];
-
-        // loop ดึงข้อมูลหนังสือแต่ละเล่ม (อาจใช้ Promise.all หากต้องการดึงแบบขนาน)
-        for (const id of bookmarkIds) {
-          const bookData = await fetchBookById(id);
-          if (bookData) {
-            booksFetched.push(bookData);
+        let bookmarkIds: number[];
+        try {
+          bookmarkIds = JSON.parse(storedBookmarks);
+          if (!Array.isArray(bookmarkIds)) {
+            throw new Error("bookmarkList ไม่ใช่ array");
           }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err) {
+          setError("ข้อมูล bookmark ผิดพลาด");
+          setLoading(false);
+          return;
         }
-        setBooks(booksFetched);
+        setBookmarkList(bookmarkIds);
+
+        const booksFetched: Book[] = await Promise.all(
+          bookmarkIds.map(async (id) => {
+            const bookData = await fetchBookById(id);
+            return bookData!;
+          })
+        );
+
+        setBooks(booksFetched.filter((b) => b !== null));
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
@@ -84,23 +97,20 @@ const BookList: React.FC = () => {
     return <p>Error: {error}</p>;
   }
 
-  console.log("หนังสือ",books,"err", error);
-
   return (
     <Container>
-      <Main>รายการหนังสือที่บันทึกไว้</Main>
+      <Main>My Bookmark</Main>
       {books.length === 0 ? (
         <p>ไม่พบหนังสือ</p>
       ) : (
         <GridContainer>
           {books.map((book) => (
-            <BookCard key={book.id}>
-              <Title>{book.title}</Title>
-              <Author>
-                ผู้แต่ง: {book.authors.map((a) => a.name).join(", ")}
-              </Author>
-              {/* สามารถเพิ่มข้อมูลอื่นๆ ที่ต้องการแสดง */}
-            </BookCard>
+            <BookCard
+              key={book.id}
+              data={book} 
+              bookmarkList={bookmarkList} 
+              setBookmarkList={setBookmarkList} 
+            />
           ))}
         </GridContainer>
       )}
@@ -109,13 +119,18 @@ const BookList: React.FC = () => {
 };
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;  
+  min-height: 100vh; 
   padding: 20px;
-  width: 100%;
 `;
 
 const Main = styled.h1`
   text-align: center;
+  margin-top: 60px;
   margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: bold;
 `;
 
 const GridContainer = styled.div`
@@ -128,22 +143,6 @@ const GridContainer = styled.div`
   @media (max-width: 500px) {
     grid-template-columns: repeat(2, 1fr);
   }
-`;
-
-const BookCard = styled.div`
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 5px;
-`;
-
-const Title = styled.h2`
-  font-size: 20px;
-  margin-bottom: 10px;
-`;
-
-const Author = styled.p`
-  font-size: 16px;
-  color: #555;
 `;
 
 export default BookList;

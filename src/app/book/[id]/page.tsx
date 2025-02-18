@@ -8,7 +8,7 @@ import BookmarkButton from "../../../components/bookmarkButton";
 import styled from "styled-components";
 import Image from "next/image";
 
-const UserPage = () => {
+const BookPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const params = useParams();
   const id = params.id as string;
@@ -304,4 +304,4 @@ const Categorys = styled.a`
   text-align: center;
 `;
 
-export default UserPage;
+export default BookPage;
