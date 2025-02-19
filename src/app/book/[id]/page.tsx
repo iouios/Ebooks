@@ -1,12 +1,15 @@
 "use client";
+"use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
+import axios from "axios";
 import { fetchBookById } from "../../../store/bookSlice";
 import { RootState, AppDispatch } from "../../../store/store";
 import BookmarkButton from "../../../components/bookmarkButton";
 import styled from "styled-components";
 import Image from "next/image";
+import { ReactReader } from "react-reader";
 
 const BookPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,12 +21,41 @@ const BookPage = () => {
   );
 
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
+  const [epubPath, setEpubPath] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [showReader, setShowReader] = useState<boolean>(false);
+  const [location, setLocation] = useState<string | number>(0);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchBookById(Number(id)));
     }
   }, [id, dispatch]);
+
+  const downloadEpub = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!epubPath && book?.formats["application/epub+zip"]) {
+      e.preventDefault();
+      setIsDownloading(true);
+      try {
+        const epubUrl = book.formats["application/epub+zip"];
+
+        const response = await axios.get(
+          `/api/download?url=${encodeURIComponent(epubUrl)}`
+        );
+
+        setEpubPath(response.data.filePath);
+
+        setShowReader(true);
+      } catch (error) {
+        console.error("Failed to download EPUB:", error);
+      } finally {
+        setIsDownloading(false);
+      }
+    } else if (epubPath) {
+      e.preventDefault();
+      setShowReader(true);
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -54,19 +86,15 @@ const BookPage = () => {
               )}
               <Center>
                 {book.formats["application/epub+zip"] && (
-                  <DownloadLink
-                    href={book.formats["application/epub+zip"]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <DownloadLink href="#" onClick={downloadEpub}>
                     <Flexread>
                       <Imagesize
                         src="/images/Book open back.png"
-                        alt="Bookmark"
+                        alt="Read Book"
                         width={20}
                         height={10}
                       />
-                      Read
+                      {isDownloading ? "Downloading..." : "Read"}
                     </Flexread>
                   </DownloadLink>
                 )}
@@ -74,7 +102,7 @@ const BookPage = () => {
                   <FlexDownload>
                     <ImageDownload
                       src="/images/Download.png"
-                      alt="Bookmark"
+                      alt="Download Icon"
                       width={10}
                       height={10}
                     />
@@ -89,7 +117,7 @@ const BookPage = () => {
                   <FlexCategory>
                     <ImageCategory
                       src="/images/Book open.png"
-                      alt="Bookmark"
+                      alt="Category Icon"
                       width={20}
                       height={10}
                     />
@@ -117,6 +145,16 @@ const BookPage = () => {
               <Summary>{book.summaries.join(", ")}</Summary>
             </BookDetails>
           </BookContainer>
+          {/* แสดง ReactReader ถ้า showReader เป็น true และมี epubPath */}
+          {showReader && epubPath && (
+            <ReaderContainer>
+              <ReactReader
+                url={epubPath}
+                location={location}
+                locationChanged={(epubcfi: string) => setLocation(epubcfi)}
+              />
+            </ReaderContainer>
+          )}
         </>
       ) : (
         <div>No book found</div>
@@ -140,9 +178,7 @@ const BookContainer = styled.div`
 
 const BookInfo = styled.div`
   background-color: var(--FONT_BLACK);
-  padding: 0 60px;
-  padding: 20 0px;
-  
+  padding: 20px 60px;
 `;
 
 const Title = styled.h1`
@@ -153,7 +189,7 @@ const Title = styled.h1`
 
 const Author = styled.p`
   font-size: 18px;
-  color: #FFDD7E;
+  color: #ffdd7e;
 `;
 
 const ImageWrapper = styled.div`
@@ -178,10 +214,9 @@ const DownloadCount = styled.div`
 
 const DownloadLink = styled.a`
   display: inline-block;
-  padding: 5px;
+  padding: 5px 10px;
   background: var(--FONT_WHITE);
   margin: 10px;
-  padding: 0 10px;
   border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
   border-radius: 8px;
@@ -246,10 +281,8 @@ const FlexDownload = styled.div`
   display: flex;
   text-align: center;
   justify-content: center;
-  padding: 0 10px;
-  padding: 5px;
+  padding: 5px 10px;
   margin: 10px;
-  text-decoration: none;
 `;
 
 const Imagesize = styled(Image)`
@@ -257,9 +290,6 @@ const Imagesize = styled(Image)`
   height: 20px;
   margin-right: 10px;
   margin-top: 3px;
-
-  @media (max-width: 500px) {
-  }
 `;
 
 const ImageCategory = styled(Image)`
@@ -267,9 +297,6 @@ const ImageCategory = styled(Image)`
   height: 30px;
   margin-right: 10px;
   margin-top: 3px;
-
-  @media (max-width: 500px) {
-  }
 `;
 
 const ImageDownload = styled(Image)`
@@ -277,19 +304,14 @@ const ImageDownload = styled(Image)`
   height: 20px;
   margin-right: 5px;
   margin-left: 35px;
-
-  @media (max-width: 500px) {
-  }
 `;
 
 const CategorysContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-
   margin: 20px 0;
 `;
-
 
 const Categorys = styled.a`
   display: flex;
@@ -302,6 +324,16 @@ const Categorys = styled.a`
   border-radius: 25px;
   min-width: 100px;
   text-align: center;
+`;
+
+const ReaderContainer = styled.div`
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  background: #fff;
 `;
 
 export default BookPage;
