@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import bookReducer from "./bookSlice"; 
+import searchReducer from "./searchSlice";
 
 export const store = configureStore({
   reducer: {
     books: bookReducer,
+    search: searchReducer,  
   },
 });
 

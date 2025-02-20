@@ -10,18 +10,16 @@ import axios from "axios";
 
 const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const {
-    books: reduxBooks,
-    loading,
-    next,
-  } = useSelector((state: RootState) => state.books);
+  const { books: reduxBooks, loading, next } = useSelector(
+    (state: RootState) => state.books
+  );
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>(""); // สถานะคำค้นหา
   const [books, setBooks] = useState<[]>([]); // สถานะเก็บข้อมูลหนังสือจาก API
-  const [loadingSearch, setLoadingSearch] = useState<boolean>(false); // สถานะโหลดการค้นหาหนังสือ
+  const [loadingSearch, setLoadingSearch] = useState<boolean>(false); // สถานะโหลดการค้นหาหนังสือ// ข้อความข้อผิดพลาด
 
   useEffect(() => {
     const bookmarks = localStorage.getItem("bookmarkList");
@@ -29,9 +27,11 @@ const AllBook: React.FC = () => {
       setBookmarkList(JSON.parse(bookmarks));
     }
   }, []);
+
+  // ใช้ dispatch ในการดึงข้อมูลหนังสือทั้งหมดในกรณีเริ่มต้น
   useEffect(() => {
     if (!firstLoad && !loading) {
-      dispatch(fetchBooks(null)); 
+      dispatch(fetchBooks(null));  // ตรวจสอบว่า `fetchBooks(null)` จำเป็นไหมในกรณีเริ่มต้น
       setFirstLoad(true);
     }
   }, [dispatch, firstLoad, loading]);
@@ -63,43 +63,32 @@ const AllBook: React.FC = () => {
 
   // ฟังก์ชันค้นหาหนังสือจาก API
   const searchBooks = async (query: string) => {
-    if (!query) {
-      setBooks([]); // เคลียร์ข้อมูลในกรณีที่ไม่มีคำค้นหา
-      return;
-    }
+    if (!query) return;
     setLoadingSearch(true);
+
     try {
       const response = await axios.get(
         `https://gutendex.com/books?search=${query.replace(" ", "%20")}`
       );
-
-      if (response.data && response.data.results) {
-        setBooks(response.data.results); // เก็บผลลัพธ์ที่ได้จาก API
-      } else {
-        setBooks([]); // ถ้าไม่มีข้อมูล ก็เคลียร์
-      }
+      setBooks(response.data.results); // เก็บผลลัพธ์ที่ได้จาก API
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      console.error(err); // กรณีเกิดข้อผิดพลาด
-      setBooks([]); // ในกรณีที่เกิดข้อผิดพลาด ก็เคลียร์ข้อมูล
+  // หากเกิดข้อผิดพลาด
     } finally {
       setLoadingSearch(false);
     }
   };
 
-  console.log("books", books);
-
   return (
     <Container>
       <Main>Explore All Books Here</Main>
-      <CenterSearch>
-        <SearchInput
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          searchBooks={searchBooks}
-        />
-      </CenterSearch>
-      {searchQuery === "" && reduxBooks.length === 0 && !loading && !loadingSearch ? (
-        <></> // Don't show any message when there's no data
+      <SearchInput
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchBooks={searchBooks}
+      />
+      {books.length === 0 && !loadingSearch ? (
+        <p>ไม่มีข้อมูลหนังสือ</p>
       ) : (
         <GridContainer>
           {(searchQuery ? books : reduxBooks).map((book, index) => (
@@ -113,13 +102,12 @@ const AllBook: React.FC = () => {
         </GridContainer>
       )}
       {(loading || loadingSearch) && <LoadMoreRef>กำลังโหลด...</LoadMoreRef>}
-      {next && !loading && !loadingSearch && reduxBooks.length > 0 && (
+      {next && !loading && !loadingSearch && (
         <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>
       )}
     </Container>
   );
 };
-
 
 const Container = styled.div`
   padding: 20px;
@@ -143,7 +131,7 @@ const GridContainer = styled.div`
 const Main = styled.div`
   padding: 20px;
   color: var(--FONT_YELLOW);
-  font-size: 60px;
+  font-size: 40px;
   text-align: center;
   font-weight: bold;
 `;
@@ -153,14 +141,6 @@ const LoadMoreRef = styled.div`
   padding: 20px;
   font-size: 18px;
   color: gray;
-`;
-
-const CenterSearch = styled.div`
-  display: flex;
-  justify-content: center; 
-  align-items: center; 
-  text-align: center;
-  margin-bottom: 40px;
 `;
 
 export default AllBook;
