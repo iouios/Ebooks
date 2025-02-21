@@ -20,7 +20,8 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-reader": "^2.0.12",
     "react-redux": "^9.2.0",
-    "styled-components": "^6.1.14"
+    "styled-components": "^6.1.14",
+    "swiper": "^11.2.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

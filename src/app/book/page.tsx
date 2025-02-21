@@ -99,7 +99,7 @@ const AllBook: React.FC = () => {
         />
       </CenterSearch>
       {searchQuery === "" && reduxBooks.length === 0 && !loading && !loadingSearch ? (
-        <></> // Don't show any message when there's no data
+        <></> 
       ) : (
         <GridContainer>
           {(searchQuery ? books : reduxBooks).map((book, index) => (
@@ -112,9 +112,9 @@ const AllBook: React.FC = () => {
           ))}
         </GridContainer>
       )}
-      {(loading || loadingSearch) && <LoadMoreRef>กำลังโหลด...</LoadMoreRef>}
+      {(loading || loadingSearch) && <LoadMoreRef>กำลังโหลด...1</LoadMoreRef>}
       {next && !loading && !loadingSearch && reduxBooks.length > 0 && (
-        <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>
+        <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...2</LoadMoreRef>
       )}
     </Container>
   );

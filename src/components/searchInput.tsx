@@ -23,10 +23,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ searchQuery, setSearchQuery, 
   );
 };
 
-// Styled Components
 const SearchContainer = styled.div`
 
-  padding: 10px;
+  padding: 8px;
   border: 2px solid var(--ELEMENT_YELLOW);
   border-radius: 5px;
   width: 450px;
@@ -49,6 +48,7 @@ const SearchButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0.5, 0.5, 0.5);
   width: 200px;
 `;
 

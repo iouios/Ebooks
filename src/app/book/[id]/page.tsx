@@ -318,6 +318,7 @@ const Categorys = styled.a`
   align-items: center;
   justify-content: center;
   padding: 10px;
+  margin: 4px;
   background: var(--ELEMENT_BROWN);
   color: var(--FONT_WHITE);
   text-decoration: none;
@@ -334,6 +335,7 @@ const ReaderContainer = styled.div`
   left: 0;
   z-index: 999;
   background: #fff;
+
 `;
 
 export default BookPage;
