@@ -1,37 +1,46 @@
-// ตัวอย่างใน bookSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// สมมุติว่า API ของคุณใช้ searchQuery เป็น string
-export const fetchBook = createAsyncThunk(
-  "books/fetchBooks",
-  async (searchQuery: string) => {
-    const response = await axios.get(`https://gutendex.com/books/?search=${searchQuery}`);
-    return response.data.results;  // ส่งข้อมูลที่ได้รับจาก API
+// Thunk สำหรับค้นหาหนังสือจาก API
+export const searchBooks = createAsyncThunk(
+  "search/searchBooks",
+  async (query: string, { rejectWithValue }) => {
+    try {
+      if (!query.trim()) return []; // ถ้า query เป็นค่าว่าง จะไม่ส่งไป API
+      const response = await axios.get(
+        `https://gutendex.com/books?search=${query.replace(" ", "%20")}`
+      );
+      return response.data.results || [];
+    } catch (error) {
+      console.error(error);
+      return rejectWithValue("Error fetching search results");
+    }
   }
 );
 
-const booksSlice = createSlice({
-  name: "books",
+const searchSlice = createSlice({
+  name: "search",
   initialState: {
-    books: [],
-    loading: false,
-    next: "",
+    searchResults: [],
+    searchLoading: false,
   },
   reducers: {},
+
   extraReducers: (builder) => {
     builder
-      .addCase(fetchBook.pending, (state) => {
-        state.loading = true;
+      .addCase(searchBooks.pending, (state) => {
+        state.searchLoading = true;
+        state.searchResults = []; // เคลียร์ผลการค้นหาก่อนที่จะเริ่มโหลดใหม่
       })
-      .addCase(fetchBook.fulfilled, (state, action) => {
-        state.loading = false;
-        state.books = action.payload;  // เพิ่มหนังสือที่ได้จาก API
+      .addCase(searchBooks.fulfilled, (state, action) => {
+        state.searchLoading = false;
+        state.searchResults = action.payload; // เก็บผลลัพธ์ที่ได้จาก API
       })
-      .addCase(fetchBook.rejected, (state) => {
-        state.loading = false;
+      .addCase(searchBooks.rejected, (state) => {
+        state.searchLoading = false;
+        state.searchResults = []; // เคลียร์ผลลัพธ์เมื่อมีข้อผิดพลาด
       });
   },
 });
 
-export default booksSlice.reducer;
+export default searchSlice.reducer;

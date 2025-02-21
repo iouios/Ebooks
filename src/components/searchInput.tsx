@@ -8,23 +8,26 @@ interface SearchInputProps {
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({ searchQuery, setSearchQuery, searchBooks }) => {
+  const handleSearchClick = () => {
+    if (searchQuery.trim()) {
+      searchBooks(searchQuery); // ค้นหาหลังจากกดปุ่ม Search
+    }
+  };
+
   return (
     <SearchContainer>
       <SearchField
         type="text"
         placeholder="Search a Book"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => setSearchQuery(e.target.value)} // อัพเดต searchQuery เมื่อพิมพ์
       />
-      <SearchButton onClick={() => searchBooks(searchQuery)}>
-        Search
-      </SearchButton>
+      <SearchButton onClick={handleSearchClick}>Search</SearchButton>
     </SearchContainer>
   );
 };
 
 const SearchContainer = styled.div`
-
   padding: 8px;
   border: 2px solid var(--ELEMENT_YELLOW);
   border-radius: 5px;

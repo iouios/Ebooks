@@ -115,14 +115,13 @@ const bookSlice = createSlice({
         state.error = action.error.message || 'เกิดข้อผิดพลาด';
       })
       
-      // Handle fetchBookById
       .addCase(fetchBookById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchBookById.fulfilled, (state, action) => {
         state.loading = false;
-        state.book = action.payload;  // Store the single book data
+        state.book = action.payload;  
       })
       .addCase(fetchBookById.rejected, (state, action) => {
         state.loading = false;

@@ -2,26 +2,30 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../../store/bookSlice";
+import { searchBooks } from "../../store/searchSlice";
 import { RootState, AppDispatch } from "../../store/store";
 import BookCard from "../../components/bookCard";
 import SearchInput from "../../components/searchInput";
 import styled from "styled-components";
-import axios from "axios";
 
 const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+
   const {
     books: reduxBooks,
     loading,
     next,
   } = useSelector((state: RootState) => state.books);
+  const { searchResults, searchLoading } = useSelector(
+    (state: RootState) => state.search
+  );
+
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>(""); // สถานะคำค้นหา
-  const [books, setBooks] = useState<[]>([]); // สถานะเก็บข้อมูลหนังสือจาก API
-  const [loadingSearch, setLoadingSearch] = useState<boolean>(false); // สถานะโหลดการค้นหาหนังสือ
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false); // ใช้เพื่อดูว่า user กด search แล้วหรือยัง
 
   useEffect(() => {
     const bookmarks = localStorage.getItem("bookmarkList");
@@ -29,12 +33,13 @@ const AllBook: React.FC = () => {
       setBookmarkList(JSON.parse(bookmarks));
     }
   }, []);
+
   useEffect(() => {
-    if (!firstLoad && !loading) {
-      dispatch(fetchBooks(null)); 
+    if (!firstLoad && !loading && !searchLoading) {
+      dispatch(fetchBooks(null));
       setFirstLoad(true);
     }
-  }, [dispatch, firstLoad, loading]);
+  }, [dispatch, firstLoad, loading, searchLoading]);
 
   const loadMoreBooks = useCallback(() => {
     if (next) {
@@ -61,32 +66,15 @@ const AllBook: React.FC = () => {
     };
   }, [loadMoreBooks, next]);
 
-  // ฟังก์ชันค้นหาหนังสือจาก API
-  const searchBooks = async (query: string) => {
-    if (!query) {
-      setBooks([]); // เคลียร์ข้อมูลในกรณีที่ไม่มีคำค้นหา
-      return;
-    }
-    setLoadingSearch(true);
-    try {
-      const response = await axios.get(
-        `https://gutendex.com/books?search=${query.replace(" ", "%20")}`
-      );
-
-      if (response.data && response.data.results) {
-        setBooks(response.data.results); // เก็บผลลัพธ์ที่ได้จาก API
-      } else {
-        setBooks([]); // ถ้าไม่มีข้อมูล ก็เคลียร์
-      }
-    } catch (err) {
-      console.error(err); // กรณีเกิดข้อผิดพลาด
-      setBooks([]); // ในกรณีที่เกิดข้อผิดพลาด ก็เคลียร์ข้อมูล
-    } finally {
-      setLoadingSearch(false);
+  const handleSearch = () => {
+    if (searchQuery !== "") {
+      setIsSearchClicked(true);
+      dispatch(searchBooks(searchQuery));
     }
   };
 
-  console.log("books", books);
+  const booksToShow =
+    searchQuery && isSearchClicked ? searchResults : reduxBooks;
 
   return (
     <Container>
@@ -95,32 +83,38 @@ const AllBook: React.FC = () => {
         <SearchInput
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          searchBooks={searchBooks}
+          searchBooks={handleSearch}
         />
       </CenterSearch>
-      {searchQuery === "" && reduxBooks.length === 0 && !loading && !loadingSearch ? (
-        <></> 
-      ) : (
+      <GridContainer>
         <GridContainer>
-          {(searchQuery ? books : reduxBooks).map((book, index) => (
-            <BookCard
-              key={`${book.id}-${index}`}
-              data={book}
-              bookmarkList={bookmarkList}
-              setBookmarkList={setBookmarkList}
-            />
-          ))}
+          {booksToShow.length > 0 &&
+            booksToShow.map((book, index) => (
+              <BookCard
+                key={`${book.id}-${index}`}
+                data={book}
+                bookmarkList={bookmarkList}
+                setBookmarkList={setBookmarkList}
+              />
+            ))}
         </GridContainer>
+      </GridContainer>
+      {!isSearchClicked && (loading || searchLoading) && (
+        <LoadMoreRef>กำลังค้นหา...</LoadMoreRef>
       )}
-      {(loading || loadingSearch) && <LoadMoreRef>กำลังโหลด...1</LoadMoreRef>}
-      {next && !loading && !loadingSearch && reduxBooks.length > 0 && (
-        <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...2</LoadMoreRef>
-      )}
+
+      {next &&
+      !loading &&
+      !searchLoading &&
+      !isSearchClicked &&
+      reduxBooks.length > 0 ? (
+        <LoadMoreRef ref={loadMoreRef}>กำลังค้นหา...</LoadMoreRef>
+      ) : "กำลังโหลด..."}
     </Container>
   );
 };
 
-
+// 🎨 Styled Components
 const Container = styled.div`
   padding: 20px;
   width: 100%;
@@ -157,8 +151,8 @@ const LoadMoreRef = styled.div`
 
 const CenterSearch = styled.div`
   display: flex;
-  justify-content: center; 
-  align-items: center; 
+  justify-content: center;
+  align-items: center;
   text-align: center;
   margin-bottom: 40px;
 `;
