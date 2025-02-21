@@ -1,3 +1,4 @@
+"use client"; 
 import React from "react";
 import styled from "styled-components";
 
@@ -20,7 +21,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ searchQuery, setSearchQuery, 
         type="text"
         placeholder="Search a Book"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)} // อัพเดต searchQuery เมื่อพิมพ์
+        onChange={(e) => setSearchQuery(e.target.value)} 
       />
       <SearchButton onClick={handleSearchClick}>Search</SearchButton>
     </SearchContainer>
@@ -40,7 +41,14 @@ const SearchField = styled.input`
   border-radius: 5px;
   outline: none;
   transition: border-color 0.3s ease;
+  background-color: transparent; /* No background color */
+  
+  ::placeholder {
+    color: rgba(255, 255, 255, 0.7); /* Light transparent placeholder color */
+  }
 `;
+
+
 
 const SearchButton = styled.button`
   padding: 8px 16px;

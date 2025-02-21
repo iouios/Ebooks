@@ -6,7 +6,7 @@ export const searchBooks = createAsyncThunk(
   "search/searchBooks",
   async (query: string, { rejectWithValue }) => {
     try {
-      if (!query.trim()) return []; // ถ้า query เป็นค่าว่าง จะไม่ส่งไป API
+      if (!query.trim()) return []; 
       const response = await axios.get(
         `https://gutendex.com/books?search=${query.replace(" ", "%20")}`
       );
@@ -30,15 +30,15 @@ const searchSlice = createSlice({
     builder
       .addCase(searchBooks.pending, (state) => {
         state.searchLoading = true;
-        state.searchResults = []; // เคลียร์ผลการค้นหาก่อนที่จะเริ่มโหลดใหม่
+        state.searchResults = []; 
       })
       .addCase(searchBooks.fulfilled, (state, action) => {
         state.searchLoading = false;
-        state.searchResults = action.payload; // เก็บผลลัพธ์ที่ได้จาก API
+        state.searchResults = action.payload; 
       })
       .addCase(searchBooks.rejected, (state) => {
         state.searchLoading = false;
-        state.searchResults = []; // เคลียร์ผลลัพธ์เมื่อมีข้อผิดพลาด
+        state.searchResults = []; 
       });
   },
 });

@@ -4,28 +4,31 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../../store/bookSlice";
 import { searchBooks } from "../../store/searchSlice";
 import { RootState, AppDispatch } from "../../store/store";
+import { useSearchParams } from "next/navigation"; 
 import BookCard from "../../components/bookCard";
 import SearchInput from "../../components/searchInput";
 import styled from "styled-components";
 
 const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams(); 
 
-  const {
-    books: reduxBooks,
-    loading,
-    next,
-  } = useSelector((state: RootState) => state.books);
-  const { searchResults, searchLoading } = useSelector(
-    (state: RootState) => state.search
-  );
+  const { books: reduxBooks, loading, next } = useSelector((state: RootState) => state.books);
+  const { searchResults, searchLoading } = useSelector((state: RootState) => state.search);
 
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false); // ใช้เพื่อดูว่า user กด search แล้วหรือยัง
+  const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");  
+
+  useEffect(() => {
+    const query = searchParams.get("search");
+    if (query) {
+      setSearchQuery(query);
+    }
+  }, [searchParams]);  
 
   useEffect(() => {
     const bookmarks = localStorage.getItem("bookmarkList");
@@ -66,55 +69,59 @@ const AllBook: React.FC = () => {
     };
   }, [loadMoreBooks, next]);
 
-  const handleSearch = () => {
-    if (searchQuery !== "") {
+  useEffect(() => {
+    if (searchQuery) {
       setIsSearchClicked(true);
-      dispatch(searchBooks(searchQuery));
+      dispatch(searchBooks(searchQuery)); 
+    }
+  }, [dispatch, searchQuery]);
+
+  const booksToShow = searchQuery && isSearchClicked ? searchResults : reduxBooks;
+
+  const handleSearch = () => {
+    if (searchQuery) {
+      dispatch(searchBooks(searchQuery));  
     }
   };
-
-  const booksToShow =
-    searchQuery && isSearchClicked ? searchResults : reduxBooks;
 
   return (
     <Container>
       <Main>Explore All Books Here</Main>
       <CenterSearch>
         <SearchInput
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          searchBooks={handleSearch}
+          searchQuery={searchQuery}  
+          setSearchQuery={setSearchQuery}  
+          searchBooks={handleSearch}  
         />
       </CenterSearch>
       <GridContainer>
-        <GridContainer>
-          {booksToShow.length > 0 &&
-            booksToShow.map((book, index) => (
-              <BookCard
-                key={`${book.id}-${index}`}
-                data={book}
-                bookmarkList={bookmarkList}
-                setBookmarkList={setBookmarkList}
-              />
-            ))}
-        </GridContainer>
+        {booksToShow.length > 0 &&
+          booksToShow.map((book, index) => (
+            <BookCard
+              key={`${book.id}-${index}`}
+              data={book}
+              bookmarkList={bookmarkList}
+              setBookmarkList={setBookmarkList}
+            />
+          ))}
       </GridContainer>
       {!isSearchClicked && (loading || searchLoading) && (
         <LoadMoreRef>กำลังค้นหา...</LoadMoreRef>
       )}
 
       {next &&
-      !loading &&
-      !searchLoading &&
-      !isSearchClicked &&
-      reduxBooks.length > 0 ? (
+        !loading &&
+        !searchLoading &&
+        !isSearchClicked &&
+        reduxBooks.length > 0 ? (
         <LoadMoreRef ref={loadMoreRef}>กำลังค้นหา...</LoadMoreRef>
-      ) : "กำลังโหลด..."}
+      ) : (
+        "กำลังค้นหา..."
+      )}
     </Container>
   );
 };
 
-// 🎨 Styled Components
 const Container = styled.div`
   padding: 20px;
   width: 100%;

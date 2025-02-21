@@ -1,7 +1,7 @@
-"use client";
+"use client"; 
 import styled from "styled-components";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -9,14 +9,26 @@ import { Pagination } from "swiper/modules";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../store/bookSlice";
 import { RootState, AppDispatch } from "../store/store";
+import { useRouter } from "next/navigation"; 
+import SearchInput from "../components/searchInput";
 
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter(); 
   const { books, loading } = useSelector((state: RootState) => state.books);
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     dispatch(fetchBooks(null));
   }, [dispatch]);
+
+  const handleSearch = () => {
+    if (searchQuery) {
+      router.push(`/book?search=${searchQuery}`); 
+    }
+  };
+
   return (
     <Container>
       <ImageContainer>
@@ -29,11 +41,20 @@ const HomePage = () => {
           evolving library of stories, where every book has a chance to inspire
           someone new.
         </Text1>
+        <Search>
+          <SearchInput
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchBooks={handleSearch}  // onSearch function
+          />
+        </Search>
         <StyledImage src="/images/Book.png" alt="Profile" fill priority />
       </ImageContainer>
+
       <ContentContainer>
         <TextOur>Our Best Picks</TextOur>
       </ContentContainer>
+
       <Swipermagin>
         {loading ? (
           <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
@@ -104,7 +125,7 @@ const OverlayText = styled.div`
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   z-index: 10;
   text-align: center;
-  width: 80%; /* ป้องกันข้อความล้นขอบ */
+  width: 80%;
 `;
 
 const Text = styled.div`
@@ -135,9 +156,22 @@ const Text1 = styled.div`
   width: 80%;
 `;
 
+const Search = styled.div`
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  text-align: center;
+  width: auto;
+`;
+
 const ContentContainer = styled.div`
   padding: 20px;
-
   background-color: var(--FONT_WHITE);
   color: #333;
 `;
@@ -155,6 +189,7 @@ const LoadingText = styled.div`
   font-size: 20px;
   color: gray;
 `;
+
 const CustomPagination = styled.div`
   display: flex;
   justify-content: center;
@@ -176,7 +211,6 @@ const BookCard = styled.div`
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  
   text-align: start;
   padding: 10px;
 `;

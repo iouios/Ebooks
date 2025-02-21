@@ -21,8 +21,8 @@ interface Book {
 }
 
 interface BookState {
-  books: Book[];         // To store the list of books
-  book: Book | null;     // To store a single book's data, defaulting to null
+  books: Book[];         
+  book: Book | null;     
   loading: boolean;
   error: string | null;
   next: string | null;
@@ -30,7 +30,7 @@ interface BookState {
 
 const initialState: BookState = {
   books: [],
-  book: null, // Add a property to store a single book's data
+  book: null, 
   loading: false,
   error: null,
   next: null,
@@ -70,14 +70,14 @@ export const fetchBookById = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       console.log(`Fetching book with ID: ${id}`);
-      const response = await fetch(`https://gutendex.com/books?ids=${id}`); // ✅ ใช้ query `ids` แทน `/books/:id`
+      const response = await fetch(`https://gutendex.com/books?ids=${id}`); 
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("API Response:", data); // ✅ ตรวจสอบ response จาก API
+      console.log("API Response:", data); 
 
       if (!data.results || data.results.length === 0) {
         throw new Error("No book found with this ID");

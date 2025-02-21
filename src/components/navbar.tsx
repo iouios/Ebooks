@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation"; 
+
 interface MenuProps {
   $isMenuOpen: boolean;
 }
@@ -13,6 +15,7 @@ interface HamburgerProps {
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname(); 
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
@@ -32,14 +35,14 @@ const Navbar = () => {
       </Flex>
 
       <Menu $isMenuOpen={isMenuOpen}>
-      <Link href="/">
-        <Button>Home</Button>
+        <Link href="/" passHref>
+          <Button $isActive={pathname === "/"}>Home</Button>
         </Link>
-        <Link href="/book">
-        <Button>Book</Button>
+        <Link href="/book" passHref>
+          <Button $isActive={pathname === "/book"}>Book</Button>
         </Link>
-        <Link href="/bookmark">
-        <Button>Bookmark</Button>
+        <Link href="/bookmark" passHref>
+          <Button $isActive={pathname === "/bookmark"}>Bookmark</Button>
         </Link>
       </Menu>
 
@@ -54,19 +57,9 @@ const Navbar = () => {
 
       <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
         {!isMenuOpen ? (
-          <Image
-            src="/images/icon.png"
-            alt="Profile"
-            width={20}
-            height={20}
-          />
+          <Image src="/images/icon.png" alt="Menu" width={20} height={20} />
         ) : (
-          <Image
-            src="/images/Vector.png"
-            alt="Close"
-            width={20}
-            height={20}
-          />
+          <Image src="/images/Vector.png" alt="Close" width={20} height={20} />
         )}
       </Hamburger>
     </Nav>
@@ -86,49 +79,34 @@ const Nav = styled.nav`
   height: 119px;
 
   @media (max-width: 500px) {
-    display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    width: 100%;
     height: 100px;
   }
 
-  /* Align Grid2 to left */
-  justify-content: flex-start; 
+  justify-content: flex-start;
 `;
 
 const Flex = styled.div`
   display: flex;
-  justify-content: flex-start;  
-  align-items: center;  
-  margin-right: 0;
-    padding-bottom: 10px;
-      padding-right: 180px;
+  align-items: center;
+  padding-right: 180px;
 
   @media (max-width: 500px) {
-    margin-right: 0;
-      padding-right: 0px;
+    padding-right: 0px;
   }
 `;
 
 const Text = styled.div`
-  margin-top: 10px;
   padding-left: 10px;
-  padding-bottom: 10px;
-  @media (max-width: 500px) {
-    margin-top: 0px;
-  }
 `;
 
 const TextcolorNav = styled.div`
   color: var(--FONT_YELLOW);
   font-size: 24px;
-   font-weight: bold; 
- 
+  font-weight: bold;
 
   @media (max-width: 500px) {
     font-size: 16px;
-     font-weight: bold; 
   }
 `;
 
@@ -144,19 +122,29 @@ const Menu = styled.div<MenuProps>`
     top: 70px;
     right: 0px;
     width: 200px;
-    height: 100%;
     background-color: var(--FONT_BLACK);
     padding: 20px;
     z-index: 1000;
     text-align: center;
-    margin-top: 35px;
   }
 `;
 
+const Button = styled.button<{ $isActive: boolean }>`
+  color: ${({ $isActive }) => ($isActive ? "var(--FONT_YELLOW)" : "white")};
+  font-weight: ${({ $isActive }) => ($isActive ? "bold" : "normal")};
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+
+  &:hover {
+    color: var(--FONT_YELLOW);
+  }
+`;
+
+
 const Hamburger = styled.div<HamburgerProps>`
   display: none;
-  flex-direction: column;
-  gap: 5px;
   cursor: pointer;
   width: 40px;
   height: 30px;
@@ -173,21 +161,13 @@ const Icon = styled.div`
   }
 `;
 
-const Button = styled.button`
-  color: white;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-`;
-
 const ResponsiveImage = styled(Image)`
   width: auto;
   height: auto;
 
   @media (max-width: 500px) {
-    width: 120px;  
-    height: 60px;  
+    width: 120px;
+    height: 60px;
   }
 `;
 
