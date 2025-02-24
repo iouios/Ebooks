@@ -3,7 +3,9 @@ import styled from "styled-components";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation"; 
+import { usePathname } from "next/navigation";
+import Logout from "./logout";
+
 
 interface MenuProps {
   $isMenuOpen: boolean;
@@ -15,7 +17,7 @@ interface HamburgerProps {
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const pathname = usePathname(); 
+  const pathname = usePathname();
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
@@ -47,14 +49,17 @@ const Navbar = () => {
       </Menu>
 
       <Icon>
-        <Image
+        {/* <Image
           src="/images/Rectangle 4.png"
           alt="Profile"
           width={50}
           height={50}
-        />
+        /> */}
+        <Icon>
+            <Logout/>
+        </Icon>
       </Icon>
-
+      
       <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
         {!isMenuOpen ? (
           <Image src="/images/icon.png" alt="Menu" width={20} height={20} />
@@ -126,6 +131,7 @@ const Menu = styled.div<MenuProps>`
     padding: 20px;
     z-index: 1000;
     text-align: center;
+    
   }
 `;
 
@@ -142,7 +148,6 @@ const Button = styled.button<{ $isActive: boolean }>`
   }
 `;
 
-
 const Hamburger = styled.div<HamburgerProps>`
   display: none;
   cursor: pointer;
@@ -156,6 +161,7 @@ const Hamburger = styled.div<HamburgerProps>`
 `;
 
 const Icon = styled.div`
+
   @media (max-width: 500px) {
     display: none;
   }
