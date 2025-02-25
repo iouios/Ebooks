@@ -1,4 +1,3 @@
-"use client";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import styled from "styled-components";
@@ -21,7 +20,11 @@ const Logout = () => {
     <Container>
       {user ? (
         <UserContainer>
-          <Avatar src={user.picture} alt={user.name} onClick={handleAvatarClick} />
+          <Avatar
+            src={user.picture || ""} 
+            alt={user.name || "User Avatar"} 
+            onClick={handleAvatarClick}
+          />
           <Email>{user.email}</Email>
 
           {/* Dropdown menu */}
@@ -55,7 +58,6 @@ const UserContainer = styled.div`
   align-items: center;
   text-align: center;
   position: relative; 
-
 `;
 
 const Avatar = styled.img`
@@ -91,15 +93,14 @@ const Button = styled.button`
   font-size: 16px;
   border: none;
   cursor: pointer;
-
 `;
 
 const LogoutButton = styled(Button)`
-  padding-botton: 20px;
+  padding-bottom: 20px;
 `;
 
 const LoginButton = styled(Button)`
-  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 const LoadingText = styled.div`
