@@ -2,64 +2,79 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
+import { useUser } from "@auth0/nextjs-auth0/client"; 
 
 interface BookmarkButtonProps {
   book_id: number;
-  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
   isBookmarked: boolean;
+  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   book_id,
   setBookmarkList,
-  isBookmarked,
 }) => {
-  const [isBookmarkedState, setIsBookmarkedState] = useState(isBookmarked);
+  const { user } = useUser(); 
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
-  const getBookmarkIds = (): number[] => {
+  const getBookmarks = (): number[] => {
+    if (!user) return [];
+
     const storedBookmarks = localStorage.getItem("bookmarks");
-    let bookmarkIds: number[] = [];
-    if (storedBookmarks) {
-      const parsedData = JSON.parse(storedBookmarks);
-      if (
-        Array.isArray(parsedData) &&
-        parsedData.length > 0 &&
-        typeof parsedData[0] === "object" &&
-        parsedData[0].book_id
-      ) {
-        bookmarkIds = parsedData.map(
-          (item: { book_id: number[] }) => item.book_id[0]
-        );
-      } else {
-        bookmarkIds = parsedData;
-      }
+    if (!storedBookmarks) return [];
+
+    try {
+      const bookmarks = JSON.parse(storedBookmarks);
+      const userBookmark = bookmarks.find((b: { id: string }) => b.id === user.sub);
+      return userBookmark ? userBookmark.book_id : [];
+    } catch (err) {
+      console.error("Error parsing bookmarks:", err);
+      return [];
     }
-    return bookmarkIds;
   };
 
   useEffect(() => {
-    const bookmarkIds = getBookmarkIds();
+    if (!user) return;
+    const bookmarkIds = getBookmarks();
     setBookmarkList(bookmarkIds);
-    setIsBookmarkedState(bookmarkIds.includes(book_id));
-  }, [book_id, setBookmarkList]);
+    setIsBookmarked(bookmarkIds.includes(book_id));
+  }, [book_id, user, setBookmarkList]);
 
   const handleBookmark = () => {
-    let bookmarkIds = getBookmarkIds();
+    if (!user) {
+      if (window.confirm("กรุณาเข้าสู่ระบบก่อนบันทึก Bookmark")) {
+        window.location.href = "/api/auth/login"; 
+      }
+      return;
+    }
+    const storedBookmarks = localStorage.getItem("bookmarks");
+    const bookmarks = storedBookmarks ? JSON.parse(storedBookmarks) : [];
 
-    if (bookmarkIds.includes(book_id)) {
-      bookmarkIds = bookmarkIds.filter((id) => id !== book_id);
+    let userBookmark = bookmarks.find((b: { id: string }) => b.id === user.sub);
+
+    if (userBookmark) {
+
+      if (userBookmark.book_id.includes(book_id)) {
+        userBookmark.book_id = userBookmark.book_id.filter((id: number) => id !== book_id);
+      } else {
+        userBookmark.book_id.push(book_id);
+      }
     } else {
-      bookmarkIds.push(book_id);
+ 
+      userBookmark = { id: user.sub, book_id: [book_id] };
+      bookmarks.push(userBookmark);
     }
 
-    localStorage.setItem("bookmarks", JSON.stringify(bookmarkIds));
-    setBookmarkList(bookmarkIds);
-    setIsBookmarkedState(bookmarkIds.includes(book_id));
+    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+    setBookmarkList(userBookmark.book_id);
+    setIsBookmarked(userBookmark.book_id.includes(book_id));
   };
 
+  console.log(user)
+
   return (
-    <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarkedState}>
-      {isBookmarkedState ? (
+    <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarked}>
+      {isBookmarked ? (
         <Buttombookmarkopen>
           <Icon>
             <Image
@@ -87,6 +102,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
     </ButtonContainer>
   );
 };
+
 
 const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
   cursor: pointer;

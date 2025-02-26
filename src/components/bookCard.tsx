@@ -29,24 +29,25 @@ interface BookCardProps {
   data: Book;
   bookmarkList: number[];
   setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
+  onBookmarkClick?: () => void; // ✅ เพิ่ม prop นี้
 }
 
 const BookCard: React.FC<BookCardProps> = ({
   data,
   bookmarkList,
   setBookmarkList,
+   
 }) => {
   const isBookmarked = bookmarkList.includes(data.id);
 
   return (
     <Card>
       <Images>
-      <Link href={`/book/${data.id}`}>
-      {/* <Link href="/about"> */}
-        <CoverImage
-          src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
-          alt={data.title}
-        />
+        <Link href={`/book/${data.id}`}>
+          <CoverImage
+            src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
+            alt={data.title}
+          />
         </Link>
       </Images>
       <Content>
@@ -73,7 +74,7 @@ const BookCard: React.FC<BookCardProps> = ({
         <SetBookmark>
           <BookmarkButton
             book_id={data.id}
-            isBookmarked={isBookmarked}  
+            isBookmarked={isBookmarked} // ✅ ส่งค่าที่คำนวณได้
             setBookmarkList={setBookmarkList}
           />
         </SetBookmark>
@@ -81,6 +82,7 @@ const BookCard: React.FC<BookCardProps> = ({
     </Card>
   );
 };
+
 
 const Card = styled.div`
   border: 1px solid var(--FONT_BLACK);

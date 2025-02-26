@@ -11,7 +11,7 @@ const Logout = () => {
   if (error) return <ErrorText>{error.message}</ErrorText>;
 
   const handleAvatarClick = () => {
-    setDropdownVisible(!dropdownVisible); // Toggle the dropdown visibility
+    setDropdownVisible(!dropdownVisible); 
   };
 
   console.log("User", user);
