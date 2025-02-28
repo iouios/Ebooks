@@ -28,7 +28,7 @@ const AllBook: React.FC = () => {
     if (query) {
       setSearchQuery(query);
     }
-  }, [searchParams]);  
+  }, [searchParams]);
 
   useEffect(() => {
     const bookmarks = localStorage.getItem("bookmarkList");
@@ -56,6 +56,7 @@ const AllBook: React.FC = () => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
+          console.log('Loading more books...');
           loadMoreBooks();
         }
       },
@@ -70,7 +71,7 @@ const AllBook: React.FC = () => {
   }, [loadMoreBooks, next]);
 
   useEffect(() => {
-    if (searchQuery) {
+    if (searchQuery.trim()) {  
       setIsSearchClicked(true);
       dispatch(searchBooks(searchQuery)); 
     }
@@ -79,7 +80,7 @@ const AllBook: React.FC = () => {
   const booksToShow = searchQuery && isSearchClicked ? searchResults : reduxBooks;
 
   const handleSearch = () => {
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       dispatch(searchBooks(searchQuery));  
     }
   };
@@ -116,7 +117,7 @@ const AllBook: React.FC = () => {
         reduxBooks.length > 0 ? (
         <LoadMoreRef ref={loadMoreRef}>กำลังค้นหา...</LoadMoreRef>
       ) : (
-        "กำลังค้นหา..."
+        ""
       )}
     </Container>
   );
