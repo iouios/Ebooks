@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
-import { useUser } from "@auth0/nextjs-auth0/client"; 
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 interface BookmarkButtonProps {
   book_id: number;
@@ -14,7 +14,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   book_id,
   setBookmarkList,
 }) => {
-  const { user } = useUser(); 
+  const { user } = useUser();
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const getBookmarks = (): number[] => {
@@ -25,7 +25,9 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
 
     try {
       const bookmarks = JSON.parse(storedBookmarks);
-      const userBookmark = bookmarks.find((b: { id: string }) => b.id === user.sub);
+      const userBookmark = bookmarks.find(
+        (b: { id: string }) => b.id === user.sub
+      );
       return userBookmark ? userBookmark.book_id : [];
     } catch (err) {
       console.error("Error parsing bookmarks:", err);
@@ -43,7 +45,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   const handleBookmark = () => {
     if (!user) {
       if (window.confirm("กรุณาเข้าสู่ระบบก่อนบันทึก Bookmark")) {
-        window.location.href = "/api/auth/login"; 
+        window.location.href = "/api/auth/login";
       }
       return;
     }
@@ -53,14 +55,14 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
     let userBookmark = bookmarks.find((b: { id: string }) => b.id === user.sub);
 
     if (userBookmark) {
-
       if (userBookmark.book_id.includes(book_id)) {
-        userBookmark.book_id = userBookmark.book_id.filter((id: number) => id !== book_id);
+        userBookmark.book_id = userBookmark.book_id.filter(
+          (id: number) => id !== book_id
+        );
       } else {
         userBookmark.book_id.push(book_id);
       }
     } else {
- 
       userBookmark = { id: user.sub, book_id: [book_id] };
       bookmarks.push(userBookmark);
     }
@@ -70,7 +72,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
     setIsBookmarked(userBookmark.book_id.includes(book_id));
   };
 
-  console.log(user)
+  console.log(user);
 
   return (
     <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarked}>
@@ -103,12 +105,15 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   );
 };
 
-
 const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
   margin-top: 10px;
+  padding: 0px;
+  @media (max-width: 500px) {
+    font-size: 10px;
+  }
 `;
 
 const Buttombookmarkopen = styled.div`
@@ -131,18 +136,39 @@ const Textcolor = styled.div`
   align-items: center;
   padding-right: 70px;
   padding-left: 20px;
+  @media (max-width: 500px) {
+    padding-right: 25px;
+    padding-left: 15px;
+  }
 `;
 
 const Textcolors = styled.div`
   align-items: center;
   padding-right: 70px;
   padding-left: 20px;
+  @media (max-width: 500px) {
+    padding-right: 25px;
+    padding-left: 15px;
+  }
 `;
 
 const Icon = styled.div`
+  display: flex;
   align-items: center;
   padding-left: 15px;
   padding-right: 20px;
+
+  @media (max-width: 500px) {
+    padding-right: 0px;
+    padding-left: 5px;
+
+    img {
+      width: 10px !important;
+      height: 10px !important;
+    }
+  }
 `;
+
+
 
 export default BookmarkButton;

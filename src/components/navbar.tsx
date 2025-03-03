@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logout from "./logout";
 
-
 interface MenuProps {
   $isMenuOpen: boolean;
 }
@@ -47,19 +46,11 @@ const Navbar = () => {
           <Button $isActive={pathname === "/bookmark"}>Bookmark</Button>
         </Link>
       </Menu>
-
       <Icon>
-        {/* <Image
-          src="/images/Rectangle 4.png"
-          alt="Profile"
-          width={50}
-          height={50}
-        /> */}
         <Icon>
-            <Logout/>
+          <Logout />
         </Icon>
       </Icon>
-      
       <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
         {!isMenuOpen ? (
           <Image src="/images/icon.png" alt="Menu" width={20} height={20} />
@@ -114,7 +105,7 @@ const TextcolorNav = styled.div`
     font-size: 16px;
   }
 `;
-
+{/* height รอแก้ความสูง */}
 const Menu = styled.div<MenuProps>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -127,11 +118,11 @@ const Menu = styled.div<MenuProps>`
     top: 70px;
     right: 0px;
     width: 200px;
+    height: 10000vh; 
     background-color: var(--FONT_BLACK);
     padding: 20px;
     z-index: 1000;
     text-align: center;
-    
   }
 `;
 
@@ -161,7 +152,6 @@ const Hamburger = styled.div<HamburgerProps>`
 `;
 
 const Icon = styled.div`
-
   @media (max-width: 500px) {
     display: none;
   }

@@ -4,7 +4,6 @@ import styled from "styled-components";
 import BookmarkButton from "./bookmarkButton";
 import Link from "next/link";
 
-
 interface Author {
   name: string;
 }
@@ -36,7 +35,6 @@ const BookCard: React.FC<BookCardProps> = ({
   data,
   bookmarkList,
   setBookmarkList,
-   
 }) => {
   const isBookmarked = bookmarkList.includes(data.id);
 
@@ -83,7 +81,6 @@ const BookCard: React.FC<BookCardProps> = ({
   );
 };
 
-
 const Card = styled.div`
   border: 1px solid var(--FONT_BLACK);
   background-color: var(--FONT_WHITE);
@@ -93,6 +90,11 @@ const Card = styled.div`
   align-items: center;
   gap: 20px;
   font-weight: bold;
+  @media (max-width: 500px) {
+    width: 160px;
+    height: 300px;
+    font-weight: bold;
+  }
 `;
 
 const CoverImage = styled.img`
@@ -103,6 +105,11 @@ const CoverImage = styled.img`
   border: 1px solid var(--FONT_BLACK);
   box-shadow: 0 2px 4px rgba(0, 0.5, 0.5, 0.5);
   margin-top: 50px;
+  @media (max-width: 500px) {
+    width: 80px;
+    height: 130px;
+    margin-top: 25px;
+  }
 `;
 
 const Images = styled.div`
@@ -115,12 +122,19 @@ const Content = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
+  @media (max-width: 500px) {
+    padding: 0px;
+  }
 `;
 
 const Title = styled.h3`
   font-size: 20px;
   color: var(--FONT_BLACK);
   padding-top: 20px;
+  @media (max-width: 500px) {
+    font-size: 10px;
+    padding-top: 10px;
+  }
 `;
 
 const Paragraph = styled.p`
@@ -128,6 +142,9 @@ const Paragraph = styled.p`
   color: var(--FONT_BROWN);
   overflow: hidden;
   text-overflow: ellipsis;
+  @media (max-width: 500px) {
+    font-size: 10px;
+  }
 `;
 
 const AuthorTitle = styled.p`
@@ -137,6 +154,10 @@ const AuthorTitle = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   padding-bottom: 20px;
+  @media (max-width: 500px) {
+    font-size: 10px;
+    padding-bottom: 10px;
+  }
 `;
 
 const SetTitle = styled.div`

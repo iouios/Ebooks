@@ -4,24 +4,30 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../../store/bookSlice";
 import { searchBooks } from "../../store/searchSlice";
 import { RootState, AppDispatch } from "../../store/store";
-import { useSearchParams } from "next/navigation"; 
+import { useSearchParams } from "next/navigation";
 import BookCard from "../../components/bookCard";
 import SearchInput from "../../components/searchInput";
 import styled from "styled-components";
 
 const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const searchParams = useSearchParams(); 
+  const searchParams = useSearchParams();
 
-  const { books: reduxBooks, loading, next } = useSelector((state: RootState) => state.books);
-  const { searchResults, searchLoading } = useSelector((state: RootState) => state.search);
+  const {
+    books: reduxBooks,
+    loading,
+    next,
+  } = useSelector((state: RootState) => state.books);
+  const { searchResults, searchLoading } = useSelector(
+    (state: RootState) => state.search
+  );
 
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
   const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");  
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const query = searchParams.get("search");
@@ -56,7 +62,7 @@ const AllBook: React.FC = () => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          console.log('Loading more books...');
+          console.log("Loading more books...");
           loadMoreBooks();
         }
       },
@@ -71,17 +77,18 @@ const AllBook: React.FC = () => {
   }, [loadMoreBooks, next]);
 
   useEffect(() => {
-    if (searchQuery.trim()) {  
+    if (searchQuery.trim()) {
       setIsSearchClicked(true);
-      dispatch(searchBooks(searchQuery)); 
+      dispatch(searchBooks(searchQuery));
     }
   }, [dispatch, searchQuery]);
 
-  const booksToShow = searchQuery && isSearchClicked ? searchResults : reduxBooks;
+  const booksToShow =
+    searchQuery && isSearchClicked ? searchResults : reduxBooks;
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      dispatch(searchBooks(searchQuery));  
+      dispatch(searchBooks(searchQuery));
     }
   };
 
@@ -90,9 +97,9 @@ const AllBook: React.FC = () => {
       <Main>Explore All Books Here</Main>
       <CenterSearch>
         <SearchInput
-          searchQuery={searchQuery}  
-          setSearchQuery={setSearchQuery}  
-          searchBooks={handleSearch}  
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          searchBooks={handleSearch}
         />
       </CenterSearch>
       <GridContainer>
@@ -111,10 +118,10 @@ const AllBook: React.FC = () => {
       )}
 
       {next &&
-        !loading &&
-        !searchLoading &&
-        !isSearchClicked &&
-        reduxBooks.length > 0 ? (
+      !loading &&
+      !searchLoading &&
+      !isSearchClicked &&
+      reduxBooks.length > 0 ? (
         <LoadMoreRef ref={loadMoreRef}>กำลังค้นหา...</LoadMoreRef>
       ) : (
         ""
@@ -134,9 +141,7 @@ const GridContainer = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 10px;
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+
   @media (max-width: 500px) {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -148,6 +153,9 @@ const Main = styled.div`
   font-size: 60px;
   text-align: center;
   font-weight: bold;
+  @media (max-width: 500px) {
+    font-size: 30px;
+  }
 `;
 
 const LoadMoreRef = styled.div`
@@ -163,6 +171,11 @@ const CenterSearch = styled.div`
   align-items: center;
   text-align: center;
   margin-bottom: 40px;
+
+  @media (max-width: 500px) {
+    display: none;
+  }
 `;
+
 
 export default AllBook;
