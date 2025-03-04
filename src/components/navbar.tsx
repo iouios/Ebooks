@@ -85,7 +85,7 @@ const Nav = styled.nav`
 const Flex = styled.div`
   display: flex;
   align-items: center;
-  padding-right: 180px;
+  padding-right: 350px;
 
   @media (max-width: 500px) {
     padding-right: 0px;
@@ -118,7 +118,7 @@ const Menu = styled.div<MenuProps>`
     top: 70px;
     right: 0px;
     width: 200px;
-    height: 10000vh; 
+    height: 100vh; 
     background-color: var(--FONT_BLACK);
     padding: 20px;
     z-index: 1000;

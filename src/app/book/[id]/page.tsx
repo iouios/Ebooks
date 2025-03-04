@@ -109,6 +109,26 @@ const BookPage = () => {
                     <strong>Download :</strong> {book.download_count}
                   </FlexDownload>
                 </DownloadCount>
+                <Categoryon>
+                  <strong>
+                    <FlexCategoryon>
+                      <ImageCategory
+                        src="/images/Book open.png"
+                        alt="Category Icon"
+                        width={20}
+                        height={10}
+                      />
+                      Category
+                    </FlexCategoryon>
+                  </strong>
+                  <CategorysContainer>
+                    {book.bookshelves.map((shelf, index) => (
+                      <Categorys key={index}>
+                        {shelf.replace("Browsing: ", "")}
+                      </Categorys>
+                    ))}
+                  </CategorysContainer>
+                </Categoryon>
               </Center>
             </BookInfo>
             <BookDetails>
@@ -145,7 +165,6 @@ const BookPage = () => {
               <Summary>{book.summaries.join(", ")}</Summary>
             </BookDetails>
           </BookContainer>
-          {/* แสดง ReactReader ถ้า showReader เป็น true และมี epubPath */}
           {showReader && epubPath && (
             <ReaderContainer>
               <ReactReader
@@ -167,29 +186,47 @@ const Main = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  height: 100vh; 
+  overflow: auto; 
 `;
 
 const BookContainer = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
   width: 100%;
   height: 100vh;
 `;
 
+
 const BookInfo = styled.div`
   background-color: var(--FONT_BLACK);
   padding: 20px 60px;
+  position: relative;
+
+  @media (max-width: 500px) {
+    padding: 10px 10px;
+
+    margin: 0 auto;
+    min-height: 100vh; 
+  overflow: auto; 
+  }
 `;
 
 const Title = styled.h1`
   font-size: 24px;
   font-weight: bold;
   color: var(--FONT_WHITE);
+  @media (max-width: 500px) {
+    padding: 10px 10px;
+  }
 `;
 
 const Author = styled.p`
   font-size: 18px;
   color: #ffdd7e;
+  @media (max-width: 500px) {
+    padding: 10px 10px;
+  }
 `;
 
 const ImageWrapper = styled.div`
@@ -198,6 +235,11 @@ const ImageWrapper = styled.div`
   margin: 20px;
   width: 200px;
   height: 250px;
+  @media (max-width: 500px) {
+    justify-content: start;
+    width: 150px;
+    height: 200px;
+  }
 `;
 
 const BookImage = styled.img`
@@ -210,6 +252,9 @@ const DownloadCount = styled.div`
   display: flex;
   font-size: 16px;
   color: var(--FONT_YELLOW);
+  @media (max-width: 500px) {
+    font-size: 14px;
+  }
 `;
 
 const DownloadLink = styled.a`
@@ -220,16 +265,33 @@ const DownloadLink = styled.a`
   border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
   border-radius: 8px;
+  @media (max-width: 500px) {
+    padding: 0px 5px;
+  }
 `;
 
 const BookDetails = styled.div`
   margin: 60px;
+  @media (max-width: 500px) {
+    margin: 20px;
+  }
 `;
 
 const Category = styled.div`
   display: flex;
   font-size: 16px;
   font-weight: bold;
+  @media (max-width: 500px) {
+    display: none;
+  }
+`;
+
+const Categoryon = styled.div`
+  font-size: 12px;
+  font-weight: bold;
+  @media (min-width: 500px) {
+    display: none;
+  }
 `;
 
 const Summary = styled.p`
@@ -246,18 +308,40 @@ const Flex = styled.div`
   align-items: flex-start;
   width: 100%;
   gap: 20px;
+
+  @media (max-width: 500px) {
+    gap: 0px;
+    flex-direction: column; /* เปลี่ยนเป็นแนวตั้ง */
+  }
 `;
 
 const LeftSide = styled.div`
-  padding: 40px;
   border-radius: 10px;
   font-size: 26px;
   font-weight: bold;
+
+  @media (min-width: 500px) {
+    padding: 40px;
+  }
+
+  @media (max-width: 500px) {
+    order: 2;
+    font-size: 20px;
+    padding-bottom: 15px;
+  }
 `;
 
 const RightSide = styled.div`
-  padding: 20px;
   border-radius: 10px;
+  @media (min-width: 500px) {
+    padding: 20px;
+  }
+
+  @media (max-width: 500px) {
+    order: 1;
+    padding-bottom: 10px;
+    border-radius: 10px;
+  }
 `;
 
 const Flexread = styled.div`
@@ -277,12 +361,24 @@ const FlexCategory = styled.div`
   font-size: 24px;
 `;
 
+const FlexCategoryon = styled.div`
+  display: flex;
+  color: var(--FONT_WHITE);
+  margin: 10px;
+  padding-top: 12px;
+  text-decoration: none;
+  font-size: 20px;
+`;
+
 const FlexDownload = styled.div`
   display: flex;
   text-align: center;
   justify-content: center;
   padding: 5px 10px;
   margin: 10px;
+  @media (max-width: 500px) {
+    padding: 0px 0px;
+  }
 `;
 
 const Imagesize = styled(Image)`
@@ -304,6 +400,11 @@ const ImageDownload = styled(Image)`
   height: 20px;
   margin-right: 5px;
   margin-left: 35px;
+  @media (max-width: 500px) {
+    width: 15px;
+    height: 15px;
+    margin-left: 10px;
+  }
 `;
 
 const CategorysContainer = styled.div`
@@ -311,6 +412,7 @@ const CategorysContainer = styled.div`
   flex-wrap: wrap;
   gap: 10px;
   margin: 20px 0;
+
 `;
 
 const Categorys = styled.a`
@@ -325,6 +427,10 @@ const Categorys = styled.a`
   border-radius: 25px;
   min-width: 100px;
   text-align: center;
+  @media (max-width: 500px) {  
+  padding: 0px;
+  margin: 0px;
+  margin-left: 50px;
 `;
 
 const ReaderContainer = styled.div`
@@ -335,7 +441,6 @@ const ReaderContainer = styled.div`
   left: 0;
   z-index: 999;
   background: #fff;
-
 `;
 
 export default BookPage;
