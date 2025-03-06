@@ -98,9 +98,7 @@ const BookPage = () => {
                   </Flexread>
                 </DownloadLink>
               )}
-              </CenterImage>
-              <Center>
-                <DownloadCount>
+              <DownloadCount>
                   <FlexDownload>
                     <ImageDownload
                       src="/images/Download.png"
@@ -111,6 +109,8 @@ const BookPage = () => {
                     <strong>Download :</strong> {book.download_count}
                   </FlexDownload>
                 </DownloadCount>
+              </CenterImage>
+              <Center>
                 <Categoryon>
                   <strong>
                     <FlexCategoryon>
@@ -209,8 +209,7 @@ const BookInfo = styled.div`
   position: relative;
 
   @media (max-width: 500px) {
-    padding: 10px 10px;
-
+    padding: 2px 2px;
     margin: 0 auto;
     min-height: 100vh;
     overflow: auto;
@@ -254,7 +253,6 @@ const BookImage = styled.img`
 `;
 
 const DownloadCount = styled.div`
-  display: flex;
   font-size: 16px;
   color: var(--FONT_YELLOW);
   @media (max-width: 500px) {
@@ -266,7 +264,7 @@ const DownloadLink = styled.a`
   display: inline-block;
   padding: 5px 10px;
   background: var(--FONT_WHITE);
-  margin-left: 75px;
+  
   border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
   border-radius: 8px;
@@ -384,7 +382,9 @@ const FlexDownload = styled.div`
   padding: 5px 0px;
   margin: 10px;
   @media (max-width: 500px) {
-    padding: 0px 0px;
+    padding: 0px 0px;  
+
+
   }
 `;
 
@@ -435,8 +435,7 @@ const Categorys = styled.a`
   text-align: center;
   @media (max-width: 500px) {  
   padding: 0px;
-  margin: 0px;
-  margin-left: 50px;
+  margin-left: 45px;
 `;
 
 const ReaderContainer = styled.div`
