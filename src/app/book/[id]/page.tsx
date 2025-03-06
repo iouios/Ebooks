@@ -76,6 +76,7 @@ const BookPage = () => {
                   {book.authors.map((author) => author.name).join(", ")}
                 </Author>
               </div>
+              <CenterImage>
               {book.formats["image/jpeg"] && (
                 <ImageWrapper>
                   <BookImage
@@ -97,6 +98,7 @@ const BookPage = () => {
                   </Flexread>
                 </DownloadLink>
               )}
+              </CenterImage>
               <Center>
                 <DownloadCount>
                   <FlexDownload>
@@ -246,8 +248,8 @@ const ImageWrapper = styled.div`
 `;
 
 const BookImage = styled.img`
-  max-width: 100%;
-  height: auto;
+  width: 150px;
+  height: 200px;
   border-radius: 5px;
 `;
 
@@ -268,18 +270,17 @@ const DownloadLink = styled.a`
   border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
   border-radius: 8px;
-  @media (min-width: 500px) {
-  }
+
   @media (max-width: 500px) {
     padding: 0px 5px;
-    padding-left: 10px;
+    margin-left: 0px;
   }
 `;
 
 const BookDetails = styled.div`
   margin: 60px;
   @media (max-width: 500px) {
-    margin: 20px;
+    margin: 30px;
   }
 `;
 
@@ -332,7 +333,7 @@ const LeftSide = styled.div`
 
   @media (max-width: 500px) {
     order: 2;
-    font-size: 20px;
+    font-size: 18px;
     padding-bottom: 15px;
   }
 `;
@@ -446,6 +447,10 @@ const ReaderContainer = styled.div`
   left: 0;
   z-index: 999;
   background: #fff;
+`;
+
+const CenterImage = styled.div`
+text-align: center;
 `;
 
 export default BookPage;
