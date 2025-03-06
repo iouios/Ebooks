@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { fetchBookById } from "../../../store/bookSlice";
 import { RootState, AppDispatch } from "../../../store/store";
-import BookmarkButton from "../../../components/bookmarkButton";
+import BookmarkButton from "@/components/client/bookmarkButton";
 import styled from "styled-components";
 import Image from "next/image";
 import { ReactReader } from "react-reader";
@@ -84,20 +84,20 @@ const BookPage = () => {
                   />
                 </ImageWrapper>
               )}
+              {book.formats["application/epub+zip"] && (
+                <DownloadLink href="#" onClick={downloadEpub}>
+                  <Flexread>
+                    <Imagesize
+                      src="/images/Book open back.png"
+                      alt="Read Book"
+                      width={20}
+                      height={10}
+                    />
+                    {isDownloading ? "Downloading..." : "Read"}
+                  </Flexread>
+                </DownloadLink>
+              )}
               <Center>
-                {book.formats["application/epub+zip"] && (
-                  <DownloadLink href="#" onClick={downloadEpub}>
-                    <Flexread>
-                      <Imagesize
-                        src="/images/Book open back.png"
-                        alt="Read Book"
-                        width={20}
-                        height={10}
-                      />
-                      {isDownloading ? "Downloading..." : "Read"}
-                    </Flexread>
-                  </DownloadLink>
-                )}
                 <DownloadCount>
                   <FlexDownload>
                     <ImageDownload
@@ -186,17 +186,20 @@ const Main = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh; 
-  overflow: auto; 
+  height: 100vh;
+  overflow: auto;
 `;
 
 const BookContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr; 
-  width: 100%;
-  height: 100vh;
-`;
+  display: flex;
 
+  height: 100vh;
+  @media (max-width: 500px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+`;
 
 const BookInfo = styled.div`
   background-color: var(--FONT_BLACK);
@@ -207,8 +210,8 @@ const BookInfo = styled.div`
     padding: 10px 10px;
 
     margin: 0 auto;
-    min-height: 100vh; 
-  overflow: auto; 
+    min-height: 100vh;
+    overflow: auto;
   }
 `;
 
@@ -261,12 +264,16 @@ const DownloadLink = styled.a`
   display: inline-block;
   padding: 5px 10px;
   background: var(--FONT_WHITE);
-  margin: 10px;
+  margin-left: 75px;
   border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
   border-radius: 8px;
+  @media (min-width: 500px) {
+  }
   @media (max-width: 500px) {
     padding: 0px 5px;
+    padding-left: 10px;
+      margin-left: 45px;
   }
 `;
 
@@ -311,7 +318,7 @@ const Flex = styled.div`
 
   @media (max-width: 500px) {
     gap: 0px;
-    flex-direction: column; /* เปลี่ยนเป็นแนวตั้ง */
+    flex-direction: column;
   }
 `;
 
@@ -374,7 +381,7 @@ const FlexDownload = styled.div`
   display: flex;
   text-align: center;
   justify-content: center;
-  padding: 5px 10px;
+  padding: 5px 0px;
   margin: 10px;
   @media (max-width: 500px) {
     padding: 0px 0px;
@@ -412,7 +419,6 @@ const CategorysContainer = styled.div`
   flex-wrap: wrap;
   gap: 10px;
   margin: 20px 0;
-
 `;
 
 const Categorys = styled.a`

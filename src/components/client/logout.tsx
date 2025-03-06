@@ -26,8 +26,6 @@ const Logout = () => {
             onClick={handleAvatarClick}
           />
           <Email>{user.email}</Email>
-
-          {/* Dropdown menu */}
           {dropdownVisible && (
             <DropdownMenu>
               <LogoutButton onClick={() => (window.location.href = "/api/auth/logout")}>

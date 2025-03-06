@@ -5,8 +5,8 @@ import { fetchBooks } from "../../store/bookSlice";
 import { searchBooks } from "../../store/searchSlice";
 import { RootState, AppDispatch } from "../../store/store";
 import { useSearchParams } from "next/navigation";
-import BookCard from "../../components/bookCard";
-import SearchInput from "../../components/searchInput";
+import BookCard from "@/components/client/bookCard";
+import SearchInput from "@/components/client/searchInput";
 import styled from "styled-components";
 
 const AllBook: React.FC = () => {

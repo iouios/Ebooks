@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import styled from "styled-components";
-import BookmarkButton from "./bookmarkButton";
+import BookmarkButton from "../client/bookmarkButton";
 import Link from "next/link";
 
 interface Author {

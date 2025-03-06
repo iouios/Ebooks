@@ -1,6 +1,6 @@
-import Navbar from "../components/navbar";
-import Footer from "../components/footer";
-import ClientProvider from "../components/ClientProvider";
+import NavbarWrapper from "@/components/server/navbar-wrapper";
+import FooterWrapper from "@/components/server/footer-wrapper";
+import ClientProvider from "@/components/client/ClientProvider";
 import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 
@@ -19,9 +19,9 @@ export default function RootLayout({
       <UserProvider>
         <body>
           <ClientProvider>
-            <Navbar />
+            <NavbarWrapper />
             <main>{children}</main>
-            <Footer />
+            <FooterWrapper />
           </ClientProvider>
         </body>
       </UserProvider>

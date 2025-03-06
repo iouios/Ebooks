@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import BookCard from "../../components/bookCard";
+import BookCard from "@/components/client/bookCard";
 
 interface Author {
   name: string;

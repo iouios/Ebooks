@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../store/bookSlice";
 import { RootState, AppDispatch } from "../store/store";
 import { useRouter } from "next/navigation"; 
-import SearchInput from "../components/searchInput";
+import SearchInput from "@/components/client/searchInput";
 
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
