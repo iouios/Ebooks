@@ -11,7 +11,7 @@ const Logout = () => {
   if (error) return <ErrorText>{error.message}</ErrorText>;
 
   const handleAvatarClick = () => {
-    setDropdownVisible(!dropdownVisible); 
+    setDropdownVisible(!dropdownVisible);
   };
 
   console.log("User", user);
@@ -20,15 +20,24 @@ const Logout = () => {
     <Container>
       {user ? (
         <UserContainer>
-          <Avatar
-            src={user.picture || ""} 
-            alt={user.name || "User Avatar"} 
-            onClick={handleAvatarClick}
-          />
-          <Email>{user.email}</Email>
+          <FlexLogout>
+            <Avatar
+              src={user.picture || ""}
+              alt={user.name || "User Avatar"}
+              onClick={handleAvatarClick}
+            />
+            <Email>{user.email}</Email>
+            <LogoutResponsiveButton
+              onClick={() => (window.location.href = "/api/auth/logout")}
+            >
+              Logout
+            </LogoutResponsiveButton>
+          </FlexLogout>
           {dropdownVisible && (
             <DropdownMenu>
-              <LogoutButton onClick={() => (window.location.href = "/api/auth/logout")}>
+              <LogoutButton
+                onClick={() => (window.location.href = "/api/auth/logout")}
+              >
                 Logout
               </LogoutButton>
             </DropdownMenu>
@@ -48,6 +57,26 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  @media (max-width: 500px) {
+    position: relative;
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      width: 115%;
+      height: 1px;
+      border-top: 2px solid var(--ELEMENT_WHITE);
+    }
+
+    &::before {
+      top: 0;
+    }
+
+    &::after {
+      bottom: 0;
+    }
+  }
 `;
 
 const UserContainer = styled.div`
@@ -55,7 +84,7 @@ const UserContainer = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  position: relative; 
+  position: relative;
 `;
 
 const Avatar = styled.img`
@@ -64,20 +93,31 @@ const Avatar = styled.img`
   height: 30px;
   object-fit: cover;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin-top: 12px;
+  @media (max-width: 500px) {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+  }
 `;
 
 const Email = styled.div`
   font-size: 16px;
   color: var(--FONT_WHITE);
   margin-bottom: 15px;
+  @media (max-width: 500px) {
+    font-size: 10px;
+    margin-top: 15px;
+    margin-left: 10px;
+    margin-right: 25px;
+  }
 `;
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 40px; 
+  top: 40px;
   right: 0;
-  background-color:  var(--ELEMENT_BLACK);
+  background-color: var(--ELEMENT_BLACK);
   border: 1px solid var(--ELEMENT_YELLOW);
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -85,6 +125,9 @@ const DropdownMenu = styled.div`
   height: 40px;
   padding: 6px;
   text-align: center;
+  @media (max-width: 500px) {
+    display: none;
+  }
 `;
 
 const Button = styled.button`
@@ -109,6 +152,29 @@ const LoadingText = styled.div`
 const ErrorText = styled.div`
   font-size: 16px;
   color: red;
+`;
+
+const FlexLogout = styled.div`
+  @media (min-width: 500px) {
+    display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  }
+  @media (max-width: 500px) {
+   display: flex;
+   margin: 10px;
+
+`;
+
+const LogoutResponsiveButton = styled(Button)`
+  padding-bottom: 0px;
+  font-size: 8px;
+  margin-right: 30px;
+  @media (min-width: 500px) {
+    display: none;
+  }
 `;
 
 export default Logout;

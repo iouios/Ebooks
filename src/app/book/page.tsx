@@ -172,9 +172,7 @@ const CenterSearch = styled.div`
   text-align: center;
   margin-bottom: 40px;
 
-  @media (max-width: 500px) {
-    display: none;
-  }
+
 `;
 
 

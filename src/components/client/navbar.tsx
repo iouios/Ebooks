@@ -1,6 +1,6 @@
 "use client";
 import styled from "styled-components";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,6 +20,10 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
   return (
     <Nav>
       <Flex>
@@ -35,29 +39,37 @@ const Navbar = () => {
         </Text>
       </Flex>
 
-      <Menu $isMenuOpen={isMenuOpen}>
-        <Link href="/" passHref>
-          <Button $isActive={pathname === "/"}>Home</Button>
-        </Link>
-        <Link href="/book" passHref>
-          <Button $isActive={pathname === "/book"}>Book</Button>
-        </Link>
-        <Link href="/bookmark" passHref>
-          <Button $isActive={pathname === "/bookmark"}>Bookmark</Button>
-        </Link>
-      </Menu>
+      <HamburgerWrapper>
+        <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
+          {!isMenuOpen ? (
+            <Image src="/images/icon.png" alt="Menu" width={20} height={20} />
+          ) : (
+            null
+          )}
+        </Hamburger>
+        <Menu $isMenuOpen={isMenuOpen}>
+          <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
+            <Image src="/images/Vector.png" alt="Close" width={20} height={20} />
+          </Hamburger>
+          <LogoutImage>
+            <Logout />
+          </LogoutImage>
+          <Link href="/" passHref>
+            <Button $isActive={pathname === "/"}>Home</Button>
+          </Link>
+          <Link href="/book" passHref>
+            <Button $isActive={pathname === "/book"}>Book</Button>
+          </Link>
+          <Link href="/bookmark" passHref>
+            <Button $isActive={pathname === "/bookmark"}>Bookmark</Button>
+          </Link>
+        </Menu>
+      </HamburgerWrapper>
       <Icon>
         <Icon>
           <Logout />
         </Icon>
       </Icon>
-      <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
-        {!isMenuOpen ? (
-          <Image src="/images/icon.png" alt="Menu" width={20} height={20} />
-        ) : (
-          <Image src="/images/Vector.png" alt="Close" width={20} height={20} />
-        )}
-      </Hamburger>
     </Nav>
   );
 };
@@ -105,25 +117,27 @@ const TextcolorNav = styled.div`
     font-size: 16px;
   }
 `;
-{/* height รอแก้ความสูง */}
+
 const Menu = styled.div<MenuProps>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 20px;
 
+
   @media (max-width: 500px) {
     display: ${(props) => (props.$isMenuOpen ? "flex" : "none")};
     flex-direction: column;
-    position: absolute;
-    top: 70px;
+    position: fixed;  /* Changed from absolute to fixed */
+    top: 0px;  /* Keep the menu below the header */
     right: 0px;
     width: 200px;
-    height: 100vh; 
+    height: 100vh;
     background-color: var(--FONT_BLACK);
     padding: 20px;
     z-index: 1000;
     text-align: center;
-  }
+    overflow-y: auto; /* To make sure the content can scroll within the menu if needed */
+    }
 `;
 
 const Button = styled.button<{ $isActive: boolean }>`
@@ -139,15 +153,24 @@ const Button = styled.button<{ $isActive: boolean }>`
   }
 `;
 
+const HamburgerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+`;
+
 const Hamburger = styled.div<HamburgerProps>`
   display: none;
   cursor: pointer;
-  width: 40px;
-  height: 30px;
+  width: 15px;
+  height: 15px;
 
   @media (max-width: 500px) {
     display: flex;
-    margin-left: 100px;
+    margin-left: 150px;
+    margin-top: 10px;
+    margin-bottom: 5px;
   }
 `;
 
@@ -164,6 +187,12 @@ const ResponsiveImage = styled(Image)`
   @media (max-width: 500px) {
     width: 120px;
     height: 60px;
+  }
+`;
+
+const LogoutImage = styled.div`
+  @media (min-width: 500px) {
+    display: none;
   }
 `;
 

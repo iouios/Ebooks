@@ -273,7 +273,6 @@ const DownloadLink = styled.a`
   @media (max-width: 500px) {
     padding: 0px 5px;
     padding-left: 10px;
-      margin-left: 45px;
   }
 `;
 

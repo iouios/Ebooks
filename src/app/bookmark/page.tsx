@@ -98,7 +98,6 @@ const BookList: React.FC = () => {
       return;
     }
     
-    // ดำเนินการเพิ่ม/ลบ Bookmark ตามปกติ
   };
 
   if (!user) {
@@ -136,18 +135,17 @@ const BookList: React.FC = () => {
 };
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
   padding: 20px;
+  width: 100%;
+  height: 100%;
 `;
 
 const Main = styled.h1`
+  padding: 10px;
+  font-size: 24px;
   text-align: center;
-  margin-top: 60px;
-  margin-bottom: 20px;
-  font-size: 28px;
   font-weight: bold;
+  margin-bottom: 20px;
 `;
 
 const GridContainer = styled.div`
