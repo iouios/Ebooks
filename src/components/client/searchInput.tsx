@@ -15,7 +15,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
   const handleSearchClick = () => {
     if (searchQuery.trim()) {
-      searchBooks(searchQuery); // ค้นหาหลังจากกดปุ่ม Search
+      searchBooks(searchQuery); 
     }
   };
 
@@ -39,7 +39,7 @@ const SearchContainer = styled.div`
   width: 450px;
   @media (max-width: 500px) {
     display: flex;
-    width: 290px;
+    width: 250px;
     padding: 4px;
   }
 `;
@@ -59,7 +59,8 @@ const SearchField = styled.input`
   @media (max-width: 500px) {
     width: 100%; 
     max-width: 250px;
-    padding: 8px 10px;
+    padding: 0px 15px;
+      font-size: 10px;
   }  
 `;
 
@@ -72,13 +73,15 @@ const SearchButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0.5, 0.5, 0.5);
-  width: 200px;
+  width: 150px;
   @media (min-width: 500px) {
     padding: 8px 16px;
   }
   @media (max-width: 500px) {
-    padding: 0px 16px;
-    padding: 10px;
+    padding: 5px 30px;
+    margin: 2px;
+      font-size: 12px;
+
   }
 `;
 

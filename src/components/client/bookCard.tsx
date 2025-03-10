@@ -82,9 +82,8 @@ const BookCard: React.FC<BookCardProps> = ({
 };
 
 const Card = styled.div`
-  border: 1px solid var(--FONT_BLACK);
   background-color: var(--FONT_WHITE);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px var(--ELEMENT_GRAY);
   border-radius: 8px;
   justify-content: center;
   align-items: center;

@@ -15,7 +15,11 @@ const Logout = () => {
   };
 
   console.log("User", user);
-
+  const truncateText = (text: string | null | undefined, maxLength: number) => {
+    if (!text) return ""; 
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+  
   return (
     <Container>
       {user ? (
@@ -26,7 +30,9 @@ const Logout = () => {
               alt={user.name || "User Avatar"}
               onClick={handleAvatarClick}
             />
-            <Email>{user.email}</Email>
+
+            <Email>{truncateText(user.email, 15)}</Email>
+
             <LogoutResponsiveButton
               onClick={() => (window.location.href = "/api/auth/logout")}
             >
@@ -109,7 +115,7 @@ const Email = styled.div`
     font-size: 10px;
     margin-top: 15px;
     margin-left: 10px;
-    margin-right: 25px;
+    margin-right: 30px;
   }
 `;
 
@@ -141,7 +147,7 @@ const LogoutButton = styled(Button)`
 `;
 
 const LoginButton = styled(Button)`
-  margin-bottom: 10px;
+  margin: 10px;
 `;
 
 const LoadingText = styled.div`
@@ -171,7 +177,6 @@ const FlexLogout = styled.div`
 const LogoutResponsiveButton = styled(Button)`
   padding-bottom: 0px;
   font-size: 8px;
-  margin-right: 30px;
   @media (min-width: 500px) {
     display: none;
   }

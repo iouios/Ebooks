@@ -77,28 +77,28 @@ const BookPage = () => {
                 </Author>
               </div>
               <CenterImage>
-              {book.formats["image/jpeg"] && (
-                <ImageWrapper>
-                  <BookImage
-                    src={book.formats["image/jpeg"]}
-                    alt={book.title}
-                  />
-                </ImageWrapper>
-              )}
-              {book.formats["application/epub+zip"] && (
-                <DownloadLink href="#" onClick={downloadEpub}>
-                  <Flexread>
-                    <Imagesize
-                      src="/images/Book open back.png"
-                      alt="Read Book"
-                      width={20}
-                      height={10}
+                {book.formats["image/jpeg"] && (
+                  <ImageWrapper>
+                    <BookImage
+                      src={book.formats["image/jpeg"]}
+                      alt={book.title}
                     />
-                    {isDownloading ? "Downloading..." : "Read"}
-                  </Flexread>
-                </DownloadLink>
-              )}
-              <DownloadCount>
+                  </ImageWrapper>
+                )}
+                {book.formats["application/epub+zip"] && (
+                  <DownloadLink href="#" onClick={downloadEpub}>
+                    <Flexread>
+                      <Imagesize
+                        src="/images/Book open back.png"
+                        alt="Read Book"
+                        width={20}
+                        height={10}
+                      />
+                      {isDownloading ? "Downloading..." : "Read"}
+                    </Flexread>
+                  </DownloadLink>
+                )}
+                <DownloadCount>
                   <FlexDownload>
                     <ImageDownload
                       src="/images/Download.png"
@@ -264,7 +264,7 @@ const DownloadLink = styled.a`
   display: inline-block;
   padding: 5px 10px;
   background: var(--FONT_WHITE);
-  
+
   border: 2px solid var(--FONT_YELLOW);
   text-decoration: none;
   border-radius: 8px;
@@ -382,9 +382,7 @@ const FlexDownload = styled.div`
   padding: 5px 0px;
   margin: 10px;
   @media (max-width: 500px) {
-    padding: 0px 0px;  
-
-
+    padding: 0px 0px;
   }
 `;
 
@@ -418,7 +416,10 @@ const CategorysContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 20px 0;
+  margin: 20px;
+  @media (max-width: 500px) {
+    margin: 0px;
+  }
 `;
 
 const Categorys = styled.a`
@@ -426,7 +427,7 @@ const Categorys = styled.a`
   align-items: center;
   justify-content: center;
   padding: 10px;
-  margin: 4px;
+  margin: 5px;
   background: var(--ELEMENT_BROWN);
   color: var(--FONT_WHITE);
   text-decoration: none;
@@ -434,7 +435,7 @@ const Categorys = styled.a`
   min-width: 100px;
   text-align: center;
   @media (max-width: 500px) {  
-  padding: 0px;
+  padding: 10px;
   margin-left: 45px;
 `;
 
@@ -449,7 +450,7 @@ const ReaderContainer = styled.div`
 `;
 
 const CenterImage = styled.div`
-text-align: center;
+  text-align: center;
 `;
 
 export default BookPage;

@@ -49,11 +49,12 @@ const HomePage = () => {
           <SearchInput
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            searchBooks={handleSearch} // onSearch function
+            searchBooks={handleSearch}
           />
         </Search>
         <StyledImage src="/images/Book.png" alt="Profile" fill priority />
         <StyledImages src="/images/bookimage.jpg" alt="Profile" fill priority />
+        <div></div>
         <Swipermagins>
           {loading ? (
             <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
@@ -90,6 +91,7 @@ const HomePage = () => {
                         10
                       )}
                     </BookAuthor>
+                    <div>Test</div>
                   </BookCard>
                 </SwiperSlide>
               ))}
@@ -303,13 +305,15 @@ const CustomPagination = styled.div`
 
 const Swipermagin = styled.div`
   @media (max-width: 500px) {
+  margin: 20 px;
     display: none;
+    
   }
 `;
 
 const Swipermagins = styled.div`
   @media (min-width: 500px) {
-    margin: 20px;
+    padding: 10px;
     display: none;
   }
 `;
@@ -329,8 +333,7 @@ const BookCard = styled.div`
     padding: 20px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
     margin-top: 350px;
-    margin-right: 10px;
-    margin-left: 10px;
+
   }
 `;
 
