@@ -52,57 +52,81 @@ const HomePage = () => {
             searchBooks={handleSearch}
           />
         </Search>
-        <StyledImage src="/images/Book.png" alt="Profile" fill priority />
-        <StyledImages src="/images/bookimage.jpg" alt="Profile" fill priority />
-        <BookMargin>
-        <Swipermagins>
-          {loading ? (
-            <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
-          ) : (
-            <Swiper
-              spaceBetween={30}
-              pagination={{
-                clickable: true,
-                el: ".swiper-pagination-books-recommented",
-              }}
-              modules={[Pagination]}
-              className="mySwiper"
-              breakpoints={{300: {
-                  slidesPerView: 2,
-                },
-              }}
-            >
-              {books.slice(0, 12).map((book) => (
-                <SwiperSlide key={book.id}>
-                  <BookCard>
-                    <BookImage
-                      src={book.formats["image/jpeg"]}
-                      alt={book.title}
-                    />
-                    <BookTitle>{truncateText(book.title, 7)}</BookTitle>
-                    <BookAuthor>
-                      {truncateText(
-                        book.authors.map((author) => author.name).join(", "),
-                        10
-                      )}
-                    </BookAuthor>
-                  </BookCard>
-                </SwiperSlide>
-              ))}
-
-              <Paginationmagin>
-                <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-books-recommented" />
-              </Paginationmagin>
-            </Swiper>
-          )}
-        </Swipermagins>
-        </BookMargin>
+        <StyledImage
+          src="/images/book.png"
+          alt="คำอธิบายรูป"
+          width={400}
+          height={300}
+          priority
+        />
       </ImageContainer>
+      <ImageContainerres>
+        <OverlayText>The Book Lover&apos;s Dreamland Awaits!</OverlayText>
+        <Search>
+          <SearchInput
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchBooks={handleSearch}
+          />
+        </Search>
 
+        <TextOur>Our Best Picks</TextOur>
+ 
+        <BookMargin>
+          <Swipermagins>
+            {loading ? (
+              <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
+            ) : (
+              <Swiper
+                spaceBetween={30}
+                pagination={{
+                  clickable: true,
+                  el: ".swiper-pagination-books-recommented",
+                }}
+                modules={[Pagination]}
+                className="mySwiper"
+                breakpoints={{
+                  300: {
+                    slidesPerView: 2,
+                  },
+                }}
+              >
+                {books.slice(0, 12).map((book) => (
+                  <SwiperSlide key={book.id}>
+                    <BookCard>
+                      <BookImage
+                        src={book.formats["image/jpeg"]}
+                        alt={book.title}
+                      />
+                      <BookTitle>{truncateText(book.title, 7)}</BookTitle>
+                      <BookAuthor>
+                        {truncateText(
+                          book.authors.map((author) => author.name).join(", "),
+                          10
+                        )}
+                      </BookAuthor>
+                    </BookCard>
+                  </SwiperSlide>
+                ))}
+
+                <Paginationmagin>
+                  <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-books-recommented" />
+                </Paginationmagin>
+              </Swiper>
+            )}
+          </Swipermagins>
+        </BookMargin>
+        <StyledImage
+          src="/images/bookimage.jpg"
+          alt="คำอธิบายรูป"
+          width={400}
+          height={300}
+          priority
+        />
+      </ImageContainerres>
       <ContentContainer>
         <TextOur>Our Best Picks</TextOur>
       </ContentContainer>
-
       <Swipermagin>
         {loading ? (
           <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
@@ -152,29 +176,38 @@ const Container = styled.div`
 `;
 
 const ImageContainer = styled.div`
-  position: relative;
   width: 100%;
   height: 100vh;
+  background-image: url("/images/book.png");
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  @media (max-width: 500px) {
+    display: none;
+  }
+`;
+const ImageContainerres = styled.div`
+  width: 100%;
+  height: 100vh;
+  background-image: url("/images/bookimage.jpg");
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  @media (min-width: 500px) {
+    display: none;
+  }
 `;
 
 const StyledImage = styled(Image)`
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  @media (max-width: 500px) {
+  @media (min-width: 500px) {
     display: none;
   }
 `;
 
 const StyledImages = styled(Image)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   object-fit: cover;
   @media (max-width: 500px) {
     font-size: 18px;
@@ -186,17 +219,12 @@ const StyledImages = styled(Image)`
 `;
 
 const OverlayText = styled.div`
-  position: absolute;
-  top: 12%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  padding-top: 70px;
   color: #ff7700;
   font-size: 45px;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 10;
   text-align: center;
-  width: 80%;
   @media (max-width: 500px) {
     font-size: 19px;
     font-weight: bold;
@@ -204,67 +232,47 @@ const OverlayText = styled.div`
 `;
 
 const Text = styled.div`
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  margin-top: 20px;
   color: white;
   font-size: 16px;
-  font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 10;
   text-align: center;
-  width: 80%;
   @media (max-width: 500px) {
     display: none;
   }
 `;
 
 const Text1 = styled.div`
-  position: absolute;
-  top: 23%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  margin-bottom: 10px;
   color: white;
   font-size: 16px;
-  font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 10;
   text-align: center;
-  width: 80%;
   @media (max-width: 500px) {
     display: none;
   }
 `;
 
 const Search = styled.div`
-  position: absolute;
-  top: 35%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  margin-top: 50px;
   color: white;
   font-size: 16px;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 10;
   text-align: center;
-  width: auto;
+  display: flex;
+  justify-content: center;
+
   @media (max-width: 500px) {
-    top: 20%;
-    left: 50%;
   }
 `;
 
 const ContentContainer = styled.div`
-  padding: 20px;
   background-color: var(--FONT_WHITE);
   color: #333;
+  margin-top: 250px;
   @media (max-width: 500px) {
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--background);
+    display: none;
   }
 `;
 
@@ -272,10 +280,9 @@ const TextOur = styled.div`
   font-size: 60px;
   font-weight: bold;
   text-align: center;
-  width: 100%;
-  margin-top: 80px;
   @media (max-width: 500px) {
     font-size: 20px;
+    margin-top: 60px;
     color: var(--FONT_YELLOW);
   }
 `;
@@ -295,10 +302,10 @@ const CustomPagination = styled.div`
 `;
 
 const Swipermagin = styled.div`
+  margin-top: 100px;
   @media (max-width: 500px) {
-  margin: 20 px;
+    margin-top: 100px;
     display: none;
-    
   }
 `;
 
@@ -321,10 +328,8 @@ const BookCard = styled.div`
   text-align: start;
   padding: 10px;
   @media (max-width: 500px) {
-    padding: 20px;
+    padding: 14px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-    margin-top: 350px;
-
   }
 `;
 
@@ -335,7 +340,7 @@ const BookImage = styled.img`
   border-bottom: 1px solid #ddd;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
   @media (max-width: 500px) {
-    width: 200px;
+    width: 250px;
     height: 150px;
   }
 `;
@@ -352,11 +357,11 @@ const BookAuthor = styled.p`
 `;
 
 const BookMargin = styled.div`
-    @media (max-width: 500px) {
-    margin-left: 60px;
-    margin-right: 60px;
+  @media (max-width: 500px) {
+    margin-top: 50px;
+    margin-left: 50px;
+    margin-right: 50px;
   }
 `;
-
 
 export default HomePage;
