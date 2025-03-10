@@ -176,6 +176,7 @@ const FlexLogout = styled.div`
 
 const LogoutResponsiveButton = styled(Button)`
   padding-bottom: 0px;
+  padding-right: 20px;
   font-size: 8px;
   @media (min-width: 500px) {
     display: none;

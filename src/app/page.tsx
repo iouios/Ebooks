@@ -54,7 +54,7 @@ const HomePage = () => {
         </Search>
         <StyledImage src="/images/Book.png" alt="Profile" fill priority />
         <StyledImages src="/images/bookimage.jpg" alt="Profile" fill priority />
-        <div></div>
+        <BookMargin>
         <Swipermagins>
           {loading ? (
             <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
@@ -67,12 +67,7 @@ const HomePage = () => {
               }}
               modules={[Pagination]}
               className="mySwiper"
-              breakpoints={{
-                768: {
-                  slidesPerView: 4,
-                },
-
-                300: {
+              breakpoints={{300: {
                   slidesPerView: 2,
                 },
               }}
@@ -84,14 +79,13 @@ const HomePage = () => {
                       src={book.formats["image/jpeg"]}
                       alt={book.title}
                     />
-                    <BookTitle>{truncateText(book.title, 10)}</BookTitle>
+                    <BookTitle>{truncateText(book.title, 7)}</BookTitle>
                     <BookAuthor>
                       {truncateText(
                         book.authors.map((author) => author.name).join(", "),
                         10
                       )}
                     </BookAuthor>
-                    <div>Test</div>
                   </BookCard>
                 </SwiperSlide>
               ))}
@@ -102,6 +96,7 @@ const HomePage = () => {
             </Swiper>
           )}
         </Swipermagins>
+        </BookMargin>
       </ImageContainer>
 
       <ContentContainer>
@@ -123,10 +118,6 @@ const HomePage = () => {
             breakpoints={{
               600: {
                 slidesPerView: 4,
-              },
-
-              100: {
-                slidesPerView: 2,
               },
             }}
           >
@@ -345,7 +336,7 @@ const BookImage = styled.img`
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
   @media (max-width: 500px) {
     width: 200px;
-    height: 200px;
+    height: 150px;
   }
 `;
 
@@ -359,5 +350,13 @@ const BookAuthor = styled.p`
   font-size: 14px;
   color: gray;
 `;
+
+const BookMargin = styled.div`
+    @media (max-width: 500px) {
+    margin-left: 60px;
+    margin-right: 60px;
+  }
+`;
+
 
 export default HomePage;

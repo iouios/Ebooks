@@ -146,7 +146,7 @@ const Main = styled.h1`
   text-align: center;
   font-weight: bold;
   margin-bottom: 20px;
-  margin-
+
 `;
 
 const GridContainer = styled.div`
