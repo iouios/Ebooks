@@ -207,17 +207,6 @@ const StyledImage = styled(Image)`
   }
 `;
 
-const StyledImages = styled(Image)`
-  object-fit: cover;
-  @media (max-width: 500px) {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  @media (min-width: 500px) {
-    display: none;
-  }
-`;
-
 const OverlayText = styled.div`
   padding-top: 70px;
   color: #ff7700;

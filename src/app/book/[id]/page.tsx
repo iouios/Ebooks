@@ -437,6 +437,7 @@ const Categorys = styled.a`
   @media (max-width: 500px) {  
   padding: 10px;
   margin-left: 45px;
+}
 `;
 
 const ReaderContainer = styled.div`
