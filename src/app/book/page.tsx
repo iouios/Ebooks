@@ -139,24 +139,34 @@ const Container = styled.div`
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  justify-content: center;
+  align-items: center;
   gap: 20px;
-  padding: 10px;
+  place-items: center; 
 
   @media (max-width: 500px) {
     grid-template-columns: repeat(2, 1fr);
+    padding: 0px;
   }
 `;
 
+
 const Main = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
   color: var(--FONT_YELLOW);
   font-size: 60px;
-  text-align: center;
   font-weight: bold;
   @media (max-width: 500px) {
     font-size: 30px;
+    padding: 20px 0;
   }
 `;
+
+
 
 const LoadMoreRef = styled.div`
   text-align: center;

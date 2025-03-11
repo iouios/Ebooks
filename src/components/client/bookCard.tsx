@@ -87,14 +87,13 @@ const Card = styled.div`
   border-radius: 8px;
   justify-content: center;
   align-items: center;
-  gap: 20px;
   font-weight: bold;
   @media (max-width: 500px) {
-    width: 160px;
+    width: 140px; 
     height: 300px;
     font-weight: bold;
   }
-`;
+`; //width: 160px; 
 
 const CoverImage = styled.img`
   width: 200px;
