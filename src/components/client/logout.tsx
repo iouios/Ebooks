@@ -14,24 +14,23 @@ const Logout = () => {
     setDropdownVisible(!dropdownVisible);
   };
 
-  console.log("User", user);
   const truncateText = (text: string | null | undefined, maxLength: number) => {
-    if (!text) return ""; 
+    if (!text) return "";
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
-  
+
+  console.log(user);
+
   return (
     <Container>
       {user ? (
         <UserContainer>
           <FlexLogout>
-            <Avatar
-              src={user.picture || ""}
-              alt={user.name || "User Avatar"}
-              onClick={handleAvatarClick}
-            />
-
-            <Email>{truncateText(user.email, 15)}</Email>
+            <div onClick={handleAvatarClick}>
+              <Avatar src={user.picture || "no img"} />
+              
+            </div>
+            <Email>{truncateText(user.email, 13)}</Email>
 
             <LogoutResponsiveButton
               onClick={() => (window.location.href = "/api/auth/logout")}
@@ -103,7 +102,7 @@ const Avatar = styled.img`
   @media (max-width: 500px) {
     width: 20px;
     height: 20px;
-    margin-left: 10px;
+    margin-left: 20px;
   }
 `;
 
@@ -114,8 +113,8 @@ const Email = styled.div`
   @media (max-width: 500px) {
     font-size: 10px;
     margin-top: 15px;
-    margin-left: 10px;
-    margin-right: 30px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 `;
 
@@ -127,7 +126,7 @@ const DropdownMenu = styled.div`
   border: 1px solid var(--ELEMENT_YELLOW);
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 150px;
+  width: 120px;
   height: 40px;
   padding: 6px;
   text-align: center;
@@ -163,15 +162,15 @@ const ErrorText = styled.div`
 const FlexLogout = styled.div`
   @media (min-width: 500px) {
     display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  position: relative;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
   }
   @media (max-width: 500px) {
-   display: flex;
-   margin: 10px;
-
+    display: flex;
+    margin: 10px;
+  }
 `;
 
 const LogoutResponsiveButton = styled(Button)`

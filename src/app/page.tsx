@@ -71,7 +71,7 @@ const HomePage = () => {
         </Search>
 
         <TextOur>Our Best Picks</TextOur>
- 
+
         <BookMargin>
           <Swipermagins>
             {loading ? (
@@ -323,14 +323,15 @@ const BookCard = styled.div`
 `;
 
 const BookImage = styled.img`
-  width: 400px;
-  height: 500px;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 4 / 5; /* รักษาสัดส่วน */
   object-fit: cover;
   border-bottom: 1px solid #ddd;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+
   @media (max-width: 500px) {
-    width: 250px;
-    height: 150px;
+    max-width: 250px;
   }
 `;
 
