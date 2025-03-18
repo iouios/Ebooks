@@ -131,7 +131,7 @@ const HomePage = () => {
         {loading ? (
           <LoadingText>กำลังโหลดหนังสือ...</LoadingText>
         ) : (
-          <Swiper
+          <StyledSwiper
             spaceBetween={30}
             pagination={{
               clickable: true,
@@ -162,7 +162,7 @@ const HomePage = () => {
             <Paginationmagin>
               <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-books-recommented" />
             </Paginationmagin>
-          </Swiper>
+          </StyledSwiper>
         )}
       </Swipermagin>
     </Container>
@@ -315,7 +315,6 @@ const BookCard = styled.div`
   border-radius: 12px;
   overflow: hidden;
   text-align: start;
-  padding: 10px;
   @media (max-width: 500px) {
     padding: 14px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
@@ -323,10 +322,16 @@ const BookCard = styled.div`
 `;
 
 const BookImage = styled.img`
-  width: 100%;
-  max-width: 400px;
-  aspect-ratio: 4 / 5; /* รักษาสัดส่วน */
-  object-fit: cover;
+  max-width: 250px; 
+  width: 250px; 
+  min-width: 250px;
+  min-height: 350px;
+  height: 350px;
+  max-height: 350px; 
+  aspect-ratio: 4 / 5; 
+  object-fit: cover; 
+  display: block;
+  margin: 0 auto;
   border-bottom: 1px solid #ddd;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 
@@ -353,5 +358,13 @@ const BookMargin = styled.div`
     margin-right: 50px;
   }
 `;
+
+const StyledSwiper = styled(Swiper)`
+  width: 100%;
+  max-width: 1200px;
+  height: auto;
+
+`;
+
 
 export default HomePage;
