@@ -322,23 +322,21 @@ const BookCard = styled.div`
 `;
 
 const BookImage = styled.img`
-  max-width: 250px; 
-  width: 250px; 
-  min-width: 250px;
-  min-height: 350px;
-  height: 350px;
-  max-height: 350px; 
-  aspect-ratio: 4 / 5; 
-  object-fit: cover; 
+  width: 100%;  
+  max-width: 250px;
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
   display: block;
   margin: 0 auto;
   border-bottom: 1px solid #ddd;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 
   @media (max-width: 500px) {
-    max-width: 250px;
+    width: 80%; 
+    max-width: 200px;
   }
 `;
+
 
 const BookTitle = styled.h3`
   font-size: 16px;
