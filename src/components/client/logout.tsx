@@ -19,19 +19,15 @@ const Logout = () => {
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
-  console.log(user);
-
   return (
     <Container>
       {user ? (
         <UserContainer>
           <FlexLogout>
             <div onClick={handleAvatarClick}>
-              <Avatar src={user.picture || "no img"} />
-              
+              <Avatar src={user.picture || "/images/profile.jpg"} />
             </div>
             <Email>{truncateText(user.email, 13)}</Email>
-
             <LogoutResponsiveButton
               onClick={() => (window.location.href = "/api/auth/logout")}
             >
