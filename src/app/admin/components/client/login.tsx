@@ -1,31 +1,21 @@
 import React, { useState } from "react";
-import { auth, db, storage } from "../../firebase/firebaseConfig";
+import { auth } from "../../firebase/firebaseConfig"; // นำเข้า auth จาก firebaseConfig
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useRouter } from 'next/navigation';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();  
 
   const login = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log("Login successful! User:", user);
-
-      // 🔹 ใช้ setDoc เพื่ออัปเดตข้อมูลผู้ใช้แทน addDoc
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        lastLogin: new Date(),
-      }, { merge: true });
-
-      // 🔹 สร้าง path ของไฟล์ให้แยกตาม userId
-      const file = new File(["Hello, Firebase!"], "test.txt", { type: "text/plain" });
-      const storageRef = ref(storage, `uploads/${user.uid}/test.txt`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      console.log("File uploaded! URL:", downloadURL);
+      
+      // หลังจากล็อกอินสำเร็จ, นำทางไปยังหน้า /admin/testbook
+      router.push("/admin/testbook"); 
     } catch (error) {
       console.error("Login failed:", error);
     }
