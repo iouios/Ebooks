@@ -2,15 +2,18 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAZ3apDRoROVtTfNfvenLMjHoGEVKcAzgo",
-  authDomain: "ebook-16a3d.firebaseapp.com",
-  projectId: "ebook-16a3d",
-  storageBucket: "ebook-16a3d.firebasestorage.app",
-  messagingSenderId: "285550856611",
-  appId: "1:285550856611:web:41b2c05eb7e750aa807216",
-  measurementId: "G-NWP9S87MBX",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
