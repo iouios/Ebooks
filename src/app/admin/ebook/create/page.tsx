@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Navbaradmin from "../../components/client/์Navbaradmin";
-import Navbarhead from "../../components/client/์Navbarhead";
+import Navbaradmin from "../../components/client/Navbaradmin";
+import Navbarhead from "../../components/client/Navbarhead";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
