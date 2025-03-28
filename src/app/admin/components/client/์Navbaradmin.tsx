@@ -1,18 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import {
-  AppBar,
   Box,
   Drawer,
-  IconButton,
-  Toolbar,
   Typography,
-  Button,
   List,
   ListItemButton,
   ListItemText,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 
 const drawerWidth = 240;
@@ -24,58 +19,33 @@ const Navbaradmin: React.FC = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLogout = () => {
-    console.log("Logout successful");
-  };
-
   const drawer = (
     <Box sx={{ width: drawerWidth }}>
       <Typography variant="h6" sx={{ p: 2 }}>
         Ebook
       </Typography>
       <List>
-        <ListItemButton>
-          <ListItemText>
-            <Link href="/admin/mainAdmin">Mainadmin</Link>
-          </ListItemText>
-        </ListItemButton>
-        <ListItemButton>
-          <ListItemText>
-            <Link href="/admin/mainAdmin/upload-ebook">Upload-ebook</Link>
-          </ListItemText>
-        </ListItemButton>
+        <Link href="/admin/ebook" passHref>
+          <ListItemButton>
+            <ListItemText primary="Ebook" />
+          </ListItemButton>
+        </Link>
+        <Link href="/admin/ebook/create" passHref>
+          <ListItemButton>
+            <ListItemText primary="Create" />
+          </ListItemButton>
+        </Link>
+        <Link href="/admin/ebook/edit" passHref>
+          <ListItemButton>
+            <ListItemText primary="Edit" />
+          </ListItemButton>
+        </Link>
       </List>
     </Box>
   );
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-            Navbar
-          </Typography>
-          <Button color="inherit" onClick={handleLogout}>
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
