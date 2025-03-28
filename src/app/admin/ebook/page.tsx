@@ -26,17 +26,21 @@ import Link from "next/link";
 
 const drawerWidth = 240;
 
-const Mainadmin = () => {
+const Ebook = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loading, setLoading] = useState(true); 
   const router = useRouter();
 
   useEffect(() => {
-    if (!auth.currentUser) {
-      router.push('/admin');
-    } else {
-      setLoading(false); 
-    }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        router.push("/admin");
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
   }, [router]);
 
   const handleDrawerToggle = () => {
@@ -59,16 +63,21 @@ const Mainadmin = () => {
         Ebook
       </Typography>
       <List>
-      <ListItemButton>
-          <ListItemText>
-            <Link href="/admin/mainAdmin">Mainadmin</Link>
-          </ListItemText>
-        </ListItemButton>
-        <ListItemButton>
-          <ListItemText>
-            <Link href="/admin/mainAdmin/upload-ebook">Upload-ebook</Link>
-          </ListItemText>
-        </ListItemButton>
+        <Link href="/admin/ebook" passHref>
+          <ListItemButton>
+            <ListItemText primary="Ebook" />
+          </ListItemButton>
+        </Link>
+        <Link href="/admin/ebook/create" passHref>
+          <ListItemButton>
+            <ListItemText primary="Create" />
+          </ListItemButton>
+        </Link>
+        <Link href="/admin/ebook/edit" passHref>
+          <ListItemButton>
+            <ListItemText primary="Edit" />
+          </ListItemButton>
+        </Link>
       </List>
     </Box>
   );
@@ -117,7 +126,7 @@ const Mainadmin = () => {
         <Container>
           <Paper sx={{ p: 2 }}>
             <Card>
-              <CardHeader title="MainAdmin" />
+              <CardHeader title="Ebook" />
               <CardContent>
                 <p>Hi there</p>
               </CardContent>
@@ -129,4 +138,4 @@ const Mainadmin = () => {
   );
 }
 
-export default  Mainadmin; 
+export default  Ebook; 

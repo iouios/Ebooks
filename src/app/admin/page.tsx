@@ -1,11 +1,11 @@
-'use client';
+"use client";
 import React, { useState } from "react";
-import { auth } from "./firebase/firebaseConfig";
+import { auth, db } from "./firebase/firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { TextField, Button, Typography, Paper } from "@mui/material";
-
+import { doc, getDoc } from "firebase/firestore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,9 +17,20 @@ const Login = () => {
     setError(null);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Login successful! User:", userCredential.user);
-      router.push("/admin/mainAdmin");
-    } catch (error: unknown) {
+      const user = userCredential.user;
+      
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists() && userDoc.data()?.role === "admin") {
+        console.log("Login successful! Admin:", user);
+        router.push("/admin/ebook");
+      } else {
+        console.warn("Access denied: Not an admin");
+        setError("Access denied: You are not an admin.");
+        auth.signOut(); 
+      }
+    } catch (error) {
       console.error("Login failed:", error);
       setError("Invalid email or password. Please try again.");
     }
