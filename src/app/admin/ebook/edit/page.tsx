@@ -1,40 +1,71 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import Navbaradmin from "../../components/client/Navbaradmin";
-import styled from "styled-components";
-import { useRouter } from 'next/navigation';
-import { auth } from '../../firebase/firebaseConfig';
 
-const Edit = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
+import React, { useEffect, useState } from "react";
+import { db } from "../../firebase/firebaseConfig"; 
+import { collection, getDocs } from "firebase/firestore";
+
+interface EbookData {
+  id: string;
+  title: string;
+  authors: string;
+  summaries: string;
+  bookshelves: string[]; 
+  languages: string[];   
+}
+
+const Edit: React.FC = () => {
+  const [ebooks, setEbooks] = useState<EbookData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        router.push('/admin'); 
-      } else {
-        setLoading(false); 
+    const fetchEbooks = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "ebooks")); 
+        const ebooksData: EbookData[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          ebooksData.push({
+            id: doc.id,
+            title: data.title , 
+            authors: data.authors ,
+            summaries: data.summaries , 
+            bookshelves: data.bookshelves , 
+            languages: data.languages  
+          });
+        });
+        setEbooks(ebooksData);
+      } catch (error) {
+        console.error("Error fetching ebooks: ", error);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
 
-    return () => unsubscribe(); 
-  }, [router]);
+    fetchEbooks();
+  }, []);
 
-  if (loading) return <h1>Loading...</h1>; 
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <Main>
-      <Navbaradmin />
-      <h1>Edit</h1>
-    </Main>
+    <div>
+      <h1>Ebooks</h1>
+      {ebooks.length === 0 ? (
+        <p>No ebooks found</p>
+      ) : (
+        <ul>
+          {ebooks.map((ebook) => (
+            <li key={ebook.id}>
+              <h2>{ebook.title}</h2>
+              <p><strong>Authors:</strong> {ebook.authors}</p>
+              <p><strong>Summary:</strong> {ebook.summaries}</p>
+              <p><strong>Bookshelves:</strong> {ebook.bookshelves.join(', ')}</p>
+              <p><strong>Languages:</strong> {ebook.languages.join(', ')}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };
-
-const Main = styled.div`
-  display: flex;
-  margin-top: 80px;
-  margin-left: 10px;
-`;
 
 export default Edit;

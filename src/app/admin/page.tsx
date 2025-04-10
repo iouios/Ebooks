@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { auth, db } from "./firebase/firebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { TextField, Button, Typography, Paper } from "@mui/material";
@@ -11,30 +11,47 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); 
   const router = useRouter();
+
+  const handleAuthUser = useCallback(async (user: User) => {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists() && userDoc.data()?.role === "admin") {
+      router.push("/admin/ebook");
+    } else {
+      await auth.signOut();
+      setError("Access denied: You are not an admin.");
+      setLoading(false);
+    }
+  }, [router]); 
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await handleAuthUser(user);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [handleAuthUser]);
 
   const login = async () => {
     setError(null);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists() && userDoc.data()?.role === "admin") {
-        console.log("Login successful! Admin:", user);
-        router.push("/admin/ebook");
-      } else {
-        console.warn("Access denied: Not an admin");
-        setError("Access denied: You are not an admin.");
-        auth.signOut(); 
-      }
+      await handleAuthUser(user);
     } catch (error) {
       console.error("Login failed:", error);
       setError("Invalid email or password. Please try again.");
     }
   };
+
+  if (loading) return null;
 
   return (
     <StyledContainer>
