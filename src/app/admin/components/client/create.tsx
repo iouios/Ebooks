@@ -1,6 +1,5 @@
-"use client";
 import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
-import { db } from "../../firebase/firebaseConfig"; 
+import { db } from "../../firebase/firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import styled from "styled-components";
 import {
@@ -13,6 +12,7 @@ import {
   Checkbox,
   SelectChangeEvent,
 } from "@mui/material";
+import { uploadFiles } from "../../supabase/upload";  
 
 interface FormDataType {
   title: string;
@@ -20,6 +20,8 @@ interface FormDataType {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  ebook_url: string;
+  image_url: string;
 }
 
 interface AuthorData {
@@ -31,6 +33,8 @@ interface AuthorData {
 
 export interface CreateComponentRef {
   getFormData: () => FormDataType;
+  uploadEbookFile: (file: File) => Promise<string>;
+  uploadImageFile: (file: File) => Promise<string>;
 }
 
 const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
@@ -41,6 +45,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
   const [selectedOption, setSelectedOption] = useState("");
   const [authors, setAuthors] = useState<AuthorData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fileUrls, setFileUrls] = useState<string[]>(["", ""]); // ebook_url, image_url
 
   useEffect(() => {
     const fetchAuthors = async () => {
@@ -51,9 +56,9 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
           const data = doc.data();
           authorsData.push({
             id: doc.id,
-            birth_year: data.birth_year ,
-            death_year: data.death_year ,
-            name: data.name 
+            birth_year: data.birth_year,
+            death_year: data.death_year,
+            name: data.name,
           });
         });
         setAuthors(authorsData);
@@ -74,7 +79,21 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
       summaries,
       bookshelves: bookshelves.split(",").map((b) => b.trim()),
       languages,
+      ebook_url: fileUrls[0],
+      image_url: fileUrls[1],
     }),
+
+    uploadEbookFile: async (file: File) => {
+      const { urlA } = await uploadFiles(file, new File([], "placeholder.png")); // Placeholder สำหรับไฟล์ image
+      setFileUrls((prev) => [urlA, prev[1]]);
+      return urlA;
+    },
+
+    uploadImageFile: async (file: File) => {
+      const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file); // Placeholder สำหรับไฟล์ ebook
+      setFileUrls((prev) => [prev[0], urlB]);
+      return urlB;
+    },
   }));
 
   const handleSelectChange = (event: SelectChangeEvent<string>) => {
@@ -87,7 +106,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
     );
   };
 
-  if (loading) return <div>Loading authors and ebooks...</div>;
+  if (loading) return <div>Loading authors...</div>;
 
   return (
     <Main>
@@ -100,35 +119,56 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
           onChange={(e) => setTitle(e.target.value)}
           fullWidth
           required
-          style={{ marginBottom: "20px" }}
+          style={{
+            marginBottom: "16px",
+            width: "700px",
+            display: "block",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
         />
-
-        <Form fullWidth style={{ marginBottom: "20px" }}>
+        <Form >
           <InputLabel id="select-label">Authors</InputLabel>
           <Select
             labelId="select-label"
             value={selectedOption}
             onChange={handleSelectChange}
             label="Authors"
+            disabled={authors.length === 0}
+            style={{
+              marginBottom: "16px",
+              width: "700px",
+              display: "block",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
           >
-            {authors.map((author) => (
-              <MenuItem key={author.id} value={author.name}>
-                {author.name}
-              </MenuItem>
-            ))}
+            {authors.length > 0 ? (
+              authors.map((author) => (
+                <MenuItem key={author.id} value={author.name}>
+                  {author.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No authors available</MenuItem>
+            )}
           </Select>
         </Form>
-
         <TextFieldStyled
           fullWidth
-          style={{ marginBottom: "20px" }}
+          style={{
+            marginBottom: "16px",
+            width: "700px",
+            display: "block",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
           label="Summaries"
           multiline
           rows={4}
           value={summaries}
           onChange={(e) => setSummaries(e.target.value)}
         />
-
         <TextFieldStyled
           label="Bookshelves"
           variant="outlined"
@@ -136,30 +176,30 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
           onChange={(e) => setBookshelves(e.target.value)}
           fullWidth
           required
-          style={{ marginBottom: "20px" }}
+          style={{
+            marginBottom: "16px",
+            width: "700px",
+            display: "block",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
         />
-
         <Languagesflex>
           <Languages>Languages</Languages>
-          <FormControlLabel
-            control={<Checkbox onChange={() => handleLanguageChange("English")} />}
-            label="English"
-          />
-          <FormControlLabel
-            control={<Checkbox onChange={() => handleLanguageChange("French")} />}
-            label="French"
-          />
-          <FormControlLabel
-            control={<Checkbox onChange={() => handleLanguageChange("Chinese")} />}
-            label="Chinese"
-          />
+          {["English", "French", "Chinese"].map((lang) => (
+            <FormControlLabel
+              key={lang}
+              control={<Checkbox onChange={() => handleLanguageChange(lang)} />}
+              label={lang}
+            />
+          ))}
         </Languagesflex>
       </div>
     </Main>
   );
-
-  CreateComponent.displayName = "CreateComponent";
 });
+
+CreateComponent.displayName = "CreateComponent";
 
 export default CreateComponent;
 
@@ -186,6 +226,7 @@ const Titlehead = styled.div`
   display: flex;
   justify-content: center;
   font-size: 20px;
+  margin-bottom: 10px;
 `;
 
 const TextFieldStyled = styled(TextField)`

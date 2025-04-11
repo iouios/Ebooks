@@ -22,6 +22,7 @@
     "dotenv": "^16.4.7",
     "firebase": "^11.4.0",
     "firebase-admin": "^13.2.0",
+    "formidable": "^3.5.2",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "next": "15.1.6",
@@ -34,10 +35,12 @@
     "react-router-dom": "^7.4.0",
     "recharts": "^2.15.1",
     "styled-components": "^6.1.14",
-    "swiper": "^11.2.4"
+    "swiper": "^11.2.4",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/formidable": "^3.4.5",
     "@types/lodash": "^4.17.15",
     "@types/lodash.debounce": "^4.0.9",
     "@types/next": "^9.0.0",

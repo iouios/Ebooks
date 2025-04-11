@@ -7,6 +7,8 @@ interface EbookData {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  ebook_url: string;
+  image_url: string;
 
 }
 
@@ -16,6 +18,8 @@ export const saveEbook = async ({
   summaries,
   bookshelves,
   languages,
+  ebook_url,
+  image_url,
 }: EbookData): Promise<{ success: boolean; id?: string; error?: string }> => {
   try {
     const docRef = await addDoc(collection(db, "ebooks"), {
@@ -24,6 +28,8 @@ export const saveEbook = async ({
       summaries,
       bookshelves,
       languages,
+      ebook_url,
+      image_url,
     });
 
     return { success: true, id: docRef.id };
