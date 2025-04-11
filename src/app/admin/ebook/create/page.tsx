@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
-import { saveEbook } from "../../api/ebookApi";
+import { saveEbook } from "../../../api/ebook/ebookApi";
 import Navbaradmin from "../../components/client/Navbaradmin";
 import Navbarhead from "../../components/client/Navbarhead";
 import CreateComponent, {
@@ -63,7 +63,7 @@ const Create = () => {
     const formData = formRef.current.getFormData();
     const userId = auth.currentUser?.uid;
     if (!userId) {
-      alert("User not authenticated!");
+      console.log("User not authenticated!");
       return;
     }
 
@@ -82,14 +82,14 @@ const Create = () => {
         if (response.success && response.id) {
           router.push(`/admin/ebook/create/${response.id}`);
         } else {
-          alert("Upload Failed");
+          console.log("Upload Failed");
         }
       } else {
-        alert("Please upload both ebook and image files!");
+        console.log("Please upload both ebook and image files!");
       }
     } catch (error) {
       console.error(error);
-      alert("Unexpected error occurred.");
+      console.log("Unexpected error occurred.");
     } finally {
       setUploading(false);
     }
@@ -106,9 +106,11 @@ const Create = () => {
       <div>
         <CreateComponent ref={formRef} />
         <div style={{ marginBottom: "20px" }}>
+          <div>Ebook(PDF/EPUB):</div>
           <input type="file" onChange={handleFileAChange} />
         </div>
         <div>
+          <div>Cover Image:</div>
           <input type="file" onChange={handleFileBChange} />
         </div>
         <Buttonsubmit onClick={handleSubmit} disabled={uploading}>

@@ -1,4 +1,4 @@
-import { db } from "../firebase/firebaseConfig";
+import { db } from "../../admin/firebase/firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 
 interface EbookData {

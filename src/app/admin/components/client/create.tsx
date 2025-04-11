@@ -1,6 +1,4 @@
 import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
-import { db } from "../../firebase/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
 import styled from "styled-components";
 import {
   TextField,
@@ -12,7 +10,8 @@ import {
   Checkbox,
   SelectChangeEvent,
 } from "@mui/material";
-import { uploadFiles } from "../../supabase/upload";  
+import { uploadFiles } from "../../supabase/upload";
+import Swal from "sweetalert2"; // นำเข้า sweetalert2
 
 interface FormDataType {
   title: string;
@@ -44,33 +43,32 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
   const [languages, setLanguages] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
   const [authors, setAuthors] = useState<AuthorData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [fileUrls, setFileUrls] = useState<string[]>(["", ""]); // ebook_url, image_url
+  const [fileUrls, setFileUrls] = useState<string[]>(["", ""]);
 
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "authors"));
-        const authorsData: AuthorData[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          authorsData.push({
-            id: doc.id,
-            birth_year: data.birth_year,
-            death_year: data.death_year,
-            name: data.name,
-          });
-        });
-        setAuthors(authorsData);
+        const res = await fetch("/api/authors");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setAuthors(data);
       } catch (error) {
         console.error("Error fetching authors: ", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchAuthors();
   }, []);
+
+  const isValidEbookFile = (file: File) => {
+    const allowedEbookTypes = ['application/pdf', 'application/epub+zip'];
+    return allowedEbookTypes.includes(file.type);
+  };
+
+  const isValidCoverFile = (file: File) => {
+    const allowedCoverTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    return allowedCoverTypes.includes(file.type);
+  };
 
   useImperativeHandle(ref, () => ({
     getFormData: () => ({
@@ -84,13 +82,31 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
     }),
 
     uploadEbookFile: async (file: File) => {
-      const { urlA } = await uploadFiles(file, new File([], "placeholder.png")); // Placeholder สำหรับไฟล์ image
+      if (!isValidEbookFile(file)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Ebook File!',
+          text: 'Only .pdf and .epub files are allowed.',
+        });
+        throw new Error('Invalid ebook file.');
+      }
+
+      const { urlA } = await uploadFiles(file, new File([], "placeholder.png"));
       setFileUrls((prev) => [urlA, prev[1]]);
       return urlA;
     },
 
     uploadImageFile: async (file: File) => {
-      const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file); // Placeholder สำหรับไฟล์ ebook
+      if (!isValidCoverFile(file)) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid Cover Image!',
+          text: 'Only .jpeg, .jpg, and .png files are allowed.',
+        });
+        throw new Error('Invalid cover image.');
+      }
+
+      const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file);
       setFileUrls((prev) => [prev[0], urlB]);
       return urlB;
     },
@@ -105,8 +121,6 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
       prev.includes(lang) ? prev.filter((l) => l !== lang) : [...prev, lang]
     );
   };
-
-  if (loading) return <div>Loading authors...</div>;
 
   return (
     <Main>
@@ -127,7 +141,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
             marginRight: "auto",
           }}
         />
-        <Form >
+        <Form>
           <InputLabel id="select-label">Authors</InputLabel>
           <Select
             labelId="select-label"
