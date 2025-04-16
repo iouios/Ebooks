@@ -9,7 +9,9 @@ import {
   Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import { signOut } from 'firebase/auth'; 
+import { auth } from './../../firebase/firebaseConfig'; 
+import { useRouter } from 'next/navigation';
 const drawerWidth = 240;
 
 const Navbaradmin: React.FC = () => {
@@ -19,9 +21,17 @@ const Navbaradmin: React.FC = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLogout = () => {
-    console.log("Logout successful");
-  };
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log('Logout successful');
+      router.push('/admin'); 
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  }; 
+  
 
 
   return (

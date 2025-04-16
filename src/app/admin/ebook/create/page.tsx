@@ -107,11 +107,11 @@ const Create = () => {
         <CreateComponent ref={formRef} />
         <div style={{ marginBottom: "20px" }}>
           <div>Ebook(PDF/EPUB):</div>
-          <input type="file" onChange={handleFileAChange} />
+          <input type="file" accept=".pdf,.epub" onChange={handleFileAChange} />
         </div>
         <div>
           <div>Cover Image:</div>
-          <input type="file" onChange={handleFileBChange} />
+          <input type="file" accept=".jpg,.jpeg" onChange={handleFileBChange} />
         </div>
         <Buttonsubmit onClick={handleSubmit} disabled={uploading}>
           {uploading ? <CircularProgress size={24} /> : "SUBMIT"}

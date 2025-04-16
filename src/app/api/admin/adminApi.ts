@@ -1,4 +1,4 @@
-import { db } from "../firebase/firebaseConfig";
+import { db } from "../../admin/firebase/firebaseConfig";
 import { getDocs, collection } from "firebase/firestore";
 
 export const getEbooksFromStart = async () => {
