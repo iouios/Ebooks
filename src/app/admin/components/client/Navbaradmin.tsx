@@ -30,7 +30,7 @@ const Navbaradmin: React.FC = () => {
             <ListItemText primary="Ebook" />
           </ListItemButton>
         </Link>
-        <Link href="/admin/ebook/create" passHref>
+        {/* <Link href="/admin/ebook/create" passHref>
           <ListItemButton>
             <ListItemText primary="Create" />
           </ListItemButton>
@@ -39,7 +39,7 @@ const Navbaradmin: React.FC = () => {
           <ListItemButton>
             <ListItemText primary="Edit" />
           </ListItemButton>
-        </Link>
+        </Link> */}
       </List>
     </Box>
   );

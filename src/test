@@ -1,8 +1,10 @@
 // "use client";
-
 // import React, { useEffect, useState } from "react";
 // import { db } from "../../firebase/firebaseConfig"; 
 // import { collection, getDocs } from "firebase/firestore";
+// import NavbarHead from "../../components/client/Navbarhead";
+// import NavbarAdmin from "../../components/client/Navbaradmin";
+// import styled from "styled-components";
 
 // interface EbookData {
 //   id: string;
@@ -47,8 +49,11 @@
 //   if (loading) return <div>Loading...</div>;
 
 //   return (
-//     <div>
-//       <h1>Ebooks</h1>
+//     <Main>
+//       <div>
+//         <NavbarAdmin />
+//         <NavbarHead />
+//       </div>
 //       {ebooks.length === 0 ? (
 //         <p>No ebooks found</p>
 //       ) : (
@@ -64,8 +69,14 @@
 //           ))}
 //         </ul>
 //       )}
-//     </div>
+//     </Main>
 //   );
 // };
 
 // export default Edit;
+
+// const Main = styled.div`
+//   display: flex;
+//   margin-top: 80px;
+//   justify-content: center;
+// `;

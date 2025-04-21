@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
-import { saveEbook } from "../../../api/ebook/ebookApi";
+import { saveEbook } from "../../../api/ebook/route";
 import Navbaradmin from "../../components/client/Navbaradmin";
 import Navbarhead from "../../components/client/Navbarhead";
 import CreateComponent, {
@@ -80,7 +80,7 @@ const Create = () => {
 
         const response = await saveEbook(formDataWithUserId);
         if (response.success && response.id) {
-          router.push(`/admin/ebook/create/${response.id}`);
+          router.push(`/admin/ebook/edit/${response.id}`);
         } else {
           console.log("Upload Failed");
         }
@@ -111,7 +111,7 @@ const Create = () => {
         </div>
         <div>
           <div>Cover Image:</div>
-          <input type="file" accept=".jpg,.jpeg" onChange={handleFileBChange} />
+          <input type="file" accept=".jpg,.jpeg,.png" onChange={handleFileBChange} />
         </div>
         <Buttonsubmit onClick={handleSubmit} disabled={uploading}>
           {uploading ? <CircularProgress size={24} /> : "SUBMIT"}

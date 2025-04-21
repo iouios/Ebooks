@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { db } from "../../../firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
 import NavbarHead from "../../../components/client/Navbarhead";
 import NavbarAdmin from "../../../components/client/Navbaradmin";
 import styled from "styled-components";
-import { TextField } from "@mui/material";
+import { TextField, Button } from "@mui/material";
+import Image from "next/image";
+import { useRouter } from 'next/navigation';
 
 interface EbookData {
   id: string;
@@ -22,33 +22,24 @@ interface EbookData {
 const EbookDetail: React.FC = () => {
   const [ebook, setEbook] = useState<EbookData | null>(null);
   const params = useParams();
-  const ebookId = params?.Id as string;
+  const ebookId = params?.id as string;
+  const router = useRouter();
 
   useEffect(() => {
     if (!ebookId) return;
 
     const fetchEbook = async () => {
       try {
-        const docRef = doc(db, "ebooks", ebookId);
-        const docSnap = await getDoc(docRef);
+        const res = await fetch(`/api/editEbook/${ebookId}`);
+        const data = await res.json();
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setEbook({
-            id: docSnap.id,
-            title: data.title,
-            authors: data.authors,
-            summaries: data.summaries,
-            bookshelves: data.bookshelves,
-            languages: data.languages,
-            ebook_url: data.ebook_url,
-            image_url: data.image_url,
-          });
+        if (res.ok) {
+          setEbook(data);
         } else {
-          console.log("No such document!");
+          console.error("Failed to fetch ebook:", data.message);
         }
       } catch (error) {
-        console.error("Error fetching ebook:", error);
+        console.error("Fetch error:", error);
       }
     };
 
@@ -61,6 +52,35 @@ const EbookDetail: React.FC = () => {
   ) => {
     if (ebook) {
       setEbook({ ...ebook, [field]: value });
+    }
+  };
+
+  const handleSave = async () => {
+    if (!ebook) return;
+
+    try {
+      const res = await fetch(`/api/editEbook/${ebook.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ebook),
+      });
+
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+
+      if (res.ok) {
+        console.log("Ebook updated successfully:", data);
+        router.push('/admin/ebook');
+      } else {
+        console.error(
+          "Failed to update ebook:",
+          data?.message || "Unknown error"
+        );
+      }
+    } catch (error) {
+      console.error("Save error:", error);
     }
   };
 
@@ -177,6 +197,48 @@ const EbookDetail: React.FC = () => {
             marginRight: "auto",
           }}
         />
+        {ebook.image_url && (
+          <div style={{ textAlign: "center", marginBottom: "32px" }}>
+            <h3>Cover Preview</h3>
+            <Image
+              src={ebook.image_url}
+              alt="Ebook Cover"
+              width={700}
+              height={500}
+              layout="intrinsic"
+            />
+          </div>
+        )}
+
+        {ebook.ebook_url && (
+          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+            <h3>PDF Preview</h3>
+            <iframe
+              src={ebook.ebook_url}
+              width="700"
+              height="500"
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+              }}
+            />
+          </div>
+        )}
+
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          color="primary"
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            display: "block", 
+            margin: "0 auto", 
+            marginBottom: "32px", 
+          }}
+        >
+          Save Changes
+        </Button>
       </Center>
     </Main>
   );
