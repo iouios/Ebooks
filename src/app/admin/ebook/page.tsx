@@ -4,7 +4,7 @@ import Navbaradmin from "../components/client/Navbaradmin";
 import Navbarhead from "../components/client/Navbarhead";
 
 import * as React from "react";
-import { useRouter } from "next/navigation"; // ใช้สำหรับเปลี่ยนหน้า
+import { useRouter } from "next/navigation";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -13,80 +13,35 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+import Image from "next/image";
 
-interface Column {
-  id: "name" | "code" | "population" | "size" | "density";
-  label: string;
-  minWidth?: number;
-  align?: "right";
-  format?: (value: number) => string;
+interface EbookData {
+  ebook_url: string;
+  image_url: string;
+  id: string;
+  title: string;
+  authors: string[];
+  summaries: string;
+  bookshelves: string[];
+  languages: string[];
 }
 
-const columns: Column[] = [
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "code", label: "ISO Code", minWidth: 100 },
-  {
-    id: "population",
-    label: "Population",
-    minWidth: 170,
-    align: "right",
-    format: (value: number) => value.toLocaleString("en-US"),
-  },
-  {
-    id: "size",
-    label: "Size (km²)",
-    minWidth: 170,
-    align: "right",
-    format: (value: number) => value.toLocaleString("en-US"),
-  },
-  {
-    id: "density",
-    label: "Density",
-    minWidth: 170,
-    align: "right",
-    format: (value: number) => value.toFixed(2),
-  },
-];
-
-interface Data {
-  name: string;
-  code: string;
-  population: number;
-  size: number;
-  density: number;
-}
-
-function createData(
-  name: string,
-  code: string,
-  population: number,
-  size: number
-): Data {
-  const density = population / size;
-  return { name, code, population, size, density };
-}
-
-const rows = [
-  createData("India", "IN", 1324171354, 3287263),
-  createData("China", "CN", 1403500365, 9596961),
-  createData("Italy", "IT", 60483973, 301340),
-  createData("United States", "US", 327167434, 9833520),
-  createData("Canada", "CA", 37602103, 9984670),
-  createData("Australia", "AU", 25475400, 7692024),
-  createData("Germany", "DE", 83019200, 357578),
-  createData("Ireland", "IE", 4857000, 70273),
-  createData("Mexico", "MX", 126577691, 1972550),
-  createData("Japan", "JP", 126317000, 377973),
-  createData("France", "FR", 67022000, 640679),
-  createData("United Kingdom", "GB", 67545757, 242495),
-  createData("Russia", "RU", 146793744, 17098246),
-  createData("Nigeria", "NG", 200962417, 923768),
-  createData("Brazil", "BR", 210147125, 8515767),
+const columns = [
+  { id: "title", label: "Title", minWidth: 170 },
+  { id: "authors", label: "Authors", minWidth: 150 },
+  { id: "summaries", label: "Summary", minWidth: 200 },
+  { id: "bookshelves", label: "Bookshelves", minWidth: 150 },
+  { id: "languages", label: "Languages", minWidth: 100 },
+  { id: "ebook_url", label: "Ebook_url", minWidth: 100 },
+  { id: "image_url", label: "Image_url", minWidth: 100 },
 ];
 
 const Create = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [ebooks, setEbooks] = React.useState<EbookData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
   const router = useRouter();
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -103,6 +58,22 @@ const Create = () => {
   const handleAddClick = () => {
     router.push("/admin/ebook/create");
   };
+
+  React.useEffect(() => {
+    const fetchEbooks = async () => {
+      try {
+        const res = await fetch("/api/ebooktable");
+        const data = await res.json();
+        setEbooks(data);
+      } catch (error) {
+        console.error("Error fetching ebooks: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEbooks();
+  }, []);
 
   return (
     <Main>
@@ -123,7 +94,6 @@ const Create = () => {
                     {columns.map((column) => (
                       <TableCell
                         key={column.id}
-                        align={column.align}
                         style={{ minWidth: column.minWidth }}
                       >
                         {column.label}
@@ -132,34 +102,82 @@ const Create = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
-                      <TableRow
-                        hover
-                        role="checkbox"
-                        tabIndex={-1}
-                        key={row.code}
-                      >
-                        {columns.map((column) => {
-                          const value = row[column.id];
-                          return (
-                            <TableCell key={column.id} align={column.align}>
-                              {column.format && typeof value === "number"
-                                ? column.format(value)
-                                : value}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
+                  {!loading &&
+                    ebooks
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((ebook) => (
+                        <TableRow
+                          hover
+                          role="checkbox"
+                          tabIndex={-1}
+                          key={ebook.id}
+                        >
+                          <TableCell>{ebook.title || "null"}</TableCell>
+                          <TableCell>
+                            {typeof ebook.authors === "string"
+                              ? ebook.authors
+                              : "null"}
+                          </TableCell>
+                          <TableCell>{ebook.summaries || "null"}</TableCell>
+                          <TableCell>
+                            {Array.isArray(ebook.bookshelves)
+                              ? ebook.bookshelves.join(", ")
+                              : "null"}
+                          </TableCell>
+                          <TableCell>
+                            {Array.isArray(ebook.languages)
+                              ? ebook.languages.join(", ")
+                              : "null"}
+                          </TableCell>
+                          <TableCell>
+                            {ebook.ebook_url && (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  marginBottom: "64px",
+                                }}
+                              >
+                                <h3>PDF Preview</h3>
+                                <iframe
+                                  src={ebook.ebook_url}
+                                  width="100"
+                                  height="100"
+                                  style={{
+                                    border: "1px solid #ccc",
+                                    borderRadius: "8px",
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {ebook.image_url &&
+                              /\.(jpg|jpeg|png)$/i.test(ebook.image_url) && (
+                                <Image
+                                  src={ebook.image_url}
+                                  alt="ebook image"
+                                  width={100}
+                                  height={150}
+                                  style={{
+                                    height: "auto",
+                                    objectFit: "contain",
+                                  }}
+                                  
+                                />
+                              )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                 </TableBody>
               </Table>
             </TableContainer>
             <TablePagination
               rowsPerPageOptions={[10, 25, 100]}
               component="div"
-              count={rows.length}
+              count={ebooks.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
@@ -173,7 +191,6 @@ const Create = () => {
 };
 
 export default Create;
-
 
 const Main = styled.div`
   display: flex;
