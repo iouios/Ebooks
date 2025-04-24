@@ -59,6 +59,10 @@ const Create = () => {
     router.push("/admin/ebook/create");
   };
 
+  const handleAddClickTable = async (ebook: EbookData) => {
+    router.push(`/admin/ebook/edit/${ebook.id}`);
+  };
+
   React.useEffect(() => {
     const fetchEbooks = async () => {
       try {
@@ -74,6 +78,8 @@ const Create = () => {
 
     fetchEbooks();
   }, []);
+
+  console.log("ebook data:", ebooks);
 
   return (
     <Main>
@@ -102,6 +108,7 @@ const Create = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  
                   {!loading &&
                     ebooks
                       .slice(
@@ -114,11 +121,12 @@ const Create = () => {
                           role="checkbox"
                           tabIndex={-1}
                           key={ebook.id}
+                          onClick={() => handleAddClickTable(ebook)}
                         >
                           <TableCell>{ebook.title || "null"}</TableCell>
                           <TableCell>
-                            {typeof ebook.authors === "string"
-                              ? ebook.authors
+                            {Array.isArray(ebook.authors)
+                              ? ebook.authors.join(", ")
                               : "null"}
                           </TableCell>
                           <TableCell>{ebook.summaries || "null"}</TableCell>
@@ -134,23 +142,15 @@ const Create = () => {
                           </TableCell>
                           <TableCell>
                             {ebook.ebook_url && (
-                              <div
+                              <iframe
+                                src={ebook.ebook_url}
+                                width="100"
+                                height="100"
                                 style={{
-                                  textAlign: "center",
-                                  marginBottom: "64px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
                                 }}
-                              >
-                                <h3>PDF Preview</h3>
-                                <iframe
-                                  src={ebook.ebook_url}
-                                  width="100"
-                                  height="100"
-                                  style={{
-                                    border: "1px solid #ccc",
-                                    borderRadius: "8px",
-                                  }}
-                                />
-                              </div>
+                              />
                             )}
                           </TableCell>
                           <TableCell>
@@ -165,7 +165,6 @@ const Create = () => {
                                     height: "auto",
                                     objectFit: "contain",
                                   }}
-                                  
                                 />
                               )}
                           </TableCell>

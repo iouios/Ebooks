@@ -84,7 +84,7 @@ const EbookDetail: React.FC = () => {
     }
   };
 
-  if (!ebook) return <div>No ebook found</div>;
+  if (!ebook) return <div></div>;
 
   return (
     <Main>
