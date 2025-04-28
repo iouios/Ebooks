@@ -1,13 +1,22 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import { useUser } from "@auth0/nextjs-auth0/client";
 
+
 interface BookmarkButtonProps {
   book_id: number;
-  isBookmarked: boolean;
   setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
+interface BookmarkRequestBody {
+  userId: string;
+  bookId: number;
+}
+
+interface UserData {
+  auth0_id: string;
+  book_ids: number[];
 }
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
@@ -16,65 +25,134 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
 }) => {
   const { user } = useUser();
   const [isBookmarked, setIsBookmarked] = useState(false);
-
-  const getBookmarks = (): number[] => {
-    if (!user) return [];
-
-    const storedBookmarks = localStorage.getItem("bookmarks");
-    if (!storedBookmarks) return [];
-
-    try {
-      const bookmarks = JSON.parse(storedBookmarks);
-      const userBookmark = bookmarks.find(
-        (b: { id: string }) => b.id === user.sub
-      );
-      return userBookmark ? userBookmark.book_id : [];
-    } catch (err) {
-      console.error("Error parsing bookmarks:", err);
-      return [];
-    }
-  };
+  const [userData, setUserData] = useState<UserData | null>(null); 
 
   useEffect(() => {
     if (!user) return;
-    const bookmarkIds = getBookmarks();
-    setBookmarkList(bookmarkIds);
-    setIsBookmarked(bookmarkIds.includes(book_id));
-  }, [book_id, user, setBookmarkList]);
+  
+    const fetchBookmarksFromAPI = async () => {
+      const userSub = user.sub;
+  
+      if (!userSub) return;
+  
+      try {
 
-  const handleBookmark = () => {
+        const response = await fetch('/api/bookmark', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userSub }),
+        });
+        if (!response.ok) {
+          throw new Error("ไม่สามารถดึงข้อมูล bookmarks จาก API ได้");
+        }
+        const data = await response.json();
+        console.log("Bookmarks จาก API:", data);
+  
+        const book_ids = data.book_ids || [];
+        setBookmarkList(book_ids);
+  
+        setIsBookmarked(book_ids.includes(book_id));
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูล bookmarks:", error);
+      }
+    };
+  
+    fetchBookmarksFromAPI();
+  }, [user, book_id, setBookmarkList]);
+
+  useEffect(() => {
+    if (user) {
+      console.log("User data:", user);
+      console.log("userSub:", user.sub);
+  
+      const userSub = user.sub;
+      if (userSub) {
+        fetch('/api/bookmark', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userSub }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch data from API");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            setUserData(data);
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+          });
+      }
+    }
+  }, [user]);
+
+  const handleBookmark = async () => {
     if (!user) {
       if (window.confirm("กรุณาเข้าสู่ระบบก่อนบันทึก Bookmark")) {
         window.location.href = "/api/auth/login";
       }
       return;
     }
-    const storedBookmarks = localStorage.getItem("bookmarks");
-    const bookmarks = storedBookmarks ? JSON.parse(storedBookmarks) : [];
-
-    let userBookmark = bookmarks.find((b: { id: string }) => b.id === user.sub);
-
-    if (userBookmark) {
-      if (userBookmark.book_id.includes(book_id)) {
-        userBookmark.book_id = userBookmark.book_id.filter(
-          (id: number) => id !== book_id
-        );
+  
+    try {
+      let endpoint = '';
+      let method: 'POST' | 'DELETE' = 'POST';
+  
+      const body: BookmarkRequestBody = { userId: user.sub!, bookId: book_id };
+  
+      if (isBookmarked) {
+        endpoint = `/api/bookmark/remove/${book_id}`;
+        method = 'DELETE';
       } else {
-        userBookmark.book_id.push(book_id);
+        endpoint = `/api/bookmark/add/${book_id}`;
+        method = 'POST';
       }
-    } else {
-      userBookmark = { id: user.sub, book_id: [book_id] };
-      bookmarks.push(userBookmark);
+  
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+
+        body: method === 'POST' || method === 'DELETE' ? JSON.stringify(body) : undefined,
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response from server:", errorData);
+        alert(`Error: ${errorData.message}`);
+        return;
+      }
+  
+      const data = await response.json(); 
+      console.log(data.message);
+  
+      if (response.ok) {
+        setIsBookmarked(!isBookmarked);
+
+      }
+      
+  
+    } catch (error) {
+      console.error("Error in bookmark request:", error);
+      alert("เกิดข้อผิดพลาดในการดำเนินการกับ Bookmark");
     }
-
-    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-    setBookmarkList(userBookmark.book_id);
-    setIsBookmarked(userBookmark.book_id.includes(book_id));
   };
+  
+  console.log("Bookmark status:", isBookmarked); 
+  console.log("User ID:", user?.sub); 
+  console.log("Book ID:", book_id); 
+  console.log("user", user);
+  console.log("userData", userData); 
 
-  console.log(user);
-
-  return (
+  return(
+    
     <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarked}>
       {isBookmarked ? (
         <Buttombookmarkopen>
@@ -102,6 +180,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         </Buttombookmark>
       )}
     </ButtonContainer>
+    
   );
 };
 
@@ -168,7 +247,5 @@ const Icon = styled.div`
     }
   }
 `;
-
-
 
 export default BookmarkButton;

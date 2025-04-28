@@ -9,7 +9,7 @@ const NotFoundPage: NextPage = () => {
       <Card>
         <Title>404 - Page Not Found</Title>
         <Message>ขออภัย ไม่พบหน้าที่คุณต้องการ</Message>
-        <HomeLink href="/">🔙 กลับหน้าแรก</HomeLink>
+        <HomeLink href="/">กลับหน้าแรก</HomeLink>
       </Card>
     </Container>
   );
