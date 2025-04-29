@@ -105,7 +105,7 @@ const Create = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {ebooks.map((ebook) => (
+                  {ebooks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((ebook) => (
                     <TableRow
                       hover
                       role="checkbox"
