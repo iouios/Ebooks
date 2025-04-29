@@ -115,7 +115,7 @@ const Create = () => {
                     >
                       <TableCell>{ebook.title || "null"}</TableCell>
                       <TableCell>
-                      {ebook.authors}
+                      {ebook.summaries || "null"}
                       </TableCell>
                       <TableCell>{ebook.summaries || "null"}</TableCell>
                       <TableCell>
