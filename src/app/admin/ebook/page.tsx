@@ -20,7 +20,7 @@ interface EbookData {
   image_url: string;
   id: string;
   title: string;
-  authors: string[];
+  authors: string;
   summaries: string;
   bookshelves: string[];
   languages: string[];
@@ -40,7 +40,6 @@ const Create = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [ebooks, setEbooks] = React.useState<EbookData[]>([]);
-  const [loading, setLoading] = React.useState(true);
 
   const router = useRouter();
 
@@ -71,8 +70,6 @@ const Create = () => {
         setEbooks(data);
       } catch (error) {
         console.error("Error fetching ebooks: ", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -108,68 +105,59 @@ const Create = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  
-                  {!loading &&
-                    ebooks
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((ebook) => (
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={-1}
-                          key={ebook.id}
-                          onClick={() => handleAddClickTable(ebook)}
-                        >
-                          <TableCell>{ebook.title || "null"}</TableCell>
-                          <TableCell>
-                            {Array.isArray(ebook.authors)
-                              ? ebook.authors.join(", ")
-                              : "null"}
-                          </TableCell>
-                          <TableCell>{ebook.summaries || "null"}</TableCell>
-                          <TableCell>
-                            {Array.isArray(ebook.bookshelves)
-                              ? ebook.bookshelves.join(", ")
-                              : "null"}
-                          </TableCell>
-                          <TableCell>
-                            {Array.isArray(ebook.languages)
-                              ? ebook.languages.join(", ")
-                              : "null"}
-                          </TableCell>
-                          <TableCell>
-                            {ebook.ebook_url && (
-                              <iframe
-                                src={ebook.ebook_url}
-                                width="100"
-                                height="100"
-                                style={{
-                                  border: "1px solid #ccc",
-                                  borderRadius: "8px",
-                                }}
-                              />
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {ebook.image_url &&
-                              /\.(jpg|jpeg|png)$/i.test(ebook.image_url) && (
-                                <Image
-                                  src={ebook.image_url}
-                                  alt="ebook image"
-                                  width={100}
-                                  height={150}
-                                  style={{
-                                    height: "auto",
-                                    objectFit: "contain",
-                                  }}
-                                />
-                              )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                  {ebooks.map((ebook) => (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={ebook.id}
+                      onClick={() => handleAddClickTable(ebook)}
+                    >
+                      <TableCell>{ebook.title || "null"}</TableCell>
+                      <TableCell>
+                      {ebook.authors}
+                      </TableCell>
+                      <TableCell>{ebook.summaries || "null"}</TableCell>
+                      <TableCell>
+                        {Array.isArray(ebook.bookshelves)
+                          ? ebook.bookshelves.join(", ")
+                          : "null"}
+                      </TableCell>
+                      <TableCell>
+                        {Array.isArray(ebook.languages)
+                          ? ebook.languages.join(", ")
+                          : "null"}
+                      </TableCell>
+                      <TableCell>
+                        {ebook.ebook_url && (
+                          <iframe
+                            src={ebook.ebook_url}
+                            width="100"
+                            height="100"
+                            style={{
+                              border: "1px solid #ccc",
+                              borderRadius: "8px",
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {ebook.image_url &&
+                          /\.(jpg|jpeg|png)$/i.test(ebook.image_url) && (
+                            <Image
+                              src={ebook.image_url}
+                              alt="ebook image"
+                              width={100}
+                              height={150}
+                              style={{
+                                height: "auto",
+                                objectFit: "contain",
+                              }}
+                            />
+                          )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
