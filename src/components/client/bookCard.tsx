@@ -72,7 +72,7 @@ const BookCard: React.FC<BookCardProps> = ({
         <SetBookmark>
           <BookmarkButton
             book_id={data.id}
-            isBookmarked={isBookmarked} // ✅ ส่งค่าที่คำนวณได้
+            isBookmarked={isBookmarked} 
             setBookmarkList={setBookmarkList}
           />
         </SetBookmark>

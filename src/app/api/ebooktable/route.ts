@@ -5,8 +5,9 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const querySnapshot = await getDocs(collection(db, "ebooks"));
-    const ebooks = querySnapshot.docs.map((doc) => {
+    const ebooks = querySnapshot.docs.map((doc, index) => {
       const data = doc.data();
+      console.log(`Document ${index}:`, data);
       return {
         id: doc.id,
         title: data.title,
@@ -18,7 +19,7 @@ export async function GET() {
         image_url: data.image_url,
       };
     });
-
+    
     return NextResponse.json(ebooks);
   } catch (error) {
     console.error("🔥 Error fetching ebooks:", error);

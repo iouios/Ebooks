@@ -49,6 +49,28 @@ const Create = () => {
     }
   };
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        router.push("/admin");
+      } else {
+        // ✅ ดึง Token และแสดงใน console
+        try {
+          const idTokenResult = await user.getIdTokenResult(true); // true = force refresh
+          console.log("🔥 ID Token:", idTokenResult.token);
+          console.log("🔐 Custom Claims:", idTokenResult.claims);
+        } catch (error) {
+          console.error("Error fetching token:", error);
+        }
+  
+        setLoading(false);
+      }
+    });
+  
+    return () => unsubscribe();
+  }, [router]);
+  
+
   const handleFileBChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       setFileB(e.target.files[0]);
