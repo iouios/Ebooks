@@ -1,8 +1,7 @@
-"use client";
+"use client"
 import styled from "styled-components";
 import Navbaradmin from "../components/client/Navbaradmin";
 import Navbarhead from "../components/client/Navbarhead";
-
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Paper from "@mui/material/Paper";
@@ -66,7 +65,9 @@ const Create = () => {
     const fetchEbooks = async () => {
       try {
         const res = await fetch("/api/ebooktable");
+        console.log("API Response Status: ", res.status); 
         const data = await res.json();
+        console.log("API Response Data: ", data); 
         setEbooks(data);
       } catch (error) {
         console.error("Error fetching ebooks: ", error);
@@ -113,20 +114,18 @@ const Create = () => {
                       key={ebook.id}
                       onClick={() => handleAddClickTable(ebook)}
                     >
-                      <TableCell>{ebook.title || "null"}</TableCell>
-                      <TableCell>
-                      {ebook.summaries || "null"}
-                      </TableCell>
-                      <TableCell>{ebook.summaries || "null"}</TableCell>
+                      <TableCell>{ebook.title || "Not Available"}</TableCell>
+                      <TableCell>{ebook.authors || "Not Available"}</TableCell>
+                      <TableCell>{ebook.summaries || "No summary"}</TableCell>
                       <TableCell>
                         {Array.isArray(ebook.bookshelves)
                           ? ebook.bookshelves.join(", ")
-                          : "null"}
+                          : "No bookshelves"}
                       </TableCell>
                       <TableCell>
                         {Array.isArray(ebook.languages)
                           ? ebook.languages.join(", ")
-                          : "null"}
+                          : "No languages"}
                       </TableCell>
                       <TableCell>
                         {ebook.ebook_url && (

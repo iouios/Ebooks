@@ -1,11 +1,18 @@
-import { db } from "../../admin/firebase/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../admin/firebase/firebaseAdmin"; // Firebase Admin SDK
 import { NextResponse } from "next/server";
+import { QueryDocumentSnapshot } from "firebase-admin/firestore";  // ใช้ QueryDocumentSnapshot สำหรับการจับข้อมูล
 
 export async function GET() {
   try {
-    const querySnapshot = await getDocs(collection(db, "ebooks"));
-    const ebooks = querySnapshot.docs.map((doc, index) => {
+
+    const querySnapshot = await db.collection("ebooks").get();
+
+    if (querySnapshot.empty) {
+      console.error("🔥 No documents found in ebooks collection");
+      return NextResponse.json({ message: "No documents found" }, { status: 404 });
+    }
+
+    const ebooks = querySnapshot.docs.map((doc: QueryDocumentSnapshot, index: number) => {
       const data = doc.data();
       console.log(`Document ${index}:`, data);
       return {
@@ -19,10 +26,14 @@ export async function GET() {
         image_url: data.image_url,
       };
     });
-    
+
     return NextResponse.json(ebooks);
+
   } catch (error) {
     console.error("🔥 Error fetching ebooks:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({
+      message: "Internal Server Error",
+      error: error instanceof Error ? error.message : "Unknown error",
+    }, { status: 500 });
   }
 }
