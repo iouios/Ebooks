@@ -32,9 +32,8 @@ const BookList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [bookmarkList, setBookmarkList] = useState<number[]>([]);
 
-  // ฟังก์ชันดึง bookmark ids จาก API
+  // ดึงเฉพาะ book_ids ที่ bookmark ไว้จาก API
   const fetchBookmarksFromAPI = async (userSub: string): Promise<number[]> => {
-    console.log("กำลังดึง bookmarks ของ user:", userSub);
     try {
       const response = await fetch("/api/bookmark", {
         method: "POST",
@@ -49,107 +48,67 @@ const BookList: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("ผลลัพธ์ที่ได้จาก /api/bookmark:", data);
-
-      const book_ids: number[] = Array.isArray(data.book_ids) ? data.book_ids : [];
-
-      console.log("book_ids ที่ได้:", book_ids);
-      console.log("data.bookmarks:", data.bookmarks);
-      return book_ids;
+      return Array.isArray(data.book_ids) ? data.book_ids : [];
     } catch (error) {
       console.error("เกิดข้อผิดพลาดในการดึงข้อมูล bookmarks:", error);
       return [];
     }
   };
 
-  // ฟังก์ชันดึงข้อมูลหนังสือจาก Gutendex
-  const fetchBookById = async (bookId: number): Promise<Book | null> => {
-    console.log(`กำลังดึงข้อมูลหนังสือ ID: ${bookId}`);
+  // ดึงข้อมูลหนังสือตาม ID จาก Gutendex
+  const fetchBooks = async (ids: number[]) => {
     try {
-      const response = await fetch(`https://gutendex.com/books?ids=${bookId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log(`ผลลัพธ์จาก Gutendex API สำหรับ bookId ${bookId}:`, data);
+      const responses = await Promise.all(
+        ids.map((id) =>
+          fetch(`https://gutendex.com/books?ids=${id}`).then((res) => res.json())
+        )
+      );
 
-      if (data.results.length > 0) {
-        return data.results[0];
-      } else {
-        console.log(`ไม่พบข้อมูลหนังสือสำหรับ ID: ${bookId}`);
-        return null;
-      }
+      const booksData = responses
+        .map((res) => res.results?.[0])
+        .filter((book): book is Book => book !== undefined);
+
+      setBooks(booksData);
     } catch (err) {
-      console.error(`Error fetching book with id ${bookId}:`, err);
-      return null;
+      console.error("เกิดข้อผิดพลาดในการดึงข้อมูลหนังสือ:", err);
+      setError("ไม่สามารถโหลดข้อมูลหนังสือได้");
     }
   };
 
   useEffect(() => {
-    if (!user?.sub) {
-      console.log("ยังไม่มี user หรือ user.sub");
-      return;
-    }
-  
-    const fetchBooksFromBookmarks = async () => {
-      console.log("เริ่มดึงข้อมูล bookmarks + books");
+    const loadBookmarksAndBooks = async () => {
+      if (!user?.sub) return;
+
       setLoading(true);
       try {
-        const bookmarkIds = await fetchBookmarksFromAPI(user.sub!);
-        console.log("user.sub:", user.sub);
-        console.log("Bookmark IDs ที่ได้:", bookmarkIds);
-  
-        if (bookmarkIds.length === 0) {
+        const ids = await fetchBookmarksFromAPI(user.sub);
+        if (ids.length === 0) {
           setError("ไม่มีข้อมูล bookmarks");
           return;
         }
-  
-        setBookmarkList(bookmarkIds);
-  
-        const booksFetched = await Promise.all(
-          bookmarkIds.map(async (id) => {
-            const bookData = await fetchBookById(id);
-            console.log(`ข้อมูลหนังสือที่ดึงได้ของ ${id}:`, bookData);
-            return bookData;
-          })
-        );
-  
-        const nonNullBooks = booksFetched.filter((b): b is Book => b !== null);
-        setBooks(nonNullBooks);
+
+        setBookmarkList(ids);
+        await fetchBooks(ids);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", err);
-        setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
+        setError("เกิดข้อผิดพลาดในการโหลดข้อมูล");
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchBooksFromBookmarks();
-  }, [user]);
-  
+
+    loadBookmarksAndBooks();
+  }, [user?.sub]);
 
   const handleBookmarkClick = () => {
-    if (!user) {
-      if (window.confirm("กรุณาเข้าสู่ระบบเพื่อบันทึก Bookmark")) {
-        window.location.href = "/api/auth/login";
-      }
-      return;
+    if (!user && window.confirm("กรุณาเข้าสู่ระบบเพื่อบันทึก Bookmark")) {
+      window.location.href = "/api/auth/login";
     }
   };
-  
-  
 
-  if (!user) {
-    return <p>กรุณาเข้าสู่ระบบเพื่อดู Bookmark</p>;
-  }
-
-  if (loading) {
-    return <p>กำลังโหลดข้อมูล...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+  if (!user) return <p>กรุณาเข้าสู่ระบบเพื่อดู Bookmark</p>;
+  if (loading) return <p>กำลังโหลดข้อมูล...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <Container>
@@ -164,7 +123,7 @@ const BookList: React.FC = () => {
               data={book}
               bookmarkList={bookmarkList}
               setBookmarkList={setBookmarkList}
-              onBookmarkClick={() => handleBookmarkClick}
+              onBookmarkClick={handleBookmarkClick}
             />
           ))}
         </GridContainer>
@@ -173,6 +132,7 @@ const BookList: React.FC = () => {
   );
 };
 
+// Styled-components
 const Container = styled.div`
   padding: 20px;
   width: 100%;

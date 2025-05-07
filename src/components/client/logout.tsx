@@ -25,7 +25,12 @@ const Logout = () => {
         <UserContainer>
           <FlexLogout>
             <div onClick={handleAvatarClick}>
-              <Avatar src={user.picture || "/images/profile.jpg"} />
+              <Avatar
+                src={user.picture || "/images/profile.jpg"}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/profile.jpg";
+                }}
+              />
             </div>
             <Email>{truncateText(user.email, 13)}</Email>
             <LogoutResponsiveButton
