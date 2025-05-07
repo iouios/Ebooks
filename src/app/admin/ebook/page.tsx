@@ -32,8 +32,8 @@ const columns = [
   { id: "summaries", label: "Summary", minWidth: 200 },
   { id: "bookshelves", label: "Bookshelves", minWidth: 150 },
   { id: "languages", label: "Languages", minWidth: 100 },
-  { id: "ebook_url", label: "Ebook_url", minWidth: 100 },
-  { id: "image_url", label: "Image_url", minWidth: 100 },
+  { id: "ebook", label: "Ebook", minWidth: 100 },
+  { id: "cover", label: "Cover", minWidth: 100 },
 ];
 
 const Create = () => {
@@ -112,6 +112,10 @@ const Create = () => {
                       tabIndex={-1}
                       key={ebook.id}
                       onClick={() => handleAddClickTable(ebook)}
+                      style={{
+                        position: 'relative', 
+                        cursor: 'pointer', 
+                      }}
                     >
                       <TableCell>{ebook.title || "null"}</TableCell>
                       <TableCell>
