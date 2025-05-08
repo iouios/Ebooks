@@ -6,7 +6,9 @@ import NavbarAdmin from "../../../components/client/Navbaradmin";
 import styled from "styled-components";
 import { TextField, Button } from "@mui/material";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { uploadFiles } from "../../../supabase/upload"; // ✅ เพิ่ม
+import Swal from "sweetalert2"; // ✅ เพิ่ม
 
 interface EbookData {
   id: string;
@@ -55,15 +57,61 @@ const EbookDetail: React.FC = () => {
     }
   };
 
+  const isValidEbookFile = (file: File) => {
+    const allowed = ["application/pdf", "application/epub+zip"];
+    return allowed.includes(file.type);
+  };
+
+  const isValidCoverFile = (file: File) => {
+    const allowed = ["image/jpeg", "image/jpg", "image/png"];
+    return allowed.includes(file.type);
+  };
+
+  const handleUploadEbook = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!isValidEbookFile(file)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Ebook File!",
+        text: "Only .pdf and .epub files are allowed.",
+      });
+      return;
+    }
+
+    const { urlA } = await uploadFiles(file, new File([], "placeholder.png"));
+    setEbook((prev) => (prev ? { ...prev, ebook_url: urlA } : null));
+  };
+
+  const handleUploadCover = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!isValidCoverFile(file)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Cover Image!",
+        text: "Only .jpeg, .jpg, and .png files are allowed.",
+      });
+      return;
+    }
+
+    const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file);
+    setEbook((prev) => (prev ? { ...prev, image_url: urlB } : null));
+  };
+
   const handleSave = async () => {
     if (!ebook) return;
 
     try {
       const res = await fetch(`/api/editEbook/${ebook.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(ebook),
       });
 
@@ -71,8 +119,7 @@ const EbookDetail: React.FC = () => {
       const data = text ? JSON.parse(text) : {};
 
       if (res.ok) {
-        console.log("Ebook updated successfully:", data);
-        router.push('/admin/ebook');
+        router.push("/admin/ebook");
       } else {
         console.error(
           "Failed to update ebook:",
@@ -99,26 +146,14 @@ const EbookDetail: React.FC = () => {
           value={ebook.title}
           onChange={(e) => handleInputChange("title", e.target.value)}
           fullWidth
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
+          style={inputStyle}
         />
         <TextField
           label="Authors"
           value={ebook.authors}
           onChange={(e) => handleInputChange("authors", e.target.value)}
           fullWidth
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
+          style={inputStyle}
         />
         <TextField
           label="Summaries"
@@ -127,13 +162,7 @@ const EbookDetail: React.FC = () => {
           fullWidth
           multiline
           rows={4}
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
+          style={inputStyle}
         />
         <TextField
           label="Bookshelves"
@@ -145,13 +174,7 @@ const EbookDetail: React.FC = () => {
             )
           }
           fullWidth
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
+          style={inputStyle}
         />
         <TextField
           label="Languages"
@@ -163,40 +186,32 @@ const EbookDetail: React.FC = () => {
             )
           }
           fullWidth
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
+          style={inputStyle}
         />
-        <TextField
-          label="Ebook URL"
-          value={ebook.ebook_url}
-          onChange={(e) => handleInputChange("ebook_url", e.target.value)}
-          fullWidth
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        />
-        <TextField
-          label="Image URL"
-          value={ebook.image_url}
-          onChange={(e) => handleInputChange("image_url", e.target.value)}
-          fullWidth
-          style={{
-            marginBottom: "16px",
-            width: "700px",
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-          }}
-        />
+        <div>Ebook(PDF/EPUB):</div>
+        <div >
+          <input type="file" accept=".pdf,.epub" onChange={handleUploadEbook} />
+        </div>
+
+        {ebook.ebook_url && (
+          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+            <h3>PDF Preview</h3>
+            <iframe
+              src={ebook.ebook_url}
+              width="700"
+              height="500"
+              style={{ border: "1px solid #ccc", borderRadius: "8px" }}
+            />
+          </div>
+        )}
+        <div>Cover Image:</div>
+        <div >
+          <input
+            type="file"
+            accept="image/jpeg,image/png"
+            onChange={handleUploadCover}
+          />
+        </div>
         {ebook.image_url && (
           <div style={{ textAlign: "center", marginBottom: "32px" }}>
             <h3>Cover Preview</h3>
@@ -209,33 +224,11 @@ const EbookDetail: React.FC = () => {
             />
           </div>
         )}
-
-        {ebook.ebook_url && (
-          <div style={{ textAlign: "center", marginBottom: "64px" }}>
-            <h3>PDF Preview</h3>
-            <iframe
-              src={ebook.ebook_url}
-              width="700"
-              height="500"
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-              }}
-            />
-          </div>
-        )}
-
         <Button
           onClick={handleSave}
           variant="contained"
           color="primary"
-          style={{
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            display: "block", 
-            margin: "0 auto", 
-            marginBottom: "32px", 
-          }}
+          style={buttonStyle}
         >
           Save Changes
         </Button>
@@ -245,6 +238,22 @@ const EbookDetail: React.FC = () => {
 };
 
 export default EbookDetail;
+
+const inputStyle = {
+  marginBottom: "16px",
+  width: "700px",
+  display: "block",
+  marginLeft: "auto",
+  marginRight: "auto",
+};
+
+const buttonStyle = {
+  border: "1px solid #ccc",
+  borderRadius: "8px",
+  display: "block",
+  margin: "0 auto",
+  marginBottom: "32px",
+};
 
 const Main = styled.div`
   display: flex;
