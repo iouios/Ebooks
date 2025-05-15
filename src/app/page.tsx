@@ -12,16 +12,37 @@ import { RootState, AppDispatch } from "../store/store";
 import { useRouter } from "next/navigation";
 import SearchInput from "@/components/client/searchInput";
 
+type Ebook = {
+  id: string;
+  title: string;
+  summaries: string;
+  authors: string;
+  languages: string[];
+  bookshelves: string[];
+  ebook_url: string;
+  image_url: string;
+};
+
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { books, loading } = useSelector((state: RootState) => state.books);
-
+  const [ebooks, setEbooks] = useState<Ebook[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     dispatch(fetchBooks(null));
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchEbooks = async () => {
+      const res = await fetch("/api/randombooks");
+      const data = await res.json();
+      setEbooks(data);
+    };
+
+    fetchEbooks();
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery) {
@@ -161,6 +182,40 @@ const HomePage = () => {
             ))}
             <Paginationmagin>
               <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-books-recommented" />
+            </Paginationmagin>
+          </StyledSwiper>
+        )}
+      </Swipermagin>
+      <TextOur>Ebook Shop</TextOur>
+      <Swipermagin>
+        {ebooks.length === 0 ? (
+          <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
+        ) : (
+          <StyledSwiper
+            spaceBetween={30}
+            pagination={{
+              clickable: true,
+              el: ".swiper-pagination-random-books",
+            }}
+            modules={[Pagination]}
+            className="mySwiper"
+            breakpoints={{
+              600: {
+                slidesPerView: 4,
+              },
+            }}
+          >
+            {ebooks.map((book) => (
+              <SwiperSlide key={book.id}>
+                <BookCard>
+                  <BookImage src={book.image_url}/>
+                  <BookTitle>{truncateText(book.title, 30)}</BookTitle>
+                  <BookAuthor>{truncateText(book.authors, 25)}</BookAuthor>
+                </BookCard>
+              </SwiperSlide>
+            ))}
+            <Paginationmagin>
+              <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-random-books" />
             </Paginationmagin>
           </StyledSwiper>
         )}
@@ -322,7 +377,7 @@ const BookCard = styled.div`
 `;
 
 const BookImage = styled.img`
-  width: 100%;  
+  width: 100%;
   max-width: 250px;
   aspect-ratio: 5 / 7;
   object-fit: cover;
@@ -332,11 +387,10 @@ const BookImage = styled.img`
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 
   @media (max-width: 500px) {
-    width: 80%; 
+    width: 80%;
     max-width: 200px;
   }
 `;
-
 
 const BookTitle = styled.h3`
   font-size: 16px;
@@ -361,7 +415,6 @@ const StyledSwiper = styled(Swiper)`
   width: 100%;
   max-width: 1200px;
   height: auto;
-
 `;
 
 
