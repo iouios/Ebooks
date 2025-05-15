@@ -1,14 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import NavbarHead from "../../../components/client/Navbarhead";
 import NavbarAdmin from "../../../components/client/Navbaradmin";
 import styled from "styled-components";
 import { TextField, Button } from "@mui/material";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { uploadFiles } from "../../../supabase/upload"; // ✅ เพิ่ม
-import Swal from "sweetalert2"; // ✅ เพิ่ม
+import { uploadFiles } from "../../../supabase/upload";
+import Swal from "sweetalert2";
 
 interface EbookData {
   id: string;
@@ -23,6 +22,10 @@ interface EbookData {
 
 const EbookDetail: React.FC = () => {
   const [ebook, setEbook] = useState<EbookData | null>(null);
+  const [uploadingEbook, setUploadingEbook] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [showCover, setShowCover] = useState(true);  // Show cover image initially
+  const [showEbook, setShowEbook] = useState(true);  // Show PDF initially
   const params = useParams();
   const ebookId = params?.id as string;
   const router = useRouter();
@@ -34,9 +37,10 @@ const EbookDetail: React.FC = () => {
       try {
         const res = await fetch(`/api/editEbook/${ebookId}`);
         const data = await res.json();
-
         if (res.ok) {
           setEbook(data);
+          setShowCover(true);  // Show cover after fetching
+          setShowEbook(true);  // Show ebook after fetching
         } else {
           console.error("Failed to fetch ebook:", data.message);
         }
@@ -82,8 +86,18 @@ const EbookDetail: React.FC = () => {
       return;
     }
 
-    const { urlA } = await uploadFiles(file, new File([], "placeholder.png"));
-    setEbook((prev) => (prev ? { ...prev, ebook_url: urlA } : null));
+    setUploadingEbook(true);
+    setShowEbook(false);  // Hide PDF preview while uploading
+    setEbook((prev) => (prev ? { ...prev, ebook_url: "" } : null));
+
+    try {
+      const { urlA } = await uploadFiles(file, new File([], "placeholder.png"));
+      setEbook((prev) => (prev ? { ...prev, ebook_url: urlA } : null));
+    } catch (err) {
+      console.error("Upload ebook failed:", err);
+    } finally {
+      setUploadingEbook(false);
+    }
   };
 
   const handleUploadCover = async (
@@ -101,8 +115,18 @@ const EbookDetail: React.FC = () => {
       return;
     }
 
-    const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file);
-    setEbook((prev) => (prev ? { ...prev, image_url: urlB } : null));
+    setUploadingCover(true);
+    setShowCover(false);  // Hide cover image while uploading
+    setEbook((prev) => (prev ? { ...prev, image_url: "" } : null));
+
+    try {
+      const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file);
+      setEbook((prev) => (prev ? { ...prev, image_url: urlB } : null));
+    } catch (err) {
+      console.error("Upload cover failed:", err);
+    } finally {
+      setUploadingCover(false);
+    }
   };
 
   const handleSave = async () => {
@@ -121,17 +145,14 @@ const EbookDetail: React.FC = () => {
       if (res.ok) {
         router.push("/admin/ebook");
       } else {
-        console.error(
-          "Failed to update ebook:",
-          data?.message || "Unknown error"
-        );
+        console.error("Failed to update ebook:", data?.message || "Unknown error");
       }
     } catch (error) {
       console.error("Save error:", error);
     }
   };
 
-  if (!ebook) return <div></div>;
+  if (!ebook) return <div>Loading...</div>;
 
   return (
     <Main>
@@ -188,12 +209,13 @@ const EbookDetail: React.FC = () => {
           fullWidth
           style={inputStyle}
         />
-        <div>Ebook(PDF/EPUB):</div>
-        <div >
-          <input type="file" accept=".pdf,.epub" onChange={handleUploadEbook} />
-        </div>
 
-        {ebook.ebook_url && (
+        <div>Ebook (PDF/EPUB):</div>
+        <input type="file" accept=".pdf,.epub" onChange={handleUploadEbook} />
+
+        {uploadingEbook ? (
+          <div style={{ textAlign: "center", margin: "32px" }}>Uploading Ebook...</div>
+        ) : showEbook && ebook.ebook_url ? (
           <div style={{ textAlign: "center", marginBottom: "64px" }}>
             <h3>PDF Preview</h3>
             <iframe
@@ -203,17 +225,15 @@ const EbookDetail: React.FC = () => {
               style={{ border: "1px solid #ccc", borderRadius: "8px" }}
             />
           </div>
-        )}
+        ) : null}
+
         <div>Cover Image:</div>
-        <div >
-          <input
-            type="file"
-            accept="image/jpeg,image/png"
-            onChange={handleUploadCover}
-          />
-        </div>
-        {ebook.image_url && (
-          <div style={{ textAlign: "center", marginBottom: "32px" }}>
+        <input type="file" accept="image/jpeg,image/png" onChange={handleUploadCover} />
+
+        {uploadingCover ? (
+          <div style={{ textAlign: "center", margin: "32px" }}>Uploading Cover...</div>
+        ) : showCover && ebook.image_url ? (
+          <div style={{ textAlign: "center", marginBottom: "32px" }} key={ebook.image_url}>
             <h3>Cover Preview</h3>
             <Image
               src={ebook.image_url}
@@ -223,7 +243,8 @@ const EbookDetail: React.FC = () => {
               layout="intrinsic"
             />
           </div>
-        )}
+        ) : null}
+
         <Button
           onClick={handleSave}
           variant="contained"

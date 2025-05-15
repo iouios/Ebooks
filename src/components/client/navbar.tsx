@@ -1,4 +1,4 @@
-
+"use client";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -59,12 +59,21 @@ const Navbar = () => {
           <LogoutImage>
             <Logout />
           </LogoutImage>
+          <div className="text-center">
           <Link href="/" passHref>
             <Button $isActive={pathname === "/"}>Home</Button>
           </Link>
+          </div>
+          <div className="text-center">
           <Link href="/book" passHref>
             <Button $isActive={pathname === "/book"}>Book</Button>
+          </Link>     
+          </div>    
+          <div className="text-center">
+          <Link href="/book" passHref>
+            <Button $isActive={pathname === "/book"}>Explore Books</Button>
           </Link>
+          </div>
           <Link
             href={user ? "/bookmark" : "#"}
             passHref
@@ -78,6 +87,7 @@ const Navbar = () => {
           >
             <Button $isActive={pathname === "/bookmark"}>Bookmark</Button>
           </Link>
+          
         </Menu>
       </HamburgerWrapper>
       <Icon>
@@ -135,7 +145,8 @@ const TextcolorNav = styled.div`
 
 const Menu = styled.div<MenuProps>`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  
   gap: 20px;
 
   @media (max-width: 500px) {
@@ -161,7 +172,7 @@ const Button = styled.button<{ $isActive: boolean }>`
   border: none;
   cursor: pointer;
   font-size: 16px;
-
+  text-justify: center;
   &:hover {
     color: var(--FONT_YELLOW);
   }
