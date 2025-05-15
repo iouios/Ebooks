@@ -70,8 +70,8 @@ const Navbar = () => {
           </Link>     
           </div>    
           <div className="text-center">
-          <Link href="/book" passHref>
-            <Button $isActive={pathname === "/book"}>Explore Books</Button>
+          <Link href="/EbookShop" passHref>
+            <Button $isActive={pathname === "/EbookShop"}>Ebook Shop</Button>
           </Link>
           </div>
           <Link
