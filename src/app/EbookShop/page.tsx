@@ -1,19 +1,62 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-const AllBook: React.FC = () => {
+type Ebook = {
+  id: string;
+  title: string;
+  summaries: string;
+  authors: string;
+  languages: string[];
+  bookshelves: string[];
+  ebook_url: string;
+  image_url: string;
+};
 
+type ApiResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Ebook[];
+};
+
+const AllBook: React.FC = () => {
+  const [books, setBooks] = useState<Ebook[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [next, setNext] = useState<string | null>(null);
+  const [previous, setPrevious] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEbooks = async () => {
+      const res = await fetch(`/api/ebookshop?page=${page}`);
+      const data: ApiResponse = await res.json();
+      setBooks(data.results);
+      setNext(data.next);
+      setPrevious(data.previous);
+    };
+
+    fetchEbooks();
+  }, [page]);
 
   return (
     <Container>
-      <Main>Ebook Shop</Main>
-      <CenterSearch>
 
-      </CenterSearch>
+
       <GridContainer>
-       
+        {books.map((book) => (
+          <li key={book.id}>{book.title}</li>
+        ))}
       </GridContainer>
+
+      <Pagination>
+        <button onClick={() => setPage((p) => p - 1)} disabled={!previous}>
+          ⬅️ ก่อนหน้า
+        </button>
+        <span>หน้า {page}</span>
+        <button onClick={() => setPage((p) => p + 1)} disabled={!next}>
+          ถัดไป ➡️
+        </button>
+      </Pagination>
     </Container>
   );
 };
@@ -44,10 +87,25 @@ const Main = styled.div`
   }
 `;
 
-const CenterSearch = styled.div`
+const Pagination = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-top: 40px;
+  gap: 20px;
+
+  button {
+    padding: 10px 20px;
+    background-color: #ffcc00;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 10px;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 `;
 
 export default AllBook;
