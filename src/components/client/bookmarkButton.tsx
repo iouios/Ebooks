@@ -5,10 +5,11 @@ import Image from "next/image";
 import { useUser } from "@auth0/nextjs-auth0/client";
 
 interface BookmarkButtonProps {
-  book_id: number;
+  book_id: number | string;
   isBookmarked: boolean;
-  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
+  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>;  // <-- แก้ตรงนี้
 }
+
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   book_id,
@@ -47,7 +48,6 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         return;
       }
 
-      // อัปเดตรายการ bookmark
       setBookmarkList((prev) =>
         isBookmarked ? prev.filter((id) => id !== book_id) : [...prev, book_id]
       );

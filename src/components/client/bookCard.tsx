@@ -9,7 +9,7 @@ interface Author {
 }
 
 interface Book {
-  id: number;
+  id: number | string;
   title: string;
   authors: Author[];
   languages: string[];
@@ -26,10 +26,11 @@ interface Book {
 
 interface BookCardProps {
   data: Book;
-  bookmarkList: number[];
-  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
-  onBookmarkClick?: () => void; // ✅ เพิ่ม prop นี้
+  bookmarkList: (number | string)[];  // <-- แก้ตรงนี้
+  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>; // <-- แก้ตรงนี้
+  onBookmarkClick?: () => void;
 }
+
 
 const BookCard: React.FC<BookCardProps> = ({
   data,
@@ -72,7 +73,7 @@ const BookCard: React.FC<BookCardProps> = ({
         <SetBookmark>
           <BookmarkButton
             book_id={data.id}
-            isBookmarked={isBookmarked} 
+            isBookmarked={isBookmarked}
             setBookmarkList={setBookmarkList}
           />
         </SetBookmark>
@@ -89,11 +90,11 @@ const Card = styled.div`
   align-items: center;
   font-weight: bold;
   @media (max-width: 500px) {
-    width: 140px; 
+    width: 140px;
     height: 300px;
     font-weight: bold;
   }
-`; //width: 160px; 
+`; //width: 160px;
 
 const CoverImage = styled.img`
   width: 200px;

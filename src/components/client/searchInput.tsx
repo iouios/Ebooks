@@ -14,9 +14,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   searchBooks,
 }) => {
   const handleSearchClick = () => {
-    if (searchQuery.trim()) {
-      searchBooks(searchQuery); 
-    }
+    searchBooks(searchQuery);
   };
 
   return (

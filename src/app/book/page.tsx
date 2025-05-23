@@ -28,7 +28,7 @@ const AllBook: React.FC = () => {
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [bookmarkList, setBookmarkList] = useState<number[]>([]);
+  const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -109,6 +109,9 @@ const AllBook: React.FC = () => {
       dispatch(searchBooks(searchQuery));
     }
   };
+
+  console.log("Bookmark List:", bookmarkList);
+  console.log("Redux Books:", reduxBooks);
 
   return (
     <Container>
