@@ -1,37 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '../../../../../app/admin/firebase/firebaseConfig'; 
-import { doc, setDoc, getDoc } from 'firebase/firestore'; 
+import { db } from '../../../../../app/admin/firebase/firebaseConfig';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { book_id: string } }
 ) {
   try {
-    const { book_id } = params;
+    const rawBookId = params.book_id;
     const body = await req.json();
     const { userId } = body;
 
-    const bookIdNumber = Number(book_id);
-
-    if (isNaN(bookIdNumber)) {
-      return NextResponse.json({ message: "Invalid book_id" }, { status: 400 });
+    if (!userId || !rawBookId) {
+      return NextResponse.json({ message: "Missing userId or bookId" }, { status: 400 });
     }
 
-    if (!userId || isNaN(bookIdNumber)) {
-      return NextResponse.json({ message: "Missing userId or invalid bookId" }, { status: 400 });
-    }
+    // ✅ แปลง book_id เป็น number ถ้าเป็นตัวเลขล้วน มิฉะนั้นคงไว้เป็น string
+    const book_id = /^\d+$/.test(rawBookId) ? Number(rawBookId) : rawBookId;
 
-    const bookmarkRef = doc(db, 'bookmarks', userId); 
+    const bookmarkRef = doc(db, 'bookmarks', userId);
     const userBookmarkDoc = await getDoc(bookmarkRef);
 
     if (!userBookmarkDoc.exists()) {
-      await setDoc(bookmarkRef, { book_ids: [bookIdNumber] }); 
+      await setDoc(bookmarkRef, { book_ids: [book_id] });
     } else {
-
       const currentBookIds = userBookmarkDoc.data()?.book_ids || [];
-      if (!currentBookIds.includes(bookIdNumber)) {
-        currentBookIds.push(bookIdNumber);
-        await setDoc(bookmarkRef, { book_ids: currentBookIds }); 
+      if (!currentBookIds.includes(book_id)) {
+        currentBookIds.push(book_id);
+        await setDoc(bookmarkRef, { book_ids: currentBookIds });
       }
     }
 

@@ -27,9 +27,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { book_id: 
     console.log("Found bookmark data, removing book_id from array");
 
     // ลบ book_id จาก array
-    await updateDoc(bookmarkRef, {
-      book_ids: arrayRemove(Number(book_id))
-    });
+await updateDoc(bookmarkRef, {
+  book_ids: arrayRemove(Number(book_id), book_id)
+});
+
 
     console.log(`Bookmark removed for user ${userId}, book_id: ${book_id}`);
 
