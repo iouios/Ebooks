@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import BookCard from "@/components/client/bookCard";
 import SearchInput from "@/components/client/searchInput";
@@ -72,27 +72,78 @@ const convertBook = (book: ApiBook): Book => ({
 
 const EbookShop: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [next, setNext] = useState<string | null>(null);
-  const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isSearchClicked, setIsSearchClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nextPage, setNextPage] = useState<string | null>("/api/ebookshop?page=1");
+  const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const searchParams = useSearchParams();
   const { user } = useUser();
 
+  // Get ?search from URL
   useEffect(() => {
     const query = searchParams.get("search");
     if (query) {
       setSearchQuery(query);
       setInputValue(query);
+      setIsSearchClicked(true);
     }
   }, [searchParams]);
 
+  // Fetch book data
+  const fetchBooks = useCallback(async (pageUrl: string | null) => {
+    if (!pageUrl) return;
+    setLoading(true);
+    try {
+      const res = await fetch(pageUrl);
+      if (!res.ok) throw new Error("Fetch failed");
+      const data: ApiResponse = await res.json();
+      const newBooks = data.results.map(convertBook);
+
+      setBooks((prev) => {
+        const ids = new Set(prev.map((b) => b.id));
+        return [...prev, ...newBooks.filter((b) => !ids.has(b.id))];
+      });
+
+      setNextPage(data.next);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBooks("/api/ebookshop?page=1");
+  }, [fetchBooks]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!nextPage || !loadMoreRef.current) return;
+
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          fetchBooks(nextPage);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observerRef.current.observe(loadMoreRef.current);
+
+    return () => observerRef.current?.disconnect();
+  }, [fetchBooks, nextPage, loading]);
+
+  // Fetch bookmarks
   useEffect(() => {
     if (!user) return;
-
     const fetchBookmarks = async () => {
       try {
         const response = await fetch("/api/bookmark", {
@@ -107,75 +158,26 @@ const EbookShop: React.FC = () => {
         console.error("ดึง bookmark ไม่สำเร็จ:", error);
       }
     };
-
     fetchBookmarks();
   }, [user]);
 
-  useEffect(() => {
-    const fetchEbooks = async () => {
-      try {
-        const res = await fetch(`/api/ebookshop?page=${page}`);
-        if (!res.ok) throw new Error(`Fetch failed (page ${page})`);
-
-        const data: ApiResponse = await res.json();
-        const convertedBooks = data.results.map(convertBook);
-        
-        setBooks((prev) => {
-          const existingIds = new Set(prev.map((book) => book.id));
-          const newBooks = convertedBooks.filter(
-            (book) => !existingIds.has(book.id)
-          );
-          return [...prev, ...newBooks];
-        });
-
-        setNext(data.next);
-      } catch (err) {
-        console.error("Error fetching ebooks:", err);
-      }
-    };
-
-    fetchEbooks();
-  }, [page]);
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredBooks(books);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = books.filter(
-        (book) =>
-          book.title.toLowerCase().includes(query) ||
-          book.id.toString().toLowerCase().includes(query)
-      );
-      setFilteredBooks(filtered.length > 0 ? filtered : books);
-    }
-  }, [searchQuery, books]);
-
-  useEffect(() => {
-    if (!loadMoreRef.current || !next) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && next) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      },
-      { rootMargin: "100px" }
-    );
-
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [next]);
-
   const handleSearch = () => {
+    setIsSearchClicked(true);
     setSearchQuery(inputValue.trim());
   };
 
-  console.log("searchQuery:", searchQuery);
+  const filteredBooks =
+    isSearchClicked && searchQuery.trim() !== ""
+      ? books.filter(
+          (b) =>
+            b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            b.id.toString().includes(searchQuery.toLowerCase())
+        )
+      : books;
 
   return (
     <Container>
-      <Main>Explore All Books</Main>
+      <Main>Ebook Books</Main>
       <CenterSearch>
         <SearchInput
           searchQuery={inputValue}
@@ -195,10 +197,17 @@ const EbookShop: React.FC = () => {
         ))}
       </GridContainer>
 
-      {next && <LoadMoreRef ref={loadMoreRef}>กำลังโหลด...</LoadMoreRef>}
+      {loading && <LoadMoreRef>กำลังโหลดข้อมูล...</LoadMoreRef>}
+
+      {nextPage && !loading && (
+        <LoadMoreRef ref={loadMoreRef}>
+          เลื่อนลงเพื่อโหลดเพิ่มเติม...
+        </LoadMoreRef>
+      )}
     </Container>
   );
 };
+
 const Container = styled.div`
   padding: 20px;
   width: 100%;
@@ -235,7 +244,7 @@ const LoadMoreRef = styled.div`
   text-align: center;
   padding: 20px;
   font-size: 16px;
-  color: #666;
+  color: gray;
 `;
 
 export default EbookShop;
