@@ -26,11 +26,10 @@ interface Book {
 
 interface BookCardProps {
   data: Book;
-  bookmarkList: (number | string)[];  // <-- แก้ตรงนี้
+  bookmarkList: (number | string)[]; // <-- แก้ตรงนี้
   setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>; // <-- แก้ตรงนี้
   onBookmarkClick?: () => void;
 }
-
 
 const BookCard: React.FC<BookCardProps> = ({
   data,
@@ -42,7 +41,13 @@ const BookCard: React.FC<BookCardProps> = ({
   return (
     <Card>
       <Images>
-        <Link href={`/book/${data.id}`}>
+        <Link
+          href={
+            typeof data.id === "number"
+              ? `/book/${data.id}`
+              : `/EbookShop/${data.id}`
+          }
+        >
           <CoverImage
             src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
             alt={data.title}

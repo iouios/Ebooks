@@ -13,7 +13,7 @@ const nextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value: "img-src 'self' https://lh3.googleusercontent.com https://www.gutenberg.org https://tysasgfmndcgptbtmzgq.supabase.co data:;", // เพิ่ม domain ของ Supabase ที่นี่
+            value: "img-src 'self' blob: data: https://lh3.googleusercontent.com https://www.gutenberg.org https://tysasgfmndcgptbtmzgq.supabase.co;",
           },
         ],
       },

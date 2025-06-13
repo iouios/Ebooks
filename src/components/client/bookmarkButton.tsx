@@ -7,7 +7,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 interface BookmarkButtonProps {
   book_id: number | string;
   isBookmarked: boolean;
-  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>;  // <-- แก้ตรงนี้
+  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>;
 }
 
 

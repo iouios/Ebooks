@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
@@ -10,22 +9,44 @@ import BookmarkButton from "@/components/client/bookmarkButton";
 import styled from "styled-components";
 import Image from "next/image";
 import { ReactReader } from "react-reader";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 const BookPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const params = useParams();
   const id = params.id as string;
 
-  const { book, loading, error } = useSelector(
+  const { book} = useSelector(
     (state: RootState) => state.books
   );
 
-  const [bookmarkList, setBookmarkList] = useState<number[]>([]);
+  const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const [epubPath, setEpubPath] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [showReader, setShowReader] = useState<boolean>(false);
   const [location, setLocation] = useState<string | number>(0);
+    const { user } = useUser();
 
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchBookmarks = async () => {
+      try {
+        const response = await fetch("/api/bookmark", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userSub: user.sub }),
+        });
+        if (!response.ok) throw new Error("โหลด bookmarks ล้มเหลว");
+        const data = await response.json();
+        setBookmarkList(data.book_ids || []);
+      } catch (error) {
+        console.error("ดึง bookmark ไม่สำเร็จ:", error);
+      }
+    };
+    fetchBookmarks();
+  }, [user]);
+    
   useEffect(() => {
     if (id) {
       dispatch(fetchBookById(Number(id)));
@@ -56,9 +77,6 @@ const BookPage = () => {
       setShowReader(true);
     }
   };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   return (
     <Main>
@@ -434,10 +452,10 @@ const Categorys = styled.a`
   border-radius: 25px;
   min-width: 100px;
   text-align: center;
-  @media (max-width: 500px) {  
-  padding: 10px;
-  margin-left: 45px;
-}
+  @media (max-width: 500px) {
+    padding: 10px;
+    margin-left: 45px;
+  }
 `;
 
 const ReaderContainer = styled.div`
