@@ -90,9 +90,7 @@ const HomePage = () => {
             searchBooks={handleSearch}
           />
         </Search>
-
         <TextOur>Our Best Picks</TextOur>
-
         <BookMargin>
           <Swipermagins>
             {loading ? (
@@ -129,13 +127,48 @@ const HomePage = () => {
                     </BookCard>
                   </SwiperSlide>
                 ))}
-
                 <Paginationmagin>
                   <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-books-recommented" />
                 </Paginationmagin>
               </Swiper>
             )}
           </Swipermagins>
+        </BookMargin>
+        <TextEbooks>Ebook Shop</TextEbooks>
+        <BookMargin>
+        <Swipermagins>
+          {ebooks.length === 0 ? (
+            <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
+          ) : (
+            <Swiper
+              spaceBetween={30}
+              pagination={{
+                clickable: true,
+                el: ".swiper-pagination-random-books",
+              }}
+              modules={[Pagination]}
+              className="mySwiper"
+              breakpoints={{
+                300: {
+                  slidesPerView: 2,
+                },
+              }}
+            >
+              {ebooks.slice(0, 12).map((book) => (
+                <SwiperSlide key={book.id}>
+                  <BookCard>
+                    <BookImage src={book.image_url} />
+                    <BookTitle>{truncateText(book.title, 7)}</BookTitle>
+                    <BookAuthor>{truncateText(book.authors, 10)}</BookAuthor>
+                  </BookCard>
+                </SwiperSlide>
+              ))}
+              <Paginationmagin>
+                <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-random-books" />
+              </Paginationmagin>
+            </Swiper>
+          )}
+        </Swipermagins>
         </BookMargin>
         <StyledImage
           src="/images/bookimage.jpg"
@@ -186,7 +219,9 @@ const HomePage = () => {
           </StyledSwiper>
         )}
       </Swipermagin>
+      <ContentContainer>
       <TextOur>Ebook Shop</TextOur>
+      </ContentContainer>
       <Swipermagin>
         {ebooks.length === 0 ? (
           <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
@@ -208,7 +243,7 @@ const HomePage = () => {
             {ebooks.map((book) => (
               <SwiperSlide key={book.id}>
                 <BookCard>
-                  <BookImage src={book.image_url}/>
+                  <BookImage src={book.image_url} />
                   <BookTitle>{truncateText(book.title, 30)}</BookTitle>
                   <BookAuthor>{truncateText(book.authors, 25)}</BookAuthor>
                 </BookCard>
@@ -227,12 +262,11 @@ const HomePage = () => {
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
-  overflow: hidden;
 `;
 
 const ImageContainer = styled.div`
   width: 100%;
-  height: 100vh;
+  min-height: 100vh; 
   background-image: url("/images/book.png");
   background-position: center;
   background-size: cover;
@@ -243,7 +277,6 @@ const ImageContainer = styled.div`
 `;
 const ImageContainerres = styled.div`
   width: 100%;
-  height: 100vh;
   background-image: url("/images/bookimage.jpg");
   background-position: center;
   background-size: cover;
@@ -327,6 +360,17 @@ const TextOur = styled.div`
   @media (max-width: 500px) {
     font-size: 20px;
     margin-top: 60px;
+    color: var(--FONT_YELLOW);
+  }
+`;
+
+const TextEbooks = styled.div`
+  font-size: 60px;
+  font-weight: bold;
+  text-align: center;
+  @media (max-width: 500px) {
+    font-size: 20px;
+    margin-top: 20px;
     color: var(--FONT_YELLOW);
   }
 `;
@@ -416,6 +460,5 @@ const StyledSwiper = styled(Swiper)`
   max-width: 1200px;
   height: auto;
 `;
-
 
 export default HomePage;
