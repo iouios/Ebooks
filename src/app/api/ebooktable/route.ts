@@ -14,6 +14,7 @@ export async function GET() {
         authors: data.authors,
         summaries: data.summaries,
         bookshelves: data.bookshelves,
+        price: data.price,
         languages: data.languages,
         ebook_url: data.ebook_url,
         image_url: data.image_url,

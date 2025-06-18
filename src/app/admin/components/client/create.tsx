@@ -1,4 +1,10 @@
-import React, { forwardRef, useImperativeHandle, useState, useEffect } from "react";
+"use client";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useEffect,
+} from "react";
 import styled from "styled-components";
 import {
   TextField,
@@ -20,6 +26,7 @@ interface FormDataType {
   bookshelves: string[];
   languages: string[];
   ebook_url: string;
+  price: number;
   image_url: string;
 }
 
@@ -39,6 +46,7 @@ export interface CreateComponentRef {
 const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
   const [title, setTitle] = useState("");
   const [summaries, setSummaries] = useState("");
+  const [price, setprice] = useState("");
   const [bookshelves, setBookshelves] = useState("");
   const [languages, setLanguages] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
@@ -61,12 +69,12 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
   }, []);
 
   const isValidEbookFile = (file: File) => {
-    const allowedEbookTypes = ['application/pdf', 'application/epub+zip'];
+    const allowedEbookTypes = ["application/pdf", "application/epub+zip"];
     return allowedEbookTypes.includes(file.type);
   };
 
   const isValidCoverFile = (file: File) => {
-    const allowedCoverTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedCoverTypes = ["image/jpeg", "image/jpg", "image/png"];
     return allowedCoverTypes.includes(file.type);
   };
 
@@ -77,6 +85,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
       summaries,
       bookshelves: bookshelves.split(",").map((b) => b.trim()),
       languages,
+      price: Number(parseFloat(price).toFixed(2)) || 0,
       ebook_url: fileUrls[0],
       image_url: fileUrls[1],
     }),
@@ -84,11 +93,11 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
     uploadEbookFile: async (file: File) => {
       if (!isValidEbookFile(file)) {
         Swal.fire({
-          icon: 'error',
-          title: 'Invalid Ebook File!',
-          text: 'Only .pdf and .epub files are allowed.',
+          icon: "error",
+          title: "Invalid Ebook File!",
+          text: "Only .pdf and .epub files are allowed.",
         });
-        throw new Error('Invalid ebook file.');
+        throw new Error("Invalid ebook file.");
       }
 
       const { urlA } = await uploadFiles(file, new File([], "placeholder.png"));
@@ -99,14 +108,17 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
     uploadImageFile: async (file: File) => {
       if (!isValidCoverFile(file)) {
         Swal.fire({
-          icon: 'error',
-          title: 'Invalid Cover Image!',
-          text: 'Only .jpeg, .jpg, and .png files are allowed.',
+          icon: "error",
+          title: "Invalid Cover Image!",
+          text: "Only .jpeg, .jpg, and .png files are allowed.",
         });
-        throw new Error('Invalid cover image.');
+        throw new Error("Invalid cover image.");
       }
 
-      const { urlB } = await uploadFiles(new File([], "placeholder.epub"), file);
+      const { urlB } = await uploadFiles(
+        new File([], "placeholder.epub"),
+        file
+      );
       setFileUrls((prev) => [prev[0], urlB]);
       return urlB;
     },
@@ -121,6 +133,8 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
       prev.includes(lang) ? prev.filter((l) => l !== lang) : [...prev, lang]
     );
   };
+
+  console.log("Selected price:", price);
 
   return (
     <Main>
@@ -188,6 +202,31 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
           variant="outlined"
           value={bookshelves}
           onChange={(e) => setBookshelves(e.target.value)}
+          fullWidth
+          required
+          style={{
+            marginBottom: "16px",
+            width: "700px",
+            display: "block",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        />
+        <TextField
+          label="Price"
+          variant="outlined"
+          type="number"
+          value={price}
+          onChange={(e) => {
+            setprice(e.target.value);
+          }}
+          onBlur={() => {
+            if (price === "" || isNaN(Number(price))) {
+              setprice("0.00");
+            } else {
+              setprice(parseFloat(price).toFixed(2)); 
+            }
+          }}
           fullWidth
           required
           style={{

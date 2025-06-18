@@ -17,6 +17,7 @@ interface FormDataType {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  price: number;
   ebook_url: string;
   image_url: string;
 }
@@ -83,13 +84,13 @@ const Create = () => {
     if (!formRef.current) return;
 
     const formData = formRef.current.getFormData();
+    console.log("Price from form:", formData.price);
     const userId = auth.currentUser?.uid;
     if (!userId) {
       console.log("User not authenticated!");
       return;
     }
-
-    const formDataWithUserId: FormDataType = { ...formData };
+    const formDataWithUserId: FormDataType = { ...formData};
 
     setUploading(true);
     try {

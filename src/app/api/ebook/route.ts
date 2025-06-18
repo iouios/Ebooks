@@ -7,6 +7,7 @@ interface EbookData {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  price: number; 
   ebook_url: string;
   image_url: string;
 
@@ -18,6 +19,7 @@ export const saveEbook = async ({
   summaries,
   bookshelves,
   languages,
+  price,
   ebook_url,
   image_url,
 }: EbookData): Promise<{ success: boolean; id?: string; error?: string }> => {
@@ -28,6 +30,7 @@ export const saveEbook = async ({
       summaries,
       bookshelves,
       languages,
+      price,
       ebook_url,
       image_url,
     });

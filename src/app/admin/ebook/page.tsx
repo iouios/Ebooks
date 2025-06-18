@@ -25,10 +25,12 @@ interface EbookData {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  price: number;
 }
 
 const columns = [
   { id: "title", label: "Title", minWidth: 170 },
+  { id: "price", label: "price", minWidth: 170 },
   { id: "authors", label: "Authors", minWidth: 150 },
   { id: "summaries", label: "Summary", minWidth: 200 },
   { id: "bookshelves", label: "Bookshelves", minWidth: 150 },
@@ -121,6 +123,7 @@ const Create = () => {
                         }}
                       >
                         <TableCell>{ebook.title || "null"}</TableCell>
+                        <TableCell>{ebook.price ? ebook.price.toLocaleString() : "ฟรี"}</TableCell>
                         <TableCell>{ebook.summaries || "null"}</TableCell>
                         <TableCell>{ebook.summaries || "null"}</TableCell>
                         <TableCell>

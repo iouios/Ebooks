@@ -26,6 +26,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       summaries: data.summaries,
       bookshelves: data.bookshelves,
       languages: data.languages,
+      price: data.price,
       ebook_url: data.ebook_url,
       image_url: data.image_url,
     });
@@ -47,6 +48,7 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       summaries: body.summaries,
       bookshelves: body.bookshelves,
       languages: body.languages,
+      price: body.price,
       ebook_url: body.ebook_url,
       image_url: body.image_url,
     });

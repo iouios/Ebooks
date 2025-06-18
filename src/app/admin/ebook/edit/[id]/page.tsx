@@ -17,6 +17,7 @@ interface EbookData {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  price: number; 
   ebook_url: string;
   image_url: string;
 }
@@ -201,6 +202,14 @@ const EbookDetail: React.FC = () => {
               e.target.value.split(",").map((b) => b.trim())
             )
           }
+          fullWidth
+          style={inputStyle}
+        />
+        <TextField
+          label="Price"
+          type="number"
+          value={ebook.price}
+          onChange={(e) => handleInputChange("price", Number(e.target.value))}
           fullWidth
           style={inputStyle}
         />
