@@ -122,6 +122,7 @@ const Email = styled.div`
   font-size: 16px;
   color: var(--FONT_WHITE);
   margin-bottom: 15px;
+  margin-right: 4px;
   @media (max-width: 500px) {
     font-size: 10px;
     margin-top: 15px;
@@ -132,14 +133,14 @@ const Email = styled.div`
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 40px;
+  top: 30px;
   right: 0;
   display: grid;
-  background-color: var(--ELEMENT_BLACK);
-  border: 1px solid var(--ELEMENT_YELLOW);
+  /* background-color: var(--ELEMENT_BLACK);
+  border: 1px solid var(--ELEMENT_YELLOW); */
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 120px;
+  width: 125px;
   height: 55px;
   padding: 4px;
   text-align: center;
@@ -155,7 +156,12 @@ const Button = styled.button`
 `;
 
 const LogoutButton = styled(Button)`
+  width: 100%;
+  background-color: var(--ELEMENT_BLACK);
+  border: 2px solid var(--ELEMENT_YELLOW);
+  margin-top: 6px;
   padding-bottom: 0px;
+  border-radius: 8px;
 `;
 
 const LoginButton = styled(Button)`
@@ -189,6 +195,7 @@ const FlexLogout = styled.div`
 const LogoutResponsiveButton = styled(Button)`
   padding-bottom: 0px;
   padding-right: 20px;
+
   font-size: 8px;
   @media (min-width: 500px) {
     display: none;
