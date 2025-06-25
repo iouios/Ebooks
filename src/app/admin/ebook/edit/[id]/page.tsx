@@ -208,7 +208,7 @@ const EbookDetail: React.FC = () => {
         <TextField
           label="Price"
           type="number"
-          value={ebook.price}
+          value={ebook.price|| ''}
           onChange={(e) => handleInputChange("price", Number(e.target.value))}
           fullWidth
           style={inputStyle}
