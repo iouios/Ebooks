@@ -32,7 +32,9 @@ const Logout = () => {
                 }}
               />
             </div>
-            <Email>{truncateText(user.email, 13)}</Email>
+            <Link href="/Token">
+              <Email>{truncateText(user.email, 13)}</Email>
+            </Link>
             <LogoutResponsiveButton
               onClick={() => (window.location.href = "/api/auth/logout")}
             >
@@ -41,8 +43,16 @@ const Logout = () => {
           </FlexLogout>
           {dropdownVisible && (
             <DropdownMenu>
+              <Link href="/Token" passHref>
+                <LogoutButton onClick={() => setDropdownVisible(false)}>
+                  เติม Token
+                </LogoutButton>
+              </Link>
               <LogoutButton
-                onClick={() => (window.location.href = "/api/auth/logout")}
+                onClick={() => {
+                  setDropdownVisible(false);
+                  window.location.href = "/api/auth/logout";
+                }}
               >
                 Logout
               </LogoutButton>
@@ -104,6 +114,7 @@ const Avatar = styled.img`
     width: 20px;
     height: 20px;
     margin-left: 20px;
+    margin-right: 20px;
   }
 `;
 
@@ -123,13 +134,14 @@ const DropdownMenu = styled.div`
   position: absolute;
   top: 40px;
   right: 0;
+  display: grid;
   background-color: var(--ELEMENT_BLACK);
   border: 1px solid var(--ELEMENT_YELLOW);
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 120px;
-  height: 40px;
-  padding: 6px;
+  height: 55px;
+  padding: 4px;
   text-align: center;
   @media (max-width: 500px) {
     display: none;
@@ -143,7 +155,7 @@ const Button = styled.button`
 `;
 
 const LogoutButton = styled(Button)`
-  padding-bottom: 20px;
+  padding-bottom: 0px;
 `;
 
 const LoginButton = styled(Button)`

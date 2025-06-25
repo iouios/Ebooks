@@ -40,7 +40,6 @@ const Navbar = () => {
           <TextcolorNav>BOOKPOINT</TextcolorNav>
         </Text>
       </Flex>
-
       <HamburgerWrapper>
         <Hamburger $isOpen={isMenuOpen} onClick={toggleMenu}>
           {!isMenuOpen ? (
