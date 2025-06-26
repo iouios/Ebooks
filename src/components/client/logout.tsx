@@ -1,11 +1,17 @@
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import styled from "styled-components";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const Logout = () => {
   const { user, error, isLoading } = useUser();
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setDropdownVisible(false);
+  }, [pathname]);
 
   if (isLoading) return <LoadingText>Loading...</LoadingText>;
   if (error) return <ErrorText>{error.message}</ErrorText>;
@@ -73,7 +79,6 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-
   @media (max-width: 500px) {
     position: relative;
     &::before,
@@ -109,8 +114,9 @@ const Avatar = styled.img`
   height: 30px;
   object-fit: cover;
   cursor: pointer;
-  margin-top: 12px;
+  margin-top: 0px;
   @media (max-width: 500px) {
+    margin-top: 10px;
     width: 20px;
     height: 20px;
     margin-left: 20px;
@@ -136,13 +142,10 @@ const DropdownMenu = styled.div`
   top: 30px;
   right: 0;
   display: grid;
-  /* background-color: var(--ELEMENT_BLACK);
-  border: 1px solid var(--ELEMENT_YELLOW); */
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 125px;
+  width: 126px;
   height: 55px;
-  padding: 4px;
   text-align: center;
   @media (max-width: 500px) {
     display: none;
@@ -159,8 +162,7 @@ const LogoutButton = styled(Button)`
   width: 100%;
   background-color: var(--ELEMENT_BLACK);
   border: 2px solid var(--ELEMENT_YELLOW);
-  margin-top: 6px;
-  padding-bottom: 0px;
+  margin-top: 4px;
   border-radius: 8px;
 `;
 

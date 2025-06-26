@@ -80,7 +80,7 @@ const Navbar = () => {
               if (!user) {
                 e.preventDefault(); 
                 alert("กรุณาเข้าสู่ระบบเพื่อเข้าถึง Bookmark");
-                window.location.href = "/api/auth/login"; // ไปที่หน้า Login
+                window.location.href = "/api/auth/login";
               }
             }}
           >
@@ -151,8 +151,8 @@ const Menu = styled.div<MenuProps>`
   @media (max-width: 500px) {
     display: ${(props) => (props.$isMenuOpen ? "flex" : "none")};
     flex-direction: column;
-    position: fixed; /* Changed from absolute to fixed */
-    top: 0px; /* Keep the menu below the header */
+    position: fixed;
+    top: 0px;
     right: 0px;
     width: 200px;
     height: 100vh;
@@ -160,7 +160,7 @@ const Menu = styled.div<MenuProps>`
     padding: 20px;
     z-index: 1000;
     text-align: center;
-    overflow-y: auto; /* To make sure the content can scroll within the menu if needed */
+    overflow-y: auto;
   }
 `;
 

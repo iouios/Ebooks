@@ -136,39 +136,39 @@ const HomePage = () => {
         </BookMargin>
         <TextEbooks>Ebook Shop</TextEbooks>
         <BookMargin>
-        <Swipermagins>
-          {ebooks.length === 0 ? (
-            <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
-          ) : (
-            <Swiper
-              spaceBetween={30}
-              pagination={{
-                clickable: true,
-                el: ".swiper-pagination-random-books",
-              }}
-              modules={[Pagination]}
-              className="mySwiper"
-              breakpoints={{
-                300: {
-                  slidesPerView: 2,
-                },
-              }}
-            >
-              {ebooks.slice(0, 12).map((book) => (
-                <SwiperSlide key={book.id}>
-                  <BookCard>
-                    <BookImage src={book.image_url} />
-                    <BookTitle>{truncateText(book.title, 7)}</BookTitle>
-                    <BookAuthor>{truncateText(book.authors, 10)}</BookAuthor>
-                  </BookCard>
-                </SwiperSlide>
-              ))}
-              <Paginationmagin>
-                <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-random-books" />
-              </Paginationmagin>
-            </Swiper>
-          )}
-        </Swipermagins>
+          <Swipermagins>
+            {ebooks.length === 0 ? (
+              <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
+            ) : (
+              <Swiper
+                spaceBetween={30}
+                pagination={{
+                  clickable: true,
+                  el: ".swiper-pagination-random-books",
+                }}
+                modules={[Pagination]}
+                className="mySwiper"
+                breakpoints={{
+                  300: {
+                    slidesPerView: 2,
+                  },
+                }}
+              >
+                {ebooks.slice(0, 12).map((book) => (
+                  <SwiperSlide key={book.id}>
+                    <BookCard>
+                      <BookImage src={book.image_url} />
+                      <BookTitle>{truncateText(book.title, 7)}</BookTitle>
+                      <BookAuthor>{truncateText(book.authors, 10)}</BookAuthor>
+                    </BookCard>
+                  </SwiperSlide>
+                ))}
+                <Paginationmagin>
+                  <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-random-books" />
+                </Paginationmagin>
+              </Swiper>
+            )}
+          </Swipermagins>
         </BookMargin>
         <StyledImage
           src="/images/bookimage.jpg"
@@ -220,7 +220,7 @@ const HomePage = () => {
         )}
       </Swipermagin>
       <ContentContainer>
-      <TextOur>Ebook Shop</TextOur>
+        <TextOur>Ebook Shop</TextOur>
       </ContentContainer>
       <Swipermagin>
         {ebooks.length === 0 ? (
@@ -266,11 +266,11 @@ const Container = styled.div`
 
 const ImageContainer = styled.div`
   width: 100%;
-  min-height: 100vh; 
+  min-height: 100vh;
   background-image: url("/images/book.png");
   background-position: center;
   background-size: cover;
-  position: relative;
+
   @media (max-width: 500px) {
     display: none;
   }
