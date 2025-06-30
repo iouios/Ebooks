@@ -77,7 +77,7 @@ const BookCard: React.FC<BookCardProps> = ({
           <Paragraph>
             {data.summaries?.[0]?.substring(0, 20) + "..." || "ไม่มีเรื่องย่อ"}
           </Paragraph>
-          {showPrice !== false && (data.price ? `${data.price} บาท` : "ฟรี")}
+          {showPrice !== false && (data.price ? `${data.price.toLocaleString() } บาท` : "ฟรี")}
         </SetTitle>
         <SetBookmark>
           <BookmarkButton
