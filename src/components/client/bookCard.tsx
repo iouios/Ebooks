@@ -16,6 +16,7 @@ interface Book {
   subjects: string[];
   download_count: number;
   summaries: string[];
+  price?: number;
   coverImage?: string;
   formats: {
     "text/plain"?: string;
@@ -29,12 +30,14 @@ interface BookCardProps {
   bookmarkList: (number | string)[]; // <-- แก้ตรงนี้
   setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>; // <-- แก้ตรงนี้
   onBookmarkClick?: () => void;
+  showPrice?: boolean;
 }
 
 const BookCard: React.FC<BookCardProps> = ({
   data,
   bookmarkList,
   setBookmarkList,
+  showPrice = true,
 }) => {
   const isBookmarked = bookmarkList.includes(data.id);
 
@@ -74,6 +77,7 @@ const BookCard: React.FC<BookCardProps> = ({
           <Paragraph>
             {data.summaries?.[0]?.substring(0, 20) + "..." || "ไม่มีเรื่องย่อ"}
           </Paragraph>
+          {showPrice !== false && (data.price ? `${data.price} บาท` : "ฟรี")}
         </SetTitle>
         <SetBookmark>
           <BookmarkButton

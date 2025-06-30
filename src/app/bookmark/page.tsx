@@ -1,11 +1,9 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import BookCard from "@/components/client/bookCard";
 
-// Interfaces
 interface Author {
   name: string;
 }
@@ -19,6 +17,7 @@ interface Book {
   download_count: number;
   summaries: string[];
   bookshelves: string[];
+  price: number;
   formats: {
     "text/plain"?: string;
     "application/epub+zip"?: string;
@@ -35,6 +34,7 @@ interface RawBook {
   download_count: number;
   summaries?: string[];
   bookshelves?: string[];
+  price: number;
   formats?: RawFormat;
   image_url?: string;
 }
@@ -61,6 +61,7 @@ const convertBook = (raw: RawBook): Book => {
     subjects: Array.isArray(raw.subjects) ? raw.subjects : [],
     download_count: raw.download_count,
     summaries: Array.isArray(raw.summaries) ? raw.summaries : [],
+    price: raw.price,
     bookshelves: Array.isArray(raw.bookshelves) ? raw.bookshelves : [],
     formats: {
       "text/plain": raw.formats?.["text/plain"],
@@ -165,7 +166,6 @@ const BookList: React.FC = () => {
 
   return (
     <Container>
-      {/* แท็บปุ่มสลับ */}
       <TabContainer>
         <TabButton
           active={activeTab === "bookmarks"}
@@ -195,6 +195,7 @@ const BookList: React.FC = () => {
                   bookmarkList={bookmarkList}
                   setBookmarkList={setBookmarkList}
                   onBookmarkClick={handleBookmarkClick}
+                  showPrice={false}
                 />
               ))}
             </GridContainer>

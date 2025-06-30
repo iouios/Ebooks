@@ -131,6 +131,7 @@ const AllBook: React.FC = () => {
               data={book}
               bookmarkList={bookmarkList}
               setBookmarkList={setBookmarkList}
+              showPrice={false}
             />
           ))}
       </GridContainer>

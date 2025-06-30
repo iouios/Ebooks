@@ -19,6 +19,7 @@ interface ApiBook {
   bookshelves?: string[];
   ebook_url: string;
   image_url: string;
+  price: number;
   subjects?: string[];
   formats?: Record<string, string>;
   download_count?: number;
@@ -33,6 +34,7 @@ interface Book {
   bookshelves: string[];
   ebook_url: string;
   image_url: string;
+  price: number;
   subjects: string[];
   formats: {
     "text/plain"?: string;
@@ -61,6 +63,7 @@ const convertBook = (book: ApiBook): Book => ({
   bookshelves: book.bookshelves ?? [],
   ebook_url: book.ebook_url,
   image_url: book.image_url,
+  price: book.price,
   subjects: book.subjects ?? [],
   formats: {
     "text/plain": book.formats?.["text/plain"],
