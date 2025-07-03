@@ -115,7 +115,7 @@ const AllBook: React.FC = () => {
 
   return (
     <Container>
-      <Main>Explore All Books Here</Main>
+      <Main>Free Books From Guteburg Project</Main>
       <CenterSearch>
         <SearchInput
           searchQuery={searchQuery}
@@ -131,6 +131,7 @@ const AllBook: React.FC = () => {
               data={book}
               bookmarkList={bookmarkList}
               setBookmarkList={setBookmarkList}
+              showPrice={false}
             />
           ))}
       </GridContainer>

@@ -179,7 +179,7 @@ const HomePage = () => {
         />
       </ImageContainerres>
       <ContentContainer>
-        <TextOur>Our Best Picks</TextOur>
+        <TextOur>Free Picks</TextOur>
       </ContentContainer>
       <Swipermagin>
         {loading ? (
@@ -220,7 +220,7 @@ const HomePage = () => {
         )}
       </Swipermagin>
       <ContentContainer>
-        <TextOur>Ebook Shop</TextOur>
+      <TextOur>Premium Picks</TextOur>
       </ContentContainer>
       <Swipermagin>
         {ebooks.length === 0 ? (

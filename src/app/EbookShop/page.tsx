@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
-import BookCard from "@/components/client/bookCard";
+import BookCardEbook from "@/components/client/bookCardebook";
 import SearchInput from "@/components/client/searchInput";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { useSearchParams } from "next/navigation";
@@ -19,6 +19,7 @@ interface ApiBook {
   bookshelves?: string[];
   ebook_url: string;
   image_url: string;
+  price: number;
   subjects?: string[];
   formats?: Record<string, string>;
   download_count?: number;
@@ -33,6 +34,7 @@ interface Book {
   bookshelves: string[];
   ebook_url: string;
   image_url: string;
+  price: number;
   subjects: string[];
   formats: {
     "text/plain"?: string;
@@ -61,6 +63,7 @@ const convertBook = (book: ApiBook): Book => ({
   bookshelves: book.bookshelves ?? [],
   ebook_url: book.ebook_url,
   image_url: book.image_url,
+  price: book.price,
   subjects: book.subjects ?? [],
   formats: {
     "text/plain": book.formats?.["text/plain"],
@@ -78,7 +81,6 @@ const EbookShop: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [nextPage, setNextPage] = useState<string | null>("/api/ebookshop?page=1");
   const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
-
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const searchParams = useSearchParams();
@@ -177,7 +179,7 @@ const EbookShop: React.FC = () => {
 
   return (
     <Container>
-      <Main>Ebook Books</Main>
+      <Main> Explore Premium Books </Main>
       <CenterSearch>
         <SearchInput
           searchQuery={inputValue}
@@ -188,17 +190,20 @@ const EbookShop: React.FC = () => {
 
       <GridContainer>
         {filteredBooks.map((book) => (
-          <BookCard
+          <BookCardEbook
             key={book.id}
-            data={book}
+            data={{
+              ...book,
+              summaries: Array.isArray(book.summaries)
+                ? book.summaries
+                : [book.summaries],
+            }}
             bookmarkList={bookmarkList}
             setBookmarkList={setBookmarkList}
           />
         ))}
       </GridContainer>
-
       {loading && <LoadMoreRef>กำลังโหลดข้อมูล...</LoadMoreRef>}
-
       {nextPage && !loading && (
         <LoadMoreRef ref={loadMoreRef}>
           เลื่อนลงเพื่อโหลดเพิ่มเติม...
