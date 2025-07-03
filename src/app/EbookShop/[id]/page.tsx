@@ -249,7 +249,7 @@ const BookPage = () => {
           </BookDetails>
         </BookContainer>
       ) : (
-        <div>No book found</div>
+        <div></div>
       )}
     </Main>
   );

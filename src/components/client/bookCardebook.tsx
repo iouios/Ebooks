@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import styled from "styled-components";
-import BookmarkButton from "../client/bookmarkButton";
+import BookmarkButtonEbook from "./bookmarkEbook";
 import Link from "next/link";
 
 interface Author {
@@ -33,7 +33,7 @@ interface BookCardProps {
   showPrice?: boolean;
 }
 
-const BookCard: React.FC<BookCardProps> = ({
+const BookCardEbook: React.FC<BookCardProps> = ({
   data,
   bookmarkList,
   setBookmarkList,
@@ -83,7 +83,7 @@ const BookCard: React.FC<BookCardProps> = ({
           </Paragraph>
         </SetTitle>
         <SetBookmark>
-          <BookmarkButton
+          <BookmarkButtonEbook
             book_id={data.id}
             isBookmarked={isBookmarked}
             setBookmarkList={setBookmarkList}
@@ -211,4 +211,4 @@ const Showprice = styled.div`
   padding: 8px 12px;
 `;
 
-export default BookCard;
+export default BookCardEbook;

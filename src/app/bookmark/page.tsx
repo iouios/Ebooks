@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import BookCard from "@/components/client/bookCard";
+import BookCardEbook from "@/components/client/bookCardebook";
 
 interface Author {
   name: string;
@@ -212,7 +213,7 @@ const BookList: React.FC = () => {
               {ebookshopBooks
                 .filter((book) => bookmarkList.includes(book.id))
                 .map((book) => (
-                  <BookCard
+                  <BookCardEbook
                     key={book.id}
                     data={book}
                     bookmarkList={bookmarkList}
