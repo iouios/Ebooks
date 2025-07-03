@@ -9,13 +9,14 @@ interface Author {
 }
 
 interface Book {
-  id: number;
+  id: number | string;
   title: string;
   authors: Author[];
   languages: string[];
   subjects: string[];
   download_count: number;
   summaries: string[];
+  price?: number;
   coverImage?: string;
   formats: {
     "text/plain"?: string;
@@ -26,22 +27,30 @@ interface Book {
 
 interface BookCardProps {
   data: Book;
-  bookmarkList: number[];
-  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
-  onBookmarkClick?: () => void; // ✅ เพิ่ม prop นี้
+  bookmarkList: (number | string)[]; // <-- แก้ตรงนี้
+  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>; // <-- แก้ตรงนี้
+  onBookmarkClick?: () => void;
+  showPrice?: boolean;
 }
 
 const BookCard: React.FC<BookCardProps> = ({
   data,
   bookmarkList,
   setBookmarkList,
+  showPrice = true,
 }) => {
   const isBookmarked = bookmarkList.includes(data.id);
 
   return (
     <Card>
       <Images>
-        <Link href={`/book/${data.id}`}>
+        <Link
+          href={
+            typeof data.id === "number"
+              ? `/book/${data.id}`
+              : `/EbookShop/${data.id}`
+          }
+        >
           <CoverImage
             src={data.formats?.["image/jpeg"] || "/default-cover.jpg"}
             alt={data.title}
@@ -66,15 +75,34 @@ const BookCard: React.FC<BookCardProps> = ({
             {data.languages?.join(", ") || "ไม่ระบุ"}
           </Paragraph>
           <Paragraph>
-            {data.summaries?.[0]?.substring(0, 20) + "..." || "ไม่มีเรื่องย่อ"}
+            {data.summaries?.[0]
+              ? data.summaries[0].length > 20
+                ? data.summaries[0].slice(0, 20) + "..."
+                : data.summaries[0]
+              : "ไม่มีเรื่องย่อ"}
           </Paragraph>
         </SetTitle>
         <SetBookmark>
           <BookmarkButton
             book_id={data.id}
-            isBookmarked={isBookmarked} 
+            isBookmarked={isBookmarked}
             setBookmarkList={setBookmarkList}
           />
+          {showPrice !== false && (
+            <Showprice>
+              <Link
+                href={
+                  typeof data.id === "number"
+                    ? `/book/${data.id}`
+                    : `/EbookShop/${data.id}`
+                }
+              >
+                <div>
+                  {data.price ? `${data.price.toLocaleString()}฿` : "ฟรี"}
+                </div>
+              </Link>
+            </Showprice>
+          )}
         </SetBookmark>
       </Content>
     </Card>
@@ -89,11 +117,11 @@ const Card = styled.div`
   align-items: center;
   font-weight: bold;
   @media (max-width: 500px) {
-    width: 140px; 
+    width: 140px;
     height: 300px;
     font-weight: bold;
   }
-`; //width: 160px; 
+`; //width: 160px;
 
 const CoverImage = styled.img`
   width: 200px;
@@ -166,10 +194,21 @@ const SetTitle = styled.div`
 `;
 
 const SetBookmark = styled.div`
+  display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 10px;
+`;
+
+const Showprice = styled.div`
+  width: 100%;
+  text-align: center;
+  color: var(--FONT_YELLOW);
+  background-color: var(--FONT_BLACK);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 8px 12px;
 `;
 
 export default BookCard;

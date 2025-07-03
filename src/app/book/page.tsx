@@ -5,6 +5,8 @@ import { fetchBooks } from "../../store/bookSlice";
 import { searchBooks } from "../../store/searchSlice";
 import { RootState, AppDispatch } from "../../store/store";
 import { useSearchParams } from "next/navigation";
+import { useUser } from "@auth0/nextjs-auth0/client";
+
 import BookCard from "@/components/client/bookCard";
 import SearchInput from "@/components/client/searchInput";
 import styled from "styled-components";
@@ -12,6 +14,7 @@ import styled from "styled-components";
 const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const searchParams = useSearchParams();
+  const { user } = useUser();
 
   const {
     books: reduxBooks,
@@ -25,9 +28,34 @@ const AllBook: React.FC = () => {
   const [firstLoad, setFirstLoad] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const [bookmarkList, setBookmarkList] = useState<number[]>([]);
+  const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // โหลด bookmarks เมื่อ user login
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      if (!user) return;
+
+      try {
+        const response = await fetch('/api/bookmark', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userSub: user.sub }),
+        });
+
+        if (!response.ok) throw new Error("โหลด bookmarks ล้มเหลว");
+
+        const data = await response.json();
+        const book_ids = data.book_ids || [];
+        setBookmarkList(book_ids);
+      } catch (error) {
+        console.error("ดึง bookmark ไม่สำเร็จ:", error);
+      }
+    };
+
+    fetchBookmarks();
+  }, [user]);
 
   useEffect(() => {
     const query = searchParams.get("search");
@@ -35,13 +63,6 @@ const AllBook: React.FC = () => {
       setSearchQuery(query);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    const bookmarks = localStorage.getItem("bookmarkList");
-    if (bookmarks) {
-      setBookmarkList(JSON.parse(bookmarks));
-    }
-  }, []);
 
   useEffect(() => {
     if (!firstLoad && !loading && !searchLoading) {
@@ -62,7 +83,6 @@ const AllBook: React.FC = () => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          console.log("Loading more books...");
           loadMoreBooks();
         }
       },
@@ -71,9 +91,7 @@ const AllBook: React.FC = () => {
 
     observerRef.current.observe(loadMoreRef.current);
 
-    return () => {
-      observerRef.current?.disconnect();
-    };
+    return () => observerRef.current?.disconnect();
   }, [loadMoreBooks, next]);
 
   useEffect(() => {
@@ -92,9 +110,12 @@ const AllBook: React.FC = () => {
     }
   };
 
+  console.log("Bookmark List:", bookmarkList);
+  console.log("Redux Books:", reduxBooks);
+
   return (
     <Container>
-      <Main>Explore All Books Here</Main>
+      <Main>Free Books From Guteburg Project</Main>
       <CenterSearch>
         <SearchInput
           searchQuery={searchQuery}
@@ -110,22 +131,20 @@ const AllBook: React.FC = () => {
               data={book}
               bookmarkList={bookmarkList}
               setBookmarkList={setBookmarkList}
+              showPrice={false}
             />
           ))}
       </GridContainer>
       {!isSearchClicked && (loading || searchLoading) && (
         <LoadMoreRef>กำลังค้นหา...</LoadMoreRef>
       )}
-
       {next &&
       !loading &&
       !searchLoading &&
       !isSearchClicked &&
       reduxBooks.length > 0 ? (
         <LoadMoreRef ref={loadMoreRef}>กำลังค้นหา...</LoadMoreRef>
-      ) : (
-        ""
-      )}
+      ) : null}
     </Container>
   );
 };
@@ -139,34 +158,22 @@ const Container = styled.div`
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  justify-content: center;
-  align-items: center;
   gap: 20px;
-  place-items: center; 
-
   @media (max-width: 500px) {
     grid-template-columns: repeat(2, 1fr);
-    padding: 0px;
   }
 `;
 
-
 const Main = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
   padding: 20px;
-  color: var(--FONT_YELLOW);
   font-size: 60px;
+  color: var(--FONT_YELLOW);
   font-weight: bold;
   @media (max-width: 500px) {
     font-size: 30px;
-    padding: 20px 0;
   }
 `;
-
-
 
 const LoadMoreRef = styled.div`
   text-align: center;
@@ -178,12 +185,7 @@ const LoadMoreRef = styled.div`
 const CenterSearch = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
-  text-align: center;
   margin-bottom: 40px;
-
-
 `;
-
 
 export default AllBook;

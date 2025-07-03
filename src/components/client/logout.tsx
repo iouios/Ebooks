@@ -1,11 +1,17 @@
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import styled from "styled-components";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const Logout = () => {
   const { user, error, isLoading } = useUser();
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setDropdownVisible(false);
+  }, [pathname]);
 
   if (isLoading) return <LoadingText>Loading...</LoadingText>;
   if (error) return <ErrorText>{error.message}</ErrorText>;
@@ -25,9 +31,16 @@ const Logout = () => {
         <UserContainer>
           <FlexLogout>
             <div onClick={handleAvatarClick}>
-              <Avatar src={user.picture || "/images/profile.jpg"} />
+              <Avatar
+                src={user.picture || "/images/profile.jpg"}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/profile.jpg";
+                }}
+              />
             </div>
-            <Email>{truncateText(user.email, 13)}</Email>
+            <Link href="/Token">
+              <Email>{truncateText(user.email, 13)}</Email>
+            </Link>
             <LogoutResponsiveButton
               onClick={() => (window.location.href = "/api/auth/logout")}
             >
@@ -36,8 +49,16 @@ const Logout = () => {
           </FlexLogout>
           {dropdownVisible && (
             <DropdownMenu>
+              <Link href="/Token" passHref>
+                <LogoutButton onClick={() => setDropdownVisible(false)}>
+                  เติม Token
+                </LogoutButton>
+              </Link>
               <LogoutButton
-                onClick={() => (window.location.href = "/api/auth/logout")}
+                onClick={() => {
+                  setDropdownVisible(false);
+                  window.location.href = "/api/auth/logout";
+                }}
               >
                 Logout
               </LogoutButton>
@@ -58,7 +79,6 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-
   @media (max-width: 500px) {
     position: relative;
     &::before,
@@ -94,11 +114,13 @@ const Avatar = styled.img`
   height: 30px;
   object-fit: cover;
   cursor: pointer;
-  margin-top: 12px;
+  margin-top: 0px;
   @media (max-width: 500px) {
+    margin-top: 10px;
     width: 20px;
     height: 20px;
     margin-left: 20px;
+    margin-right: 20px;
   }
 `;
 
@@ -106,6 +128,7 @@ const Email = styled.div`
   font-size: 16px;
   color: var(--FONT_WHITE);
   margin-bottom: 15px;
+  margin-right: 4px;
   @media (max-width: 500px) {
     font-size: 10px;
     margin-top: 15px;
@@ -116,15 +139,13 @@ const Email = styled.div`
 
 const DropdownMenu = styled.div`
   position: absolute;
-  top: 40px;
+  top: 30px;
   right: 0;
-  background-color: var(--ELEMENT_BLACK);
-  border: 1px solid var(--ELEMENT_YELLOW);
+  display: grid;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 120px;
-  height: 40px;
-  padding: 6px;
+  width: 126px;
+  height: 55px;
   text-align: center;
   @media (max-width: 500px) {
     display: none;
@@ -138,7 +159,11 @@ const Button = styled.button`
 `;
 
 const LogoutButton = styled(Button)`
-  padding-bottom: 20px;
+  width: 100%;
+  background-color: var(--ELEMENT_BLACK);
+  border: 2px solid var(--ELEMENT_YELLOW);
+  margin-top: 4px;
+  border-radius: 8px;
 `;
 
 const LoginButton = styled(Button)`
@@ -172,6 +197,7 @@ const FlexLogout = styled.div`
 const LogoutResponsiveButton = styled(Button)`
   padding-bottom: 0px;
   padding-right: 20px;
+
   font-size: 8px;
   @media (min-width: 500px) {
     display: none;

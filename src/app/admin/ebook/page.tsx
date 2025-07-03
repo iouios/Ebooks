@@ -13,6 +13,7 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Image from "next/image";
+import EpubReader from "../components/client/epub";
 
 interface EbookData {
   ebook_url: string;
@@ -23,16 +24,18 @@ interface EbookData {
   summaries: string;
   bookshelves: string[];
   languages: string[];
+  price: number;
 }
 
 const columns = [
   { id: "title", label: "Title", minWidth: 170 },
+  { id: "price", label: "price", minWidth: 170 },
   { id: "authors", label: "Authors", minWidth: 150 },
   { id: "summaries", label: "Summary", minWidth: 200 },
   { id: "bookshelves", label: "Bookshelves", minWidth: 150 },
   { id: "languages", label: "Languages", minWidth: 100 },
-  { id: "ebook_url", label: "Ebook_url", minWidth: 100 },
-  { id: "image_url", label: "Image_url", minWidth: 100 },
+  { id: "ebook", label: "Ebook", minWidth: 100 },
+  { id: "cover", label: "Cover", minWidth: 100 },
 ];
 
 const Create = () => {
@@ -106,6 +109,7 @@ const Create = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+<<<<<<< HEAD
                   {ebooks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((ebook) => (
                     <TableRow
                       hover
@@ -157,6 +161,78 @@ const Create = () => {
                       </TableCell>
                     </TableRow>
                   ))}
+=======
+                  {ebooks
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((ebook) => (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={ebook.id}
+                        onClick={() => handleAddClickTable(ebook)}
+                        style={{
+                          position: "relative",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <TableCell>{ebook.title || "null"}</TableCell>
+                        <TableCell>{ebook.price ? ebook.price.toLocaleString() : "ฟรี"}</TableCell>
+                        <TableCell>{ebook.summaries || "null"}</TableCell>
+                        <TableCell>{ebook.summaries || "null"}</TableCell>
+                        <TableCell>
+                          {Array.isArray(ebook.bookshelves)
+                            ? ebook.bookshelves.join(", ")
+                            : "null"}
+                        </TableCell>
+                        <TableCell>
+                          {Array.isArray(ebook.languages)
+                            ? ebook.languages.join(", ")
+                            : "null"}
+                        </TableCell>
+                        <TableCell>
+                          {ebook.ebook_url &&
+                            (ebook.ebook_url.toLowerCase().endsWith(".epub") ? (
+                              <EpubReader
+                                url={ebook.ebook_url}
+                                style={{
+                                  width: "100px",
+                                  height: "150px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  margin: "0 auto",
+                                }}  
+                              />
+                            ) : (
+                              <iframe
+                                src={ebook.ebook_url}
+                                width="100"
+                                height="150"
+                                style={{
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                }}
+                              />
+                            ))}
+                        </TableCell>
+                        <TableCell>
+                          {ebook.image_url &&
+                            /\.(jpg|jpeg|png)$/i.test(ebook.image_url) && (
+                              <Image
+                                src={ebook.image_url}
+                                alt="ebook image"
+                                width={100}
+                                height={150}
+                                style={{
+                                  height: "auto",
+                                  objectFit: "contain",
+                                }}
+                              />
+                            )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+>>>>>>> master
                 </TableBody>
               </Table>
             </TableContainer>

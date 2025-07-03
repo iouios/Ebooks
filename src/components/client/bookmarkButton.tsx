@@ -1,98 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import { useUser } from "@auth0/nextjs-auth0/client";
 
-
 interface BookmarkButtonProps {
-  book_id: number;
-  setBookmarkList: React.Dispatch<React.SetStateAction<number[]>>;
+  book_id: number | string;
   isBookmarked: boolean;
+  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>;
 }
 
-interface BookmarkRequestBody {
-  userId: string;
-  bookId: number;
-}
-
-interface UserData {
-  auth0_id: string;
-  book_ids: number[];
-}
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   book_id,
+  isBookmarked,
   setBookmarkList,
 }) => {
   const { user } = useUser();
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [userData, setUserData] = useState<UserData | null>(null); 
-
-  useEffect(() => {
-    if (!user) return;
-  
-    const fetchBookmarksFromAPI = async () => {
-      const userSub = user.sub;
-  
-      if (!userSub) return;
-  
-      try {
-
-        const response = await fetch('/api/bookmark', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userSub }),
-        });
-        if (!response.ok) {
-          throw new Error("ไม่สามารถดึงข้อมูล bookmarks จาก API ได้");
-        }
-        const data = await response.json();
-        console.log("Bookmarks จาก API:", data);
-  
-        const book_ids = data.book_ids || [];
-        setBookmarkList(book_ids);
-  
-        setIsBookmarked(book_ids.includes(book_id));
-      } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูล bookmarks:", error);
-      }
-    };
-  
-    fetchBookmarksFromAPI();
-  }, [user, book_id, setBookmarkList]);
-
-  useEffect(() => {
-    if (user) {
-      console.log("User data:", user);
-      console.log("userSub:", user.sub);
-  
-      const userSub = user.sub;
-      if (userSub) {
-        fetch('/api/bookmark', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userSub }),
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Failed to fetch data from API");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            setUserData(data);
-          })
-          .catch((error) => {
-            console.error("Error fetching user data:", error);
-          });
-      }
-    }
-  }, [user]);
 
   const handleBookmark = async () => {
     if (!user) {
@@ -101,60 +25,39 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
       }
       return;
     }
-  
+
     try {
-      let endpoint = '';
-      let method: 'POST' | 'DELETE' = 'POST';
-  
-      const body: BookmarkRequestBody = { userId: user.sub!, bookId: book_id };
-  
-      if (isBookmarked) {
-        endpoint = `/api/bookmark/remove/${book_id}`;
-        method = 'DELETE';
-      } else {
-        endpoint = `/api/bookmark/add/${book_id}`;
-        method = 'POST';
-      }
-  
+      const endpoint = isBookmarked
+        ? `/api/bookmark/remove/${book_id}`
+        : `/api/bookmark/add/${book_id}`;
+
+      const method: 'POST' | 'DELETE' = isBookmarked ? 'DELETE' : 'POST';
+
       const response = await fetch(endpoint, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-
-        body: method === 'POST' || method === 'DELETE' ? JSON.stringify(body) : undefined,
+        body: JSON.stringify({ userId: user.sub!, bookId: book_id }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error response from server:", errorData);
+        console.error("Server Error:", errorData);
         alert(`Error: ${errorData.message}`);
         return;
       }
-  
-      const data = await response.json(); 
-      console.log(data.message);
-  
-      if (response.ok) {
-        setIsBookmarked(!isBookmarked);
 
-      }
-      
-  
+      setBookmarkList((prev) =>
+        isBookmarked ? prev.filter((id) => id !== book_id) : [...prev, book_id]
+      );
     } catch (error) {
-      console.error("Error in bookmark request:", error);
+      console.error("Bookmark action error:", error);
       alert("เกิดข้อผิดพลาดในการดำเนินการกับ Bookmark");
     }
   };
-  
-  console.log("Bookmark status:", isBookmarked); 
-  console.log("User ID:", user?.sub); 
-  console.log("Book ID:", book_id); 
-  console.log("user", user);
-  console.log("userData", userData); 
 
-  return(
-    
+  return (
     <ButtonContainer onClick={handleBookmark} $isBookmarked={isBookmarked}>
       {isBookmarked ? (
         <Buttombookmarkopen>
@@ -182,10 +85,10 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         </Buttombookmark>
       )}
     </ButtonContainer>
-    
   );
 };
 
+// Styled components คงเดิม
 const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
   cursor: pointer;
   font-size: 16px;

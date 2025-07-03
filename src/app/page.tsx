@@ -12,16 +12,37 @@ import { RootState, AppDispatch } from "../store/store";
 import { useRouter } from "next/navigation";
 import SearchInput from "@/components/client/searchInput";
 
+type Ebook = {
+  id: string;
+  title: string;
+  summaries: string;
+  authors: string;
+  languages: string[];
+  bookshelves: string[];
+  ebook_url: string;
+  image_url: string;
+};
+
 const HomePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { books, loading } = useSelector((state: RootState) => state.books);
-
+  const [ebooks, setEbooks] = useState<Ebook[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     dispatch(fetchBooks(null));
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchEbooks = async () => {
+      const res = await fetch("/api/randombooks");
+      const data = await res.json();
+      setEbooks(data);
+    };
+
+    fetchEbooks();
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery) {
@@ -69,9 +90,7 @@ const HomePage = () => {
             searchBooks={handleSearch}
           />
         </Search>
-
         <TextOur>Our Best Picks</TextOur>
-
         <BookMargin>
           <Swipermagins>
             {loading ? (
@@ -108,9 +127,44 @@ const HomePage = () => {
                     </BookCard>
                   </SwiperSlide>
                 ))}
-
                 <Paginationmagin>
                   <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-books-recommented" />
+                </Paginationmagin>
+              </Swiper>
+            )}
+          </Swipermagins>
+        </BookMargin>
+        <TextEbooks>Ebook Shop</TextEbooks>
+        <BookMargin>
+          <Swipermagins>
+            {ebooks.length === 0 ? (
+              <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
+            ) : (
+              <Swiper
+                spaceBetween={30}
+                pagination={{
+                  clickable: true,
+                  el: ".swiper-pagination-random-books",
+                }}
+                modules={[Pagination]}
+                className="mySwiper"
+                breakpoints={{
+                  300: {
+                    slidesPerView: 2,
+                  },
+                }}
+              >
+                {ebooks.slice(0, 12).map((book) => (
+                  <SwiperSlide key={book.id}>
+                    <BookCard>
+                      <BookImage src={book.image_url} />
+                      <BookTitle>{truncateText(book.title, 7)}</BookTitle>
+                      <BookAuthor>{truncateText(book.authors, 10)}</BookAuthor>
+                    </BookCard>
+                  </SwiperSlide>
+                ))}
+                <Paginationmagin>
+                  <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-random-books" />
                 </Paginationmagin>
               </Swiper>
             )}
@@ -125,7 +179,7 @@ const HomePage = () => {
         />
       </ImageContainerres>
       <ContentContainer>
-        <TextOur>Our Best Picks</TextOur>
+        <TextOur>Free Picks</TextOur>
       </ContentContainer>
       <Swipermagin>
         {loading ? (
@@ -165,6 +219,42 @@ const HomePage = () => {
           </StyledSwiper>
         )}
       </Swipermagin>
+      <ContentContainer>
+      <TextOur>Premium Picks</TextOur>
+      </ContentContainer>
+      <Swipermagin>
+        {ebooks.length === 0 ? (
+          <LoadingText>กำลังโหลดหนังสือแบบสุ่ม...</LoadingText>
+        ) : (
+          <StyledSwiper
+            spaceBetween={30}
+            pagination={{
+              clickable: true,
+              el: ".swiper-pagination-random-books",
+            }}
+            modules={[Pagination]}
+            className="mySwiper"
+            breakpoints={{
+              600: {
+                slidesPerView: 4,
+              },
+            }}
+          >
+            {ebooks.map((book) => (
+              <SwiperSlide key={book.id}>
+                <BookCard>
+                  <BookImage src={book.image_url} />
+                  <BookTitle>{truncateText(book.title, 30)}</BookTitle>
+                  <BookAuthor>{truncateText(book.authors, 25)}</BookAuthor>
+                </BookCard>
+              </SwiperSlide>
+            ))}
+            <Paginationmagin>
+              <CustomPagination className="swiper-slide-custom-pagination swiper-pagination-random-books" />
+            </Paginationmagin>
+          </StyledSwiper>
+        )}
+      </Swipermagin>
     </Container>
   );
 };
@@ -172,23 +262,21 @@ const HomePage = () => {
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
-  overflow: hidden;
 `;
 
 const ImageContainer = styled.div`
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   background-image: url("/images/book.png");
   background-position: center;
   background-size: cover;
-  position: relative;
+
   @media (max-width: 500px) {
     display: none;
   }
 `;
 const ImageContainerres = styled.div`
   width: 100%;
-  height: 100vh;
   background-image: url("/images/bookimage.jpg");
   background-position: center;
   background-size: cover;
@@ -276,6 +364,17 @@ const TextOur = styled.div`
   }
 `;
 
+const TextEbooks = styled.div`
+  font-size: 60px;
+  font-weight: bold;
+  text-align: center;
+  @media (max-width: 500px) {
+    font-size: 20px;
+    margin-top: 20px;
+    color: var(--FONT_YELLOW);
+  }
+`;
+
 const LoadingText = styled.div`
   text-align: center;
   font-size: 20px;
@@ -322,7 +421,7 @@ const BookCard = styled.div`
 `;
 
 const BookImage = styled.img`
-  width: 100%;  
+  width: 100%;
   max-width: 250px;
   aspect-ratio: 5 / 7;
   object-fit: cover;
@@ -332,11 +431,10 @@ const BookImage = styled.img`
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 
   @media (max-width: 500px) {
-    width: 80%; 
+    width: 80%;
     max-width: 200px;
   }
 `;
-
 
 const BookTitle = styled.h3`
   font-size: 16px;
@@ -361,8 +459,6 @@ const StyledSwiper = styled(Swiper)`
   width: 100%;
   max-width: 1200px;
   height: auto;
-
 `;
-
 
 export default HomePage;

@@ -1,16 +1,16 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import BookCard from "@/components/client/bookCard";
+import BookCardEbook from "@/components/client/bookCardebook";
 
 interface Author {
   name: string;
 }
 
 interface Book {
-  id: number;
+  id: number | string;
   title: string;
   authors: Author[];
   languages: string[];
@@ -18,6 +18,7 @@ interface Book {
   download_count: number;
   summaries: string[];
   bookshelves: string[];
+  price: number;
   formats: {
     "text/plain"?: string;
     "application/epub+zip"?: string;
@@ -25,153 +26,228 @@ interface Book {
   };
 }
 
+interface RawBook {
+  id: number;
+  title: string;
+  authors?: Author[];
+  languages?: string[];
+  subjects?: string[];
+  download_count: number;
+  summaries?: string[];
+  bookshelves?: string[];
+  price: number;
+  formats?: RawFormat;
+  image_url?: string;
+}
+
+interface RawFormat {
+  [key: string]: string | undefined;
+  "text/plain"?: string;
+  "application/epub+zip"?: string;
+  "image/jpeg"?: string;
+}
+
+interface ApiResponse {
+  next: string | null;
+  results: RawBook[];
+}
+
+// Convert raw book to normalized Book
+const convertBook = (raw: RawBook): Book => {
+  return {
+    id: raw.id,
+    title: raw.title,
+    authors: Array.isArray(raw.authors) ? raw.authors : [],
+    languages: Array.isArray(raw.languages) ? raw.languages : [],
+    subjects: Array.isArray(raw.subjects) ? raw.subjects : [],
+    download_count: raw.download_count,
+    summaries: Array.isArray(raw.summaries) ? raw.summaries : [],
+    price: raw.price,
+    bookshelves: Array.isArray(raw.bookshelves) ? raw.bookshelves : [],
+    formats: {
+      "text/plain": raw.formats?.["text/plain"],
+      "application/epub+zip": raw.formats?.["application/epub+zip"],
+      "image/jpeg": raw.formats?.["image/jpeg"] ?? raw.image_url,
+    },
+  };
+};
+
+// Main Component
 const BookList: React.FC = () => {
   const { user } = useUser();
-  const [books, setBooks] = useState<Book[]>([]);
+  const [bookmarkBooks, setBookmarkBooks] = useState<Book[]>([]);
+  const [ebookshopBooks, setEbookshopBooks] = useState<Book[]>([]);
+  const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
+  const [activeTab, setActiveTab] = useState<"bookmarks" | "shop">("bookmarks");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [bookmarkList, setBookmarkList] = useState<number[]>([]);
 
-  // ฟังก์ชันดึง bookmark ids จาก API
-  const fetchBookmarksFromAPI = async (userSub: string): Promise<number[]> => {
-    console.log("กำลังดึง bookmarks ของ user:", userSub);
+  const fetchBookmarksFromAPI = async (
+    userSub: string
+  ): Promise<(number | string)[]> => {
     try {
-      const response = await fetch("/api/bookmark", {
+      const res = await fetch("/api/bookmark", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userSub }),
       });
-
-      if (!response.ok) {
-        throw new Error("ไม่สามารถดึงข้อมูล bookmarks จาก API ได้");
-      }
-
-      const data = await response.json();
-      console.log("ผลลัพธ์ที่ได้จาก /api/bookmark:", data);
-
-      const book_ids: number[] = Array.isArray(data.book_ids) ? data.book_ids : [];
-
-      console.log("book_ids ที่ได้:", book_ids);
-      console.log("data.bookmarks:", data.bookmarks);
-      return book_ids;
-    } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการดึงข้อมูล bookmarks:", error);
+      if (!res.ok) throw new Error("ดึง bookmarks ไม่ได้");
+      const data = await res.json();
+      return Array.isArray(data.book_ids) ? data.book_ids : [];
+    } catch (err) {
+      console.error("Error loading bookmarks:", err);
       return [];
     }
   };
 
-  // ฟังก์ชันดึงข้อมูลหนังสือจาก Gutendex
-  const fetchBookById = async (bookId: number): Promise<Book | null> => {
-    console.log(`กำลังดึงข้อมูลหนังสือ ID: ${bookId}`);
-    try {
-      const response = await fetch(`https://gutendex.com/books?ids=${bookId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log(`ผลลัพธ์จาก Gutendex API สำหรับ bookId ${bookId}:`, data);
+  const fetchBooksByIds = async (ids: (number | string)[]) => {
+    const cleanIds = ids.map(Number).filter((id) => !isNaN(id));
+    if (cleanIds.length === 0) return [];
+    const res = await fetch(
+      `https://gutendex.com/books?ids=${cleanIds.join(",")}`
+    );
+    const data = await res.json();
+    return Array.isArray(data.results) ? data.results : [];
+  };
 
-      if (data.results.length > 0) {
-        return data.results[0];
-      } else {
-        console.log(`ไม่พบข้อมูลหนังสือสำหรับ ID: ${bookId}`);
-        return null;
-      }
-    } catch (err) {
-      console.error(`Error fetching book with id ${bookId}:`, err);
-      return null;
+  const fetchAllEbooksFromShop = async (): Promise<Book[]> => {
+    let nextPage: string | null = `/api/ebookshop?page=1`;
+    const allBooks: Book[] = [];
+    while (nextPage) {
+      const res = await fetch(nextPage);
+      const data: ApiResponse = await res.json();
+      const convertedBooks = data.results.map(convertBook);
+      allBooks.push(...convertedBooks);
+      nextPage = data.next;
     }
+    return allBooks;
   };
 
   useEffect(() => {
-    if (!user?.sub) {
-      console.log("ยังไม่มี user หรือ user.sub");
-      return;
-    }
-  
-    const fetchBooksFromBookmarks = async () => {
-      console.log("เริ่มดึงข้อมูล bookmarks + books");
+    const loadData = async () => {
+      if (!user?.sub) return;
+
       setLoading(true);
       try {
-        const bookmarkIds = await fetchBookmarksFromAPI(user.sub!);
-        console.log("user.sub:", user.sub);
-        console.log("Bookmark IDs ที่ได้:", bookmarkIds);
-  
-        if (bookmarkIds.length === 0) {
-          setError("ไม่มีข้อมูล bookmarks");
-          return;
-        }
-  
+        const [bookmarkIds, ebookshopRawBooks] = await Promise.all([
+          fetchBookmarksFromAPI(user.sub),
+          fetchAllEbooksFromShop(),
+        ]);
+
         setBookmarkList(bookmarkIds);
-  
-        const booksFetched = await Promise.all(
-          bookmarkIds.map(async (id) => {
-            const bookData = await fetchBookById(id);
-            console.log(`ข้อมูลหนังสือที่ดึงได้ของ ${id}:`, bookData);
-            return bookData;
-          })
-        );
-  
-        const nonNullBooks = booksFetched.filter((b): b is Book => b !== null);
-        setBooks(nonNullBooks);
+
+        const bookmarkRawBooks = await fetchBooksByIds(bookmarkIds);
+        const convertedBookmarkBooks = bookmarkRawBooks.map(convertBook);
+        const convertedEbookshopBooks = ebookshopRawBooks;
+
+        setBookmarkBooks(convertedBookmarkBooks);
+        setEbookshopBooks(convertedEbookshopBooks);
       } catch (err) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", err);
-        setError("เกิดข้อผิดพลาดในการดึงข้อมูล");
+        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลทั้งหมด:", err);
+        setError("ไม่สามารถโหลดข้อมูลได้");
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchBooksFromBookmarks();
-  }, [user]);
-  
+
+    loadData();
+  }, [user?.sub]);
 
   const handleBookmarkClick = () => {
-    if (!user) {
-      if (window.confirm("กรุณาเข้าสู่ระบบเพื่อบันทึก Bookmark")) {
-        window.location.href = "/api/auth/login";
-      }
-      return;
+    if (!user && window.confirm("กรุณาเข้าสู่ระบบเพื่อบันทึก Bookmark")) {
+      window.location.href = "/api/auth/login";
     }
   };
-  
-  
 
-  if (!user) {
-    return <p>กรุณาเข้าสู่ระบบเพื่อดู Bookmark</p>;
-  }
+  if (!user) return <p>กรุณาเข้าสู่ระบบเพื่อดู Bookmark</p>;
+  if (loading) return <p>กำลังโหลดข้อมูล...</p>;
+  if (error) return <p>Error: {error}</p>;
 
-  if (loading) {
-    return <p>กำลังโหลดข้อมูล...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+  console.log("bookmarkList:", bookmarkList);
 
   return (
     <Container>
-      <Main>My Bookmark</Main>
-      {books.length === 0 ? (
-        <p>ไม่พบหนังสือ</p>
-      ) : (
-        <GridContainer>
-          {books.map((book) => (
-            <BookCard
-              key={book.id}
-              data={book}
-              bookmarkList={bookmarkList}
-              setBookmarkList={setBookmarkList}
-              onBookmarkClick={() => handleBookmarkClick}
-            />
-          ))}
-        </GridContainer>
+      <TabContainer>
+        <TabButton
+          active={activeTab === "bookmarks"}
+          onClick={() => setActiveTab("bookmarks")}
+        >
+          Public Library
+        </TabButton>
+        <TabButton
+          active={activeTab === "shop"}
+          onClick={() => setActiveTab("shop")}
+        >
+          Premium Books
+        </TabButton>
+      </TabContainer>
+
+      {activeTab === "bookmarks" && (
+        <>
+          {bookmarkBooks.length === 0 ? (
+            <p>ไม่มีหนังสือที่ Bookmark ไว้</p>
+          ) : (
+            <GridContainer>
+              {bookmarkBooks.map((book) => (
+                <BookCard
+                  key={book.id}
+                  data={book}
+                  bookmarkList={bookmarkList}
+                  setBookmarkList={setBookmarkList}
+                  onBookmarkClick={handleBookmarkClick}
+                  showPrice={false}
+                />
+              ))}
+            </GridContainer>
+          )}
+        </>
+      )}
+
+      {activeTab === "shop" && (
+        <>
+          {ebookshopBooks.filter((book) => bookmarkList.includes(book.id))
+            .length === 0 ? (
+            <p>ไม่มีหนังสือที่ Bookmark ไว้ในร้าน</p>
+          ) : (
+            <GridContainer>
+              {ebookshopBooks
+                .filter((book) => bookmarkList.includes(book.id))
+                .map((book) => (
+                  <BookCardEbook
+                    key={book.id}
+                    data={book}
+                    bookmarkList={bookmarkList}
+                    setBookmarkList={setBookmarkList}
+                    onBookmarkClick={handleBookmarkClick}
+                  />
+                ))}
+            </GridContainer>
+          )}
+        </>
       )}
     </Container>
+
   );
 };
+
+const TabContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 20px;
+`;
+
+const TabButton = styled.button.withConfig({
+  shouldForwardProp: (prop) => prop !== "active"
+})<{ active: boolean }>`
+  background-color: ${({ active }) => (active ? "var(--FONT_YELLOW)" : "#eee")};
+  color: ${({ active }) => (active ? "white" : "#333")};
+  border: none;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+`;
 
 const Container = styled.div`
   padding: 20px;
@@ -179,21 +255,15 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const Main = styled.h1`
-  padding: 10px;
-  font-size: 24px;
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 20px;
-`;
-
 const GridContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+
   @media (max-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
   }
+
   @media (max-width: 500px) {
     grid-template-columns: repeat(2, 1fr);
   }
