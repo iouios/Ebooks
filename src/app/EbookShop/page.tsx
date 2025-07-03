@@ -180,7 +180,7 @@ const EbookShop: React.FC = () => {
 
   return (
     <Container>
-      <Main>Ebook Books</Main>
+      <Main> Explore Premium Books </Main>
       <CenterSearch>
         <SearchInput
           searchQuery={inputValue}

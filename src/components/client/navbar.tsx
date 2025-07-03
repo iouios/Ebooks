@@ -65,12 +65,12 @@ const Navbar = () => {
           </div>
           <div className="text-center">
           <Link href="/book" passHref>
-            <Button $isActive={pathname === "/book"}>Book</Button>
+            <Button $isActive={pathname === "/book"}>Public Library</Button>
           </Link>     
           </div>    
           <div className="text-center">
           <Link href="/EbookShop" passHref>
-            <Button $isActive={pathname === "/EbookShop"}>Ebook Shop</Button>
+            <Button $isActive={pathname === "/EbookShop"}>Premium Books</Button>
           </Link>
           </div>
           <Link
@@ -122,7 +122,6 @@ const Flex = styled.div`
   display: flex;
   align-items: center;
   padding-right: 350px;
-
   @media (max-width: 500px) {
     padding-right: 0px;
   }
@@ -170,7 +169,7 @@ const Button = styled.button<{ $isActive: boolean }>`
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   text-justify: center;
   &:hover {
     color: var(--FONT_YELLOW);

@@ -171,17 +171,16 @@ const BookList: React.FC = () => {
           active={activeTab === "bookmarks"}
           onClick={() => setActiveTab("bookmarks")}
         >
-          My Bookmarks
+          Public Library
         </TabButton>
         <TabButton
           active={activeTab === "shop"}
           onClick={() => setActiveTab("shop")}
         >
-          My BookmarksShop
+          Premium Books
         </TabButton>
       </TabContainer>
 
-      {/* แสดงข้อมูลตามแท็บที่เลือก */}
       {activeTab === "bookmarks" && (
         <>
           {bookmarkBooks.length === 0 ? (
