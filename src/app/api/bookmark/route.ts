@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       const userSnap = await getDoc(userRef);
   
       if (!userSnap.exists()) {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return NextResponse.json({ error: 'User not found' });
       }
   
       const data = userSnap.data();
