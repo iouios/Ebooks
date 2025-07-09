@@ -30,16 +30,13 @@ const Navbaradmin: React.FC = () => {
             <ListItemText primary="Ebook" />
           </ListItemButton>
         </Link>
-        {/* <Link href="/admin/ebook/create" passHref>
+      </List>
+      <List>
+        <Link href="/admin/author" passHref>
           <ListItemButton>
-            <ListItemText primary="Create" />
+            <ListItemText primary="Author" />
           </ListItemButton>
         </Link>
-        <Link href="/admin/ebook/edit" passHref>
-          <ListItemButton>
-            <ListItemText primary="Edit" />
-          </ListItemButton>
-        </Link> */}
       </List>
     </Box>
   );
