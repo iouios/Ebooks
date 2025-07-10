@@ -86,13 +86,19 @@ const BookList: React.FC = () => {
     userSub: string
   ): Promise<(number | string)[]> => {
     try {
-      const res = await fetch("/api/bookmark", {
+      const response = await fetch("/api/bookmark", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userSub }),
       });
-      if (!res.ok) throw new Error("ดึง bookmarks ไม่ได้");
-      const data = await res.json();
+      if (response.status === 404) {
+        setBookmarkList([]);
+        return [];
+      }
+      if (!response.ok) {
+        throw new Error(`โหลด bookmarks ล้มเหลว: ${response.status}`);
+      }
+      const data = await response.json();
       return Array.isArray(data.book_ids) ? data.book_ids : [];
     } catch (err) {
       console.error("Error loading bookmarks:", err);
@@ -226,7 +232,6 @@ const BookList: React.FC = () => {
         </>
       )}
     </Container>
-
   );
 };
 
@@ -238,7 +243,7 @@ const TabContainer = styled.div`
 `;
 
 const TabButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== "active"
+  shouldForwardProp: (prop) => prop !== "active",
 })<{ active: boolean }>`
   background-color: ${({ active }) => (active ? "var(--FONT_YELLOW)" : "#eee")};
   color: ${({ active }) => (active ? "white" : "#333")};

@@ -79,7 +79,9 @@ const EbookShop: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isSearchClicked, setIsSearchClicked] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [nextPage, setNextPage] = useState<string | null>("/api/ebookshop?page=1");
+  const [nextPage, setNextPage] = useState<string | null>(
+    "/api/ebookshop?page=1"
+  );
   const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -147,13 +149,20 @@ const EbookShop: React.FC = () => {
   useEffect(() => {
     if (!user) return;
     const fetchBookmarks = async () => {
+      if (!user) return;
       try {
         const response = await fetch("/api/bookmark", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userSub: user.sub }),
         });
-        if (!response.ok) throw new Error("โหลด bookmarks ล้มเหลว");
+        if (response.status === 404) {
+          setBookmarkList([]);
+          return;
+        }
+        if (!response.ok) {
+          throw new Error(`โหลด bookmarks ล้มเหลว: ${response.status}`);
+        }
         const data = await response.json();
         setBookmarkList(data.book_ids || []);
       } catch (error) {

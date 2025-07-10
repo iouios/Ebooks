@@ -32,19 +32,25 @@ const AllBook: React.FC = () => {
   const [isSearchClicked, setIsSearchClicked] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // โหลด bookmarks เมื่อ user login
   useEffect(() => {
     const fetchBookmarks = async () => {
       if (!user) return;
 
       try {
-        const response = await fetch('/api/bookmark', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/bookmark", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userSub: user.sub }),
         });
 
-        if (!response.ok) throw new Error("โหลด bookmarks ล้มเหลว");
+        if (response.status === 404) {
+          setBookmarkList([]);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`โหลด bookmarks ล้มเหลว: ${response.status}`);
+        }
 
         const data = await response.json();
         const book_ids = data.book_ids || [];
@@ -109,9 +115,6 @@ const AllBook: React.FC = () => {
       dispatch(searchBooks(searchQuery));
     }
   };
-
-  console.log("Bookmark List:", bookmarkList);
-  console.log("Redux Books:", reduxBooks);
 
   return (
     <Container>
