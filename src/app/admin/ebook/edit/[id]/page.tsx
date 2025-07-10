@@ -9,6 +9,7 @@ import Image from "next/image";
 import { uploadFiles } from "../../../supabase/upload";
 import Swal from "sweetalert2";
 import EpubReader from "../../../components/client/epub";
+import Autocomplete from "@mui/material/Autocomplete";
 
 interface EbookData {
   id: string;
@@ -17,7 +18,7 @@ interface EbookData {
   summaries: string;
   bookshelves: string[];
   languages: string[];
-  price: number; 
+  price: number;
   ebook_url: string;
   image_url: string;
 }
@@ -193,22 +194,24 @@ const EbookDetail: React.FC = () => {
           rows={4}
           style={inputStyle}
         />
-        <TextField
-          label="Bookshelves"
-          value={ebook.bookshelves.join(", ")}
-          onChange={(e) =>
-            handleInputChange(
-              "bookshelves",
-              e.target.value.split(",").map((b) => b.trim())
-            )
-          }
-          fullWidth
-          style={inputStyle}
+        <Autocomplete
+          multiple
+          freeSolo
+          options={[]}
+          value={ebook.bookshelves}
+          onChange={(_, newValue) => handleInputChange("bookshelves", newValue)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Bookshelves"
+              style={inputStyle}
+            />
+          )}
         />
         <TextField
           label="Price"
           type="number"
-          value={ebook.price|| ''}
+          value={ebook.price || ""}
           onChange={(e) => handleInputChange("price", Number(e.target.value))}
           fullWidth
           style={inputStyle}
@@ -242,7 +245,7 @@ const EbookDetail: React.FC = () => {
                 : "PDF Preview"}
             </h3>
             {ebook.ebook_url.toLowerCase().endsWith(".epub") ? (
-               <EpubReader url={ebook.ebook_url}  />
+              <EpubReader url={ebook.ebook_url} />
             ) : (
               <iframe
                 src={ebook.ebook_url}

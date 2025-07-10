@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { uploadFiles } from "../../supabase/upload";
 import Swal from "sweetalert2"; // นำเข้า sweetalert2
+import Autocomplete from "@mui/material/Autocomplete";
 
 interface FormDataType {
   title: string;
@@ -47,11 +48,11 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
   const [title, setTitle] = useState("");
   const [summaries, setSummaries] = useState("");
   const [price, setprice] = useState("");
-  const [bookshelves, setBookshelves] = useState("");
   const [languages, setLanguages] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
   const [authors, setAuthors] = useState<AuthorData[]>([]);
   const [fileUrls, setFileUrls] = useState<string[]>(["", ""]);
+  const [bookshelves, setBookshelves] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchAuthors = async () => {
@@ -83,7 +84,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
       title,
       authors: selectedOption,
       summaries,
-      bookshelves: bookshelves.split(",").map((b) => b.trim()),
+      bookshelves,
       languages,
       price: Number(parseFloat(price).toFixed(2)) || 0,
       ebook_url: fileUrls[0],
@@ -197,13 +198,21 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
           value={summaries}
           onChange={(e) => setSummaries(e.target.value)}
         />
-        <TextFieldStyled
-          label="Bookshelves"
-          variant="outlined"
+        <Autocomplete
+          multiple
+          freeSolo
+          options={[]}
           value={bookshelves}
-          onChange={(e) => setBookshelves(e.target.value)}
-          fullWidth
-          required
+          onChange={(_, newValue: string[]) => {
+            setBookshelves(newValue);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Bookshelves"
+              placeholder="พิมพ์แล้วกด space เพื่อเพิ่มคำ กด Enter เพื่อยืนยัน"
+            />
+          )}
           style={{
             marginBottom: "16px",
             width: "700px",
@@ -224,7 +233,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
             if (price === "" || isNaN(Number(price))) {
               setprice("0.00");
             } else {
-              setprice(parseFloat(price).toFixed(2)); 
+              setprice(parseFloat(price).toFixed(2));
             }
           }}
           fullWidth
