@@ -16,17 +16,14 @@ const BookPage = () => {
   const params = useParams();
   const id = params.id as string;
 
-  const { book} = useSelector(
-    (state: RootState) => state.books
-  );
+  const { book } = useSelector((state: RootState) => state.books);
 
   const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const [epubPath, setEpubPath] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [showReader, setShowReader] = useState<boolean>(false);
   const [location, setLocation] = useState<string | number>(0);
-    const { user } = useUser();
-
+  const { user } = useUser();
 
   useEffect(() => {
     if (!user) return;
@@ -37,7 +34,13 @@ const BookPage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userSub: user.sub }),
         });
-        if (!response.ok) throw new Error("โหลด bookmarks ล้มเหลว");
+        if (response.status === 404) {
+          setBookmarkList([]);
+          return;
+        }
+        if (!response.ok) {
+          throw new Error(`โหลด bookmarks ล้มเหลว: ${response.status}`);
+        }
         const data = await response.json();
         setBookmarkList(data.book_ids || []);
       } catch (error) {
@@ -46,7 +49,7 @@ const BookPage = () => {
     };
     fetchBookmarks();
   }, [user]);
-    
+
   useEffect(() => {
     if (id) {
       dispatch(fetchBookById(Number(id)));
@@ -80,7 +83,7 @@ const BookPage = () => {
 
   return (
     <Main>
-      {book ? (
+      {book && (
         <>
           <BookContainer>
             <BookInfo>
@@ -195,8 +198,6 @@ const BookPage = () => {
             </ReaderContainer>
           )}
         </>
-      ) : (
-        <div>No book found</div>
       )}
     </Main>
   );

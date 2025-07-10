@@ -59,7 +59,13 @@ const BookPage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userSub: user.sub }),
         });
-        if (!response.ok) throw new Error("โหลด bookmarks ล้มเหลว");
+        if (response.status === 404) {
+          setBookmarkList([]);
+          return;
+        }
+        if (!response.ok) {
+          throw new Error(`โหลด bookmarks ล้มเหลว: ${response.status}`);
+        }
         const data = await response.json();
         setBookmarkList(data.book_ids || []);
       } catch (error) {
@@ -144,13 +150,11 @@ const BookPage = () => {
         </div>
       );
     }
-
-    return <div>Unsupported file format</div>;
   }
 
   return (
     <Main>
-      {book ? (
+      {book && (
         <BookContainer>
           <BookInfo>
             <div>
@@ -248,8 +252,6 @@ const BookPage = () => {
             <Summary>{book.summaries}</Summary>
           </BookDetails>
         </BookContainer>
-      ) : (
-        <div></div>
       )}
     </Main>
   );
