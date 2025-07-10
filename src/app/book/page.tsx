@@ -35,7 +35,6 @@ const AllBook: React.FC = () => {
   useEffect(() => {
     const fetchBookmarks = async () => {
       if (!user) return;
-
       try {
         const response = await fetch("/api/bookmark", {
           method: "POST",
@@ -47,11 +46,9 @@ const AllBook: React.FC = () => {
           setBookmarkList([]);
           return;
         }
-
         if (!response.ok) {
           throw new Error(`โหลด bookmarks ล้มเหลว: ${response.status}`);
         }
-
         const data = await response.json();
         const book_ids = data.book_ids || [];
         setBookmarkList(book_ids);
