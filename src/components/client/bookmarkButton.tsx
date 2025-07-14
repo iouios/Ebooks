@@ -1,15 +1,14 @@
 "use client";
 import React from "react";
 import styled from "styled-components";
-import Image from "next/image";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import BookmarkIcon from "../../icon/bookmark";
 
 interface BookmarkButtonProps {
   book_id: number | string;
   isBookmarked: boolean;
   setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>;
 }
-
 
 const BookmarkButton: React.FC<BookmarkButtonProps> = ({
   book_id,
@@ -31,7 +30,7 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
         ? `/api/bookmark/remove/${book_id}`
         : `/api/bookmark/add/${book_id}`;
 
-      const method: 'POST' | 'DELETE' = isBookmarked ? 'DELETE' : 'POST';
+      const method: "POST" | "DELETE" = isBookmarked ? "DELETE" : "POST";
 
       const response = await fetch(endpoint, {
         method,
@@ -62,24 +61,14 @@ const BookmarkButton: React.FC<BookmarkButtonProps> = ({
       {isBookmarked ? (
         <Buttombookmarkopen>
           <Icon>
-            <Image
-              src="/images/Bookmarkicon.png"
-              alt="Bookmarked"
-              width={20}
-              height={20}
-            />
+            <BookmarkIcon color="white" />
           </Icon>
           <Textcolor>Bookmark</Textcolor>
         </Buttombookmarkopen>
       ) : (
         <Buttombookmark>
           <Icon>
-            <Image
-              src="/images/Bookmark.png"
-              alt="Bookmark"
-              width={20}
-              height={20}
-            />
+          <BookmarkIcon />
           </Icon>
           <Textcolors>Bookmark</Textcolors>
         </Buttombookmark>
@@ -123,6 +112,7 @@ const Textcolor = styled.div`
   @media (max-width: 500px) {
     padding-right: 25px;
     padding-left: 15px;
+    padding-top: 4px;
   }
 `;
 
@@ -133,6 +123,7 @@ const Textcolors = styled.div`
   @media (max-width: 500px) {
     padding-right: 25px;
     padding-left: 15px;
+    padding-top: 4px;
   }
 `;
 

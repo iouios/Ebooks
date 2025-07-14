@@ -10,6 +10,8 @@ import styled from "styled-components";
 import Image from "next/image";
 import { ReactReader } from "react-reader";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import BookIcon from "../../../icon/book";
+import DownloadIcon from "../../../icon/download";
 
 const BookPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -121,12 +123,9 @@ const BookPage = () => {
                 )}
                 <DownloadCount>
                   <FlexDownload>
-                    <ImageDownload
-                      src="/images/Download.png"
-                      alt="Download Icon"
-                      width={10}
-                      height={10}
-                    />
+                    <Download>
+                    <DownloadIcon width={15} height={15} />
+                    </Download>
                     <strong>Download :</strong> {book.download_count}
                   </FlexDownload>
                 </DownloadCount>
@@ -135,12 +134,13 @@ const BookPage = () => {
                 <Categoryon>
                   <strong>
                     <FlexCategoryon>
-                      <ImageCategory
-                        src="/images/Book open.png"
-                        alt="Category Icon"
-                        width={20}
-                        height={10}
+                    <StyledIconMargin>
+                      <BookIcon
+                        width={30}
+                        height={30}
+                        color="var(--FONT_YELLOW)"
                       />
+                    </StyledIconMargin>
                       Category
                     </FlexCategoryon>
                   </strong>
@@ -158,12 +158,13 @@ const BookPage = () => {
               <Category>
                 <strong>
                   <FlexCategory>
-                    <ImageCategory
-                      src="/images/Book open.png"
-                      alt="Category Icon"
-                      width={20}
-                      height={10}
+                    <StyledIconMargin>
+                    <BookIcon
+                      width={40}
+                      height={40}
+                      color="var(--FONT_YELLOW)"
                     />
+                  </StyledIconMargin>
                     Category
                   </FlexCategory>
                 </strong>
@@ -412,25 +413,6 @@ const Imagesize = styled(Image)`
   margin-top: 3px;
 `;
 
-const ImageCategory = styled(Image)`
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  margin-top: 3px;
-`;
-
-const ImageDownload = styled(Image)`
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
-  margin-left: 35px;
-  @media (max-width: 500px) {
-    width: 15px;
-    height: 15px;
-    margin-left: 10px;
-  }
-`;
-
 const CategorysContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -471,6 +453,14 @@ const ReaderContainer = styled.div`
 
 const CenterImage = styled.div`
   text-align: center;
+`;
+
+const StyledIconMargin = styled.div`
+  margin-right: 20px;
+`;
+
+const Download = styled.div`
+  margin: 2px 10px;
 `;
 
 export default BookPage;

@@ -72,7 +72,7 @@ const BookCardEbook: React.FC<BookCardProps> = ({
           </AuthorTitle>
           <Paragraph>
             <strong>Languages:</strong>{" "}
-            {data.languages?.join(", ") || "ไม่ระบุ"}
+            {data.languages?.join(", ").slice(0, 10) + "..." || "ไม่ระบุ"}
           </Paragraph>
           <Paragraph>
             {data.summaries?.[0]
@@ -209,6 +209,12 @@ const Showprice = styled.div`
   border: 2px solid white;
   border-radius: 8px;
   padding: 8px 12px;
+
+    @media (max-width: 500px) {
+    font-size: 10px;
+    width: 50%;
+  }
+
 `;
 
 export default BookCardEbook;

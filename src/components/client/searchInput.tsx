@@ -71,7 +71,7 @@ const SearchButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0.5, 0.5, 0.5);
-  width: 150px;
+  width: 200px;
   @media (min-width: 500px) {
     padding: 8px 16px;
   }

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logout from "./logout";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import IconBook from "../../icon/iconBook";
 
 interface MenuProps {
   $isMenuOpen: boolean;
@@ -29,12 +30,9 @@ const Navbar = () => {
   return (
     <Nav>
       <Flex>
-        <ResponsiveImage
-          src="/images/Rectangle 3.png"
-          alt="Logo"
-          width={160}
-          height={50}
-        />
+        <Icons>
+        <IconBook />
+        </Icons>
         <Text>
           <TextcolorNav>Gutendex</TextcolorNav>
           <TextcolorNav>BOOKPOINT</TextcolorNav>
@@ -203,20 +201,29 @@ const Icon = styled.div`
   }
 `;
 
-const ResponsiveImage = styled(Image)`
-  width: auto;
-  height: auto;
-
-  @media (max-width: 500px) {
-    width: 120px;
-    height: 60px;
-  }
-`;
-
 const LogoutImage = styled.div`
   @media (min-width: 500px) {
     display: none;
   }
 `;
+
+const Icons = styled.div`
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 100px;
+    height: 100px;
+  }
+
+  @media (max-width: 500px) {
+
+    svg {
+      width: 60px;
+      height: 60px;
+    }
+  }
+`;
+
 
 export default Navbar;

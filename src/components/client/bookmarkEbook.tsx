@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import styled from "styled-components";
-import Image from "next/image";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import BookmarkIcon from "../../icon/bookmark";
 
 interface BookmarkButtonProps {
   book_id: number | string;
@@ -61,24 +61,14 @@ const BookmarkButtonEbook: React.FC<BookmarkButtonProps> = ({
       {isBookmarked ? (
         <Buttombookmarkopen>
           <Icon>
-            <Image
-              src="/images/Bookmarkicon.png"
-              alt="Bookmarked"
-              width={20}
-              height={20}
-            />
+            <BookmarkIcon color="white" />
           </Icon>
           <Textcolor>Bookmark</Textcolor>
         </Buttombookmarkopen>
       ) : (
         <Buttombookmark>
           <Icon>
-            <Image
-              src="/images/Bookmark.png"
-              alt="Bookmark"
-              width={20}
-              height={20}
-            />
+            <BookmarkIcon />
           </Icon>
           <Textcolors>Bookmark</Textcolors>
         </Buttombookmark>
@@ -87,7 +77,6 @@ const BookmarkButtonEbook: React.FC<BookmarkButtonProps> = ({
   );
 };
 
-// Styled components คงเดิม
 const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
   cursor: pointer;
   width: 100%;
@@ -99,6 +88,7 @@ const ButtonContainer = styled.button<{ $isBookmarked: boolean }>`
   padding: 0px;
   @media (max-width: 500px) {
     font-size: 10px;
+    width: 65%;
   }
 `;
 
@@ -128,9 +118,7 @@ const Textcolor = styled.div`
   text-align: center;
   margin-right: 5px;
   @media (max-width: 500px) {
-    margin-right: 0px;
-    padding-right: 25px;
-    padding-left: 15px;
+    font-size: 8px;
   }
 `;
 
@@ -142,23 +130,30 @@ const Textcolors = styled.div`
   text-align: center;
   margin-right: 5px;
   @media (max-width: 500px) {
-    margin-right: 0px;
-    padding-right: 25px;
-    padding-left: 15px;
+    font-size: 8px;
   }
 `;
-const Icon = styled.div` 
+const Icon = styled.div`
   display: flex;
   align-items: center;
-  padding-left: 10px;
+  padding: 0 5px;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
   @media (max-width: 500px) {
-    padding-right: 0px;
     padding-left: 5px;
-    img {
-      width: 10px !important;
-      height: 10px !important;
+
+    svg {
+      width: 10px;
+      height: 10px;
     }
   }
 `;
+
+
+
 
 export default BookmarkButtonEbook;

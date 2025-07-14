@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import BookmarkButton from "@/components/client/bookmarkButton";
 import styled from "styled-components";
-import Image from "next/image";
 import { ReactReader } from "react-reader";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import BookIcon from "../../../icon/book";
+import DownloadIcon from "../../../icon/download";
 
 interface Book {
   id: string;
@@ -75,26 +76,9 @@ const BookPage = () => {
     fetchBookmarks();
   }, [user]);
 
-  const handleReadClick = async () => {
-    if (!book?.id) return;
-
-    try {
-      const res = await fetch(`/api/download_Count?id=${book.id}`, {
-        method: "POST",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to update download count");
-      }
-
-      setBook((prev) =>
-        prev ? { ...prev, downloads: (prev.downloads || 0) + 1 } : prev
-      );
-
-      setIsReading(true);
-    } catch (error) {
-      console.error("Failed to update download count:", error);
-    }
+  const handleReadClick = () => {
+    if (!book?.ebook_url) return;
+    setIsReading(true);
   };
 
   if (isReading && book?.ebook_url) {
@@ -178,23 +162,17 @@ const BookPage = () => {
               )}
               <DownloadLink onClick={handleReadClick}>
                 <Flexread>
-                  <Imagesize
-                    src="/images/Book open back.png"
-                    alt="Read Book"
-                    width={20}
-                    height={20}
-                  />
+                  <StyledBookIcon>
+                    <BookIcon />
+                  </StyledBookIcon>
                   Read
                 </Flexread>
               </DownloadLink>
               <DownloadCount>
                 <FlexDownload>
-                  <ImageDownload
-                    src="/images/Download.png"
-                    alt="Download Icon"
-                    width={20}
-                    height={20}
-                  />
+                  <Download>
+                    <DownloadIcon width={15} height={15} />
+                  </Download>
                   <strong>Download : </strong> {book.downloads}
                 </FlexDownload>
               </DownloadCount>
@@ -203,12 +181,13 @@ const BookPage = () => {
               <Categoryon>
                 <strong>
                   <FlexCategoryon>
-                    <ImageCategory
-                      src="/images/Book open.png"
-                      alt="Category Icon"
-                      width={20}
-                      height={20}
-                    />
+                    <StyledIconMargin>
+                      <BookIcon
+                        width={30}
+                        height={30}
+                        color="var(--FONT_YELLOW)"
+                      />
+                    </StyledIconMargin>
                     Category
                   </FlexCategoryon>
                 </strong>
@@ -224,12 +203,13 @@ const BookPage = () => {
             <Category>
               <strong>
                 <FlexCategory>
-                  <ImageCategory
-                    src="/images/Book open.png"
-                    alt="Category Icon"
-                    width={20}
-                    height={20}
-                  />
+                  <StyledIconMargin>
+                    <BookIcon
+                      width={40}
+                      height={40}
+                      color="var(--FONT_YELLOW)"
+                    />
+                  </StyledIconMargin>
                   Category
                 </FlexCategory>
               </strong>
@@ -265,6 +245,15 @@ const Main = styled.div`
   overflow: auto;
 `;
 
+const StyledIconMargin = styled.div`
+  margin-right: 20px;
+`;
+
+const StyledBookIcon = styled.div`
+  margin-right: 10px;
+  margin-top: 2px;
+`;
+
 const BookContainer = styled.div`
   display: flex;
   height: 100vh;
@@ -283,7 +272,16 @@ const BookInfo = styled.div`
   position: relative;
 
   @media (max-width: 500px) {
-    display: none;
+    padding: 0px 12px;
+    margin: 0 auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+    @media (max-width: 400px) {
+    padding: 0px 2px;
+    margin: 0 auto;
+    min-height: 100vh;
+    overflow: auto;
   }
 `;
 
@@ -342,6 +340,9 @@ const BookDetails = styled.div`
   min-width: 0;
   padding: 60px;
   box-sizing: border-box;
+  @media (max-width: 500px) {
+    padding: 25px;
+  }
 `;
 
 const Category = styled.div`
@@ -433,20 +434,6 @@ const FlexCategoryon = styled.div`
   font-size: 20px;
 `;
 
-const ImageCategory = styled(Image)`
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-  margin-top: 3px;
-`;
-
-const Imagesize = styled(Image)`
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-  margin-top: 3px;
-`;
-
 const CategorysContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -479,18 +466,6 @@ const CenterImage = styled.div`
   text-align: center;
 `;
 
-const ImageDownload = styled(Image)`
-  width: 20px;
-  height: 20px;
-  margin-right: 5px;
-
-  @media (max-width: 500px) {
-    width: 15px;
-    height: 15px;
-    margin-left: 10px;
-  }
-`;
-
 const FlexDownload = styled.div`
   display: flex;
   text-align: center;
@@ -508,6 +483,10 @@ const DownloadCount = styled.div`
   @media (max-width: 500px) {
     font-size: 14px;
   }
+`;
+
+const Download = styled.div`
+  margin: 2px 10px;
 `;
 
 export default BookPage;
