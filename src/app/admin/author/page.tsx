@@ -74,9 +74,12 @@ const Create = () => {
         <Navbarhead />
       </div>
       <Top>
-        <ButtonRow>
-          <AddButton onClick={handleAddClick}>ADD EBOOK</AddButton>
-        </ButtonRow>
+        <Navbar>
+          <Ebook>Author</Ebook>
+          <ButtonRow>
+            <AddButton onClick={handleAddClick}>ADD Author</AddButton>
+          </ButtonRow>
+        </Navbar>
         <Content>
           <Paper>
             <TableContainer sx={{ maxHeight: 500 }}>
@@ -168,4 +171,13 @@ const AddButton = styled.button`
 const Content = styled.div`
   width: 100%;
   margin-top: 2rem;
+`;
+
+const Navbar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+const Ebook = styled.div`
+  font-size: 36px;
 `;

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import styled from "styled-components";
 import Navbaradmin from "../components/client/Navbaradmin";
 import Navbarhead from "../components/client/Navbarhead";
@@ -68,9 +68,9 @@ const Create = () => {
     const fetchEbooks = async () => {
       try {
         const res = await fetch("/api/ebooktable");
-        console.log("API Response Status: ", res.status); 
+        console.log("API Response Status: ", res.status);
         const data = await res.json();
-        console.log("API Response Data: ", data); 
+        console.log("API Response Data: ", data);
         setEbooks(data);
       } catch (error) {
         console.error("Error fetching ebooks: ", error);
@@ -89,9 +89,12 @@ const Create = () => {
         <Navbarhead />
       </div>
       <Top>
-        <ButtonRow>
-          <AddButton onClick={handleAddClick}>ADD EBOOK</AddButton>
-        </ButtonRow>
+        <Navbar>
+          <Ebook>Ebook</Ebook>
+          <ButtonRow>
+            <AddButton onClick={handleAddClick}>ADD EBOOK</AddButton>
+          </ButtonRow>
+        </Navbar>
         <Content>
           <Paper>
             <TableContainer sx={{ maxHeight: 500 }}>
@@ -124,7 +127,9 @@ const Create = () => {
                         }}
                       >
                         <TableCell>{ebook.title || "null"}</TableCell>
-                        <TableCell>{ebook.price ? ebook.price.toLocaleString() : "ฟรี"}</TableCell>
+                        <TableCell>
+                          {ebook.price ? ebook.price.toLocaleString() : "ฟรี"}
+                        </TableCell>
                         <TableCell>{ebook.summaries || "null"}</TableCell>
                         <TableCell>{ebook.summaries || "null"}</TableCell>
                         <TableCell>
@@ -148,7 +153,7 @@ const Create = () => {
                                   border: "1px solid #ccc",
                                   borderRadius: "8px",
                                   margin: "0 auto",
-                                }}  
+                                }}
                               />
                             ) : (
                               <iframe
@@ -235,4 +240,13 @@ const AddButton = styled.button`
 const Content = styled.div`
   width: 100%;
   margin-top: 2rem;
+`;
+
+const Navbar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+const Ebook = styled.div`
+  font-size: 36px;
 `;

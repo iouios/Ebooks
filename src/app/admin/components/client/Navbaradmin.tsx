@@ -1,52 +1,58 @@
 "use client";
 import React, { useState } from "react";
 import {
-  Box,
   Drawer,
-  Typography,
   List,
   ListItemButton,
   ListItemText,
 } from "@mui/material";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styled from "styled-components";
 
 const drawerWidth = 240;
 
 const Navbaradmin: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const drawer = (
-    <Box sx={{ width: drawerWidth }}>
-      <Typography variant="h6" sx={{ p: 2 }}>
-        Ebook
-      </Typography>
+    <div style={{ width: drawerWidth }}>
+      <Title>Ebook</Title>
       <List>
         <Link href="/admin/ebook" passHref>
-          <ListItemButton>
-            <ListItemText primary="Ebook" />
+          <ListItemButton selected={pathname === "/admin/ebook"}>
+            <ListItemText
+              primary="Ebook"
+              sx={{
+                color: pathname === "/admin/ebook" ? "blue" : "inherit",
+              }}
+            />
           </ListItemButton>
         </Link>
       </List>
       <List>
         <Link href="/admin/author" passHref>
-          <ListItemButton>
-            <ListItemText primary="Author" />
+          <ListItemButton selected={pathname === "/admin/author"}>
+            <ListItemText
+              primary="Author"
+              sx={{
+                color: pathname === "/admin/author" ? "blue" : "inherit",
+              }}
+            />
           </ListItemButton>
         </Link>
       </List>
-    </Box>
+    </div>
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      >
+    <Container>
+      <Nav>
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -54,10 +60,7 @@ const Navbaradmin: React.FC = () => {
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
+            "& .MuiDrawer-paper": DrawerPaper,
           }}
         >
           {drawer}
@@ -66,18 +69,40 @@ const Navbaradmin: React.FC = () => {
           variant="permanent"
           sx={{
             display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
+            "& .MuiDrawer-paper": DrawerPaper,
           }}
           open
         >
           {drawer}
         </Drawer>
-      </Box>
-    </Box>
+      </Nav>
+    </Container>
   );
 };
+
+
+const Container = styled.div`
+  display: flex;
+`;
+
+const Nav = styled.nav`
+  width: ${drawerWidth}px;
+  flex-shrink: 0;
+
+  @media (max-width: 600px) {
+    width: auto;
+  }
+`;
+
+const DrawerPaper = {
+  boxSizing: "border-box",
+  width: drawerWidth,
+};
+
+const Title = styled.h6`
+  padding: 16px;
+  font-size: 1.25rem;
+  font-weight: 500;
+`;
 
 export default Navbaradmin;
