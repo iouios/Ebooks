@@ -14,7 +14,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import Image from "next/image";
 import EpubReader from "../components/client/epub";
-
+import Swal from "sweetalert2";
 interface EbookData {
   ebook_url: string;
   image_url: string;
@@ -36,6 +36,7 @@ const columns = [
   { id: "languages", label: "Languages", minWidth: 100 },
   { id: "ebook", label: "Ebook", minWidth: 100 },
   { id: "cover", label: "Cover", minWidth: 100 },
+  { id: "Delete", label: "Delete", minWidth: 100 },
 ];
 
 const Create = () => {
@@ -64,13 +65,45 @@ const Create = () => {
     router.push(`/admin/ebook/edit/${ebook.id}`);
   };
 
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "คุณแน่ใจหรือไม่?",
+      text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "ใช่, ลบเลย!",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`/api/deleteEbook/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || "ลบไม่สำเร็จ");
+        }
+
+        Swal.fire("ลบสำเร็จ!", "ข้อมูล eBook ถูกลบแล้ว", "success");
+
+        // ลบจาก state frontend
+        setEbooks((prev) => prev.filter((ebook) => ebook.id !== id));
+      } catch (err) {
+        console.error("ลบไม่สำเร็จ:", err);
+        Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถลบ eBook ได้", "error");
+      }
+    }
+  };
+
   React.useEffect(() => {
     const fetchEbooks = async () => {
       try {
         const res = await fetch("/api/ebooktable");
-        console.log("API Response Status: ", res.status);
         const data = await res.json();
-        console.log("API Response Data: ", data);
         setEbooks(data);
       } catch (error) {
         console.error("Error fetching ebooks: ", error);
@@ -79,8 +112,6 @@ const Create = () => {
 
     fetchEbooks();
   }, []);
-
-  console.log("ebook data:", ebooks);
 
   return (
     <Main>
@@ -121,16 +152,13 @@ const Create = () => {
                         tabIndex={-1}
                         key={ebook.id}
                         onClick={() => handleAddClickTable(ebook)}
-                        style={{
-                          position: "relative",
-                          cursor: "pointer",
-                        }}
+                        style={{ cursor: "pointer" }}
                       >
                         <TableCell>{ebook.title || "null"}</TableCell>
                         <TableCell>
                           {ebook.price ? ebook.price.toLocaleString() : "ฟรี"}
                         </TableCell>
-                        <TableCell>{ebook.summaries || "null"}</TableCell>
+                        <TableCell>{ebook.authors || "null"}</TableCell>
                         <TableCell>{ebook.summaries || "null"}</TableCell>
                         <TableCell>
                           {Array.isArray(ebook.bookshelves)
@@ -145,16 +173,7 @@ const Create = () => {
                         <TableCell>
                           {ebook.ebook_url &&
                             (ebook.ebook_url.toLowerCase().endsWith(".epub") ? (
-                              <EpubReader
-                                url={ebook.ebook_url}
-                                style={{
-                                  width: "100px",
-                                  height: "150px",
-                                  border: "1px solid #ccc",
-                                  borderRadius: "8px",
-                                  margin: "0 auto",
-                                }}
-                              />
+                              <EpubReader url={ebook.ebook_url} />
                             ) : (
                               <iframe
                                 src={ebook.ebook_url}
@@ -175,12 +194,19 @@ const Create = () => {
                                 alt="ebook image"
                                 width={100}
                                 height={150}
-                                style={{
-                                  height: "auto",
-                                  objectFit: "contain",
-                                }}
+                                style={{ height: "auto", objectFit: "contain" }}
                               />
                             )}
+                        </TableCell>
+                        <TableCell>
+                          <DeleteButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(ebook.id);
+                            }}
+                          >
+                            Delete
+                          </DeleteButton>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -204,7 +230,6 @@ const Create = () => {
 };
 
 export default Create;
-
 const Main = styled.div`
   display: flex;
   margin-top: 20px;
@@ -234,6 +259,21 @@ const AddButton = styled.button`
 
   &:hover {
     background-color: #1565c0;
+  }
+`;
+
+const DeleteButton = styled.button`
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: #c62828;
   }
 `;
 
