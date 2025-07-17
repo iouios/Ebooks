@@ -4,6 +4,7 @@ import { TextField } from "@mui/material";
 import styled from "styled-components";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Swal from "sweetalert2";
+import TableToken from "@/components/client/tableToken";
 
 const Token: React.FC = () => {
   const [token, setToken] = useState("");
@@ -143,6 +144,7 @@ const Token: React.FC = () => {
           </ButtonToken>
         ))}
       </Button>
+      <TableToken />
 
       {error && <h1>{error}</h1>}
       <Summit

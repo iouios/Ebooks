@@ -15,6 +15,7 @@ import TableRow from "@mui/material/TableRow";
 import Image from "next/image";
 import EpubReader from "../components/client/epub";
 import Swal from "sweetalert2";
+
 interface EbookData {
   ebook_url: string;
   image_url: string;
