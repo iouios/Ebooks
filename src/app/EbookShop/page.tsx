@@ -87,6 +87,29 @@ const EbookShop: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const searchParams = useSearchParams();
   const { user } = useUser();
+  const [purchasedList, setPurchasedList] = useState<(string | number)[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchPurchasedBooks = async () => {
+      try {
+        const response = await fetch("/api/purchased-books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.sub }),
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch purchased books");
+
+        const data = await response.json();
+        setPurchasedList(data.book_ids || []);
+      } catch (error) {
+        console.error("❌ Error fetching purchased books:", error);
+      }
+    };
+
+    fetchPurchasedBooks();
+  }, [user]);
 
   // Get ?search from URL
   useEffect(() => {
@@ -209,6 +232,7 @@ const EbookShop: React.FC = () => {
             }}
             bookmarkList={bookmarkList}
             setBookmarkList={setBookmarkList}
+            purchasedList={purchasedList}
           />
         ))}
       </GridContainer>
