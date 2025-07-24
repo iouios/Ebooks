@@ -27,10 +27,11 @@ interface Book {
 
 interface BookCardProps {
   data: Book;
-  bookmarkList: (number | string)[]; // <-- แก้ตรงนี้
-  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>; // <-- แก้ตรงนี้
+  bookmarkList: (number | string)[];
+  setBookmarkList: React.Dispatch<React.SetStateAction<(number | string)[]>>;
   onBookmarkClick?: () => void;
   showPrice?: boolean;
+  purchasedList?: (number | string)[];
 }
 
 const BookCardEbook: React.FC<BookCardProps> = ({
@@ -38,8 +39,10 @@ const BookCardEbook: React.FC<BookCardProps> = ({
   bookmarkList,
   setBookmarkList,
   showPrice = true,
+  purchasedList = [],
 }) => {
   const isBookmarked = bookmarkList.includes(data.id);
+  const purchased = purchasedList.includes(data.id);
 
   return (
     <Card>
@@ -89,7 +92,7 @@ const BookCardEbook: React.FC<BookCardProps> = ({
             setBookmarkList={setBookmarkList}
           />
           {showPrice !== false && (
-            <Showprice>
+            <Showprice >
               <Link
                 href={
                   typeof data.id === "number"
@@ -98,7 +101,11 @@ const BookCardEbook: React.FC<BookCardProps> = ({
                 }
               >
                 <div>
-                  {data.price ? `${data.price.toLocaleString()}฿` : "ฟรี"}
+                  {purchased
+                    ? "Read"
+                    : data.price
+                    ? `${data.price.toLocaleString()}฿`
+                    : "ฟรี"}
                 </div>
               </Link>
             </Showprice>
@@ -210,11 +217,10 @@ const Showprice = styled.div`
   border-radius: 8px;
   padding: 8px 12px;
 
-    @media (max-width: 500px) {
+  @media (max-width: 500px) {
     font-size: 10px;
     width: 50%;
   }
-
 `;
 
 export default BookCardEbook;

@@ -17,13 +17,13 @@ type Log = {
   action: string;
   amount: number;
   balance: number;
-  timestamp: number; 
+  timestamp: number;
   type: string;
   detail: string;
 };
 
 interface Column {
-  id: "timestamp" | "type"  | "amount" | "detail";
+  id: "timestamp" | "type" | "amount" | "detail";
   label: string;
   minWidth?: number;
   align?: "right";
@@ -70,7 +70,7 @@ function createData(
   amount: number,
   detail: string
 ): Data {
-  return { timestamp, type, amount, detail  };
+  return { timestamp, type, amount, detail };
 }
 
 const TableToken = () => {
@@ -83,7 +83,7 @@ const TableToken = () => {
     const fetchLogs = async () => {
       if (!user?.sub) return;
       try {
-        const res = await fetch(`/api/tabletoken/${user.sub}`);
+        const res = await fetch(`/api/token-history/${user.sub}`);
         if (!res.ok) {
           throw new Error("Failed to fetch logs");
         }
@@ -98,9 +98,11 @@ const TableToken = () => {
   }, [user]);
 
   const mapLogsToRows = (logs: Log[]): Data[] => {
-    return logs.map((log) =>
-      createData(log.timestamp, log.type, log.amount, log.detail)
-    );
+    return logs
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .map((log) =>
+        createData(log.timestamp, log.type, log.amount, log.detail)
+      );
   };
 
   const mappedRows = mapLogsToRows(logs);

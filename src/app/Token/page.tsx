@@ -95,7 +95,7 @@ const Token: React.FC = () => {
   return (
     <Main>
       <div>
-        <Text>จำนวน Token: {balance}</Text>
+        
       </div>
       <TextToken>เติม Token</TextToken>
       <TextField
@@ -144,6 +144,7 @@ const Token: React.FC = () => {
           </ButtonToken>
         ))}
       </Button>
+      <Text>จำนวน Token: {balance}</Text>
       <TableToken />
 
       {error && <h1>{error}</h1>}
@@ -169,8 +170,8 @@ const TextToken = styled.h1`
   display: flex;
   justify-content: center;
   font-size: 40px;
-  margin-top: 60px;
-  margin-bottom: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 
   @media (max-width: 500px) {
     margin-top: 20px;
@@ -182,6 +183,7 @@ const Text = styled.h1`
   justify-content: end;
   font-size: 20px;
   margin-right: 20px;
+  margin-bottom: 20px;
 `;
 
 const Button = styled.div`
