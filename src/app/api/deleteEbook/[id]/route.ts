@@ -3,9 +3,13 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
+  const params = await context.params;
   const { id } = params;
+  if (!id) {
+    return NextResponse.json({ message: "ID not provided" }, { status: 400 });
+  }
 
   try {
     const docRef = db.collection("ebooks").doc(id);
@@ -19,7 +23,9 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Ebook deleted successfully" });
   } catch (error) {
-    console.error("🔥 Error deleting ebook:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("🔥 Error deleting ebook:", error);
+    }
     return NextResponse.json(
       {
         message: "Internal Server Error",
