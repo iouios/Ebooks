@@ -95,7 +95,7 @@ const Token: React.FC = () => {
   return (
     <Main>
       <div>
-        
+        <Text>จำนวน Token: {balance}</Text>
       </div>
       <TextToken>เติม Token</TextToken>
       <TextField
@@ -144,16 +144,15 @@ const Token: React.FC = () => {
           </ButtonToken>
         ))}
       </Button>
-      <Text>จำนวน Token: {balance}</Text>
-      <TableToken />
-
-      {error && <h1>{error}</h1>}
       <Summit
         onClick={handleSubmit}
         disabled={loading || !user || !selectedToken}
       >
         {loading ? "กำลังเติม Token..." : "เติม Token"}
       </Summit>
+      <TableToken />
+
+      {error && <h1>{error}</h1>}
     </Main>
   );
 };
