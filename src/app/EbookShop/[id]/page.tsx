@@ -38,7 +38,7 @@ const BookPage = () => {
   // ดึงข้อมูลหนังสือ
   useEffect(() => {
     if (!id) return;
-      console.log("Book id to find:", id);
+    console.log("Book id to find:", id);
     const fetchBookById = async () => {
       try {
         const res = await fetch("/api/ebookshop?page=1");
@@ -55,7 +55,6 @@ const BookPage = () => {
     fetchBookById();
   }, [id]);
 
-  // ดึง bookmark
   useEffect(() => {
     if (!user) return;
     const fetchBookmarks = async () => {
@@ -79,7 +78,6 @@ const BookPage = () => {
     fetchBookmarks();
   }, [user]);
 
-  // เช็คว่าซื้อแล้วหรือยัง
   useEffect(() => {
     if (!user || !book?.id) return;
     const checkIfPurchased = async () => {
@@ -101,90 +99,100 @@ const BookPage = () => {
     checkIfPurchased();
   }, [user, book]);
 
-  // อ่านหนังสือ
-  const handleReadClick = () => {
-    if (!book?.ebook_url) return;
-    setIsReading(true);
+  const handleReadClick = async () => {
+    if (!book?.ebook_url || !book?.id) return;
+
+    try {
+      setBook((prev) =>
+        prev ? { ...prev, downloads: (prev.downloads || 0) + 1 } : prev
+      );
+
+      await fetch("/api/update-download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookId: book.id }),
+      });
+
+      setIsReading(true);
+    } catch (error) {
+      console.error("Failed to update download count:", error);
+    }
   };
 
-const handleBuyClick = async () => {
-  console.log('handleBuyClick triggered');
-  if (!book) return;
+  const handleBuyClick = async () => {
+    console.log("handleBuyClick triggered");
+    if (!book) return;
 
-  const result = await Swal.fire({
-    title: 'ยืนยันการซื้อหนังสือ?',
-    text: `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'ซื้อ',
-    cancelButtonText: 'ยกเลิก',
-  });
-
-  console.log('confirm result:', result);
-  if (!result.isConfirmed) return;
-
-  const userId = user?.sub;
-  console.log('userId:', userId);
-  if (!userId) {
-    await Swal.fire('กรุณาล็อกอินก่อนซื้อหนังสือ');
-    return;
-  }
-
-  try {
-    console.log('Sending purchase API request...');
-    const response = await fetch('/api/purchase', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: userId,
-        book_id: book.id,
-        // price: book.price,
-      }),
+    const result = await Swal.fire({
+      title: "ยืนยันการซื้อหนังสือ?",
+      text: `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "ซื้อ",
+      cancelButtonText: "ยกเลิก",
     });
-    console.log('API response:', response);
 
-    const data = await response.json();
-    console.log('API response data:', data);
+    console.log("confirm result:", result);
+    if (!result.isConfirmed) return;
 
-    if (!response.ok) {
-      if (data.message === "Token ไม่เพียงพอ") {
-        await Swal.fire({
-          icon: "warning",
-          title: "Token ไม่เพียงพอ",
-          text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
-        });
-      } else {
-        await Swal.fire({
-          icon: 'error',
-          title: 'ซื้อไม่สำเร็จ',
-          text: data.message || 'เกิดข้อผิดพลาดบางอย่าง',
-        });
-      }
+    const userId = user?.sub;
+    console.log("userId:", userId);
+    if (!userId) {
+      await Swal.fire("กรุณาล็อกอินก่อนซื้อหนังสือ");
       return;
     }
 
-    await Swal.fire({
-      icon: 'success',
-      title: 'ซื้อสำเร็จ!',
-      text: `คุณซื้อ "${book.title}" เรียบร้อยแล้ว`,
-    });
+    try {
+      console.log("Sending purchase API request...");
+      const response = await fetch("/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          book_id: book.id,
+        }),
+      });
+      console.log("API response:", response);
 
-    window.location.reload();
+      const data = await response.json();
+      console.log("API response data:", data);
 
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : 'ไม่สามารถติดต่อ server ได้';
+      if (!response.ok) {
+        if (data.message === "Token ไม่เพียงพอ") {
+          await Swal.fire({
+            icon: "warning",
+            title: "Token ไม่เพียงพอ",
+            text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
+          });
+        } else {
+          await Swal.fire({
+            icon: "error",
+            title: "ซื้อไม่สำเร็จ",
+            text: data.message || "เกิดข้อผิดพลาดบางอย่าง",
+          });
+        }
+        return;
+      }
 
-    await Swal.fire({
-      icon: 'error',
-      title: 'เกิดข้อผิดพลาด',
-      text: message,
-    });
-  }
-};
+      await Swal.fire({
+        icon: "success",
+        title: "ซื้อสำเร็จ!",
+        text: `คุณซื้อ "${book.title}" เรียบร้อยแล้ว`,
+      });
 
+      window.location.reload();
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "ไม่สามารถติดต่อ server ได้";
 
-  // อ่าน epub/pdf
+      await Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: message,
+      });
+    }
+  };
+
   if (isReading && book?.ebook_url) {
     const ext = book.ebook_url.split(".").pop()?.toLowerCase();
 
@@ -196,7 +204,9 @@ const handleBuyClick = async () => {
     }
 
     if (ext === "epub") {
-      const proxyUrl = `/api/proxy-epub?url=${encodeURIComponent(book.ebook_url)}`;
+      const proxyUrl = `/api/proxy-epub?url=${encodeURIComponent(
+        book.ebook_url
+      )}`;
       return (
         <div style={{ height: "100vh", position: "relative" }}>
           <button
@@ -233,8 +243,6 @@ const handleBuyClick = async () => {
     }
   }
 
-  
-
   return (
     <Main>
       {book && (
@@ -242,7 +250,9 @@ const handleBuyClick = async () => {
           <BookInfo>
             <div>
               <Title>
-                {book.title.length > 15 ? book.title.substring(0, 15) + "..." : book.title}
+                {book.title.length > 15
+                  ? book.title.substring(0, 15) + "..."
+                  : book.title}
               </Title>
               <AuthorText>{book.authors}</AuthorText>
             </div>
@@ -258,25 +268,28 @@ const handleBuyClick = async () => {
                 </ImageWrapper>
               )}
 
-              {/* ปุ่ม Read / Buy */}
-              {hasPurchased ? (
+              {hasPurchased || book.price === 0 ? (
                 <DownloadLink onClick={handleReadClick}>
                   <Flexread>
-                    <StyledBookIcon><BookIcon /></StyledBookIcon>
+                    <StyledBookIcon>
+                      <BookIcon />
+                    </StyledBookIcon>
                     Read
                   </Flexread>
                 </DownloadLink>
               ) : (
                 <DownloadLink onClick={handleBuyClick}>
-                  <Flexread>
-                    ซื้อหนังสือ
-                  </Flexread>
+                  <Flexread>{book.price ? `${book.price}฿` : "ฟรี"}</Flexread>
                 </DownloadLink>
               )}
+
               <DownloadCount>
                 <FlexDownload>
-                  <Download><DownloadIcon width={15} height={15} /></Download>
-                  <strong>Download : </strong> {book.downloads}
+                  <Download>
+                    <DownloadIcon width={15} height={15} />
+                  </Download>
+                  <DownloadLabel>Download :</DownloadLabel>
+                  {book.downloads ?? 0}
                 </FlexDownload>
               </DownloadCount>
             </CenterImage>
@@ -337,7 +350,7 @@ const BookInfo = styled.div`
     min-height: 100vh;
     overflow: auto;
   }
-    @media (max-width: 400px) {
+  @media (max-width: 400px) {
     padding: 0px 2px;
     margin: 0 auto;
     min-height: 100vh;
@@ -409,7 +422,6 @@ const Summary = styled.p`
   font-size: 14px;
 `;
 
-
 const Flex = styled.div`
   display: flex;
   justify-content: space-between;
@@ -454,7 +466,6 @@ const Flexread = styled.div`
   justify-content: center;
 `;
 
-
 const CenterImage = styled.div`
   text-align: center;
 `;
@@ -482,5 +493,8 @@ const Download = styled.div`
   margin: 2px 10px;
 `;
 
+const DownloadLabel = styled.strong`
+  margin-right: 8px;
+`;
 
 export default BookPage;

@@ -23,9 +23,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Ebook deleted successfully" });
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("🔥 Error deleting ebook:", error);
-    }
+    console.error("🔥 Error deleting ebook:", error);
     return NextResponse.json(
       {
         message: "Internal Server Error",

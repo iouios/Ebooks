@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
 
     const newTokenBalance = currentToken + tokenAmount;
 
-    // Update token ใน users
     await userRef.set(
       {
         token: newTokenBalance,

@@ -18,7 +18,9 @@ const Token: React.FC = () => {
   useEffect(() => {
     const fetchBalance = async () => {
       if (!user?.sub) return;
-      const res = await fetch(`/api/balance?parentId=${user.sub}`, {
+
+      const encodedId = encodeURIComponent(user.sub);
+      const res = await fetch(`/api/balance/${encodedId}`, {
         cache: "no-store",
       });
 
@@ -29,6 +31,7 @@ const Token: React.FC = () => {
         console.error(data.message);
       }
     };
+
     fetchBalance();
   }, [user]);
 
@@ -91,6 +94,7 @@ const Token: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <Main>

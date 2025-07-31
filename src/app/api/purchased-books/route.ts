@@ -11,7 +11,8 @@ export async function POST(req: Request) {
 
     const snapshot = await db
       .collection("user_book")
-      .where("user_id", "==", userId)
+      .doc(userId)
+      .collection("user_bookId")
       .where("is_refunded", "==", false)
       .get();
 
@@ -20,6 +21,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ book_ids });
   } catch (error) {
     console.error("❌ Error fetching purchased books:", error);
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

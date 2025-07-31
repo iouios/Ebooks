@@ -10,13 +10,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Missing input" }, { status: 400 });
     }
 
-    const docRef = db
+    const userBooksRef = db
       .collection("user_book")
-      .where("user_id", "==", user_id)
+      .doc(user_id)
+      .collection("user_bookId")
       .where("book_id", "==", book_id)
       .where("is_refunded", "==", false);
 
-    const snapshot = await docRef.get();
+    const snapshot = await userBooksRef.get();
 
     const purchased = !snapshot.empty;
 

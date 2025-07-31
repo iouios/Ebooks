@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const { user_id, book_id } = body;
 
     if (!user_id || !book_id) {
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
 
     const userData = userSnap.data();
     if (!userData || typeof userData.token !== "number") {
-      return NextResponse.json({ message: "User data not found" }, { status: 404 });
+      return NextResponse.json({ message: "User data not found or token invalid" }, { status: 404 });
     }
 
     const ebookRef = db.collection("ebooks").doc(book_id);
@@ -41,6 +40,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Token ไม่เพียงพอ" }, { status: 400 });
     }
 
+    // เช็คว่าผู้ใช้ซื้อหนังสือเล่มนี้แล้วหรือยัง
     const existing = await db
       .collection("user_book")
       .where("user_id", "==", user_id)
@@ -58,17 +58,17 @@ export async function POST(req: Request) {
       token: userData.token - price,
     });
 
-    const logRef = db.collection("token_log").doc();
+    const logRef = db.collection("token_log").doc(user_id).collection("logs").doc();
     batch.set(logRef, {
       user_id,
       book_id,
       amount: price,
       type: "spend",
       source: "purchase",
-      created_at: new Date().toISOString(),
+      timestamp: new Date(),
     });
 
-    const userBookRef = db.collection("user_book").doc();
+    const userBookRef = db.collection("user_book").doc(user_id).collection("user_bookId").doc();
     batch.set(userBookRef, {
       user_id,
       book_id,
