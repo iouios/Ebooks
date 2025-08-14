@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef, CSSProperties } from "react";
 import ePub, { Rendition } from "epubjs";
 

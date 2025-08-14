@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../../app/admin/firebase/firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
+interface RouteContext {
+  params: Promise<{ book_id: string }>; 
+}
+
 export async function POST(
   req: NextRequest,
-  { params }: { params: { book_id: string } }
-) {
+  context: RouteContext
+){
   try {
-    const rawBookId = params.book_id;
+    const { book_id: rawBookId } = await context.params; 
     const body = await req.json();
     const { userId } = body;
 

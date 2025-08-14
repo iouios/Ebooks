@@ -2,9 +2,13 @@ import { db } from "../../../admin/firebase/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, context: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export async function GET(req: Request, context: RouteContext) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
 
     if (!id) {
       return NextResponse.json({ message: "Missing ebook ID" }, { status: 400 });
@@ -31,14 +35,14 @@ export async function GET(req: Request, context: { params: { id: string } }) {
       image_url: data.image_url,
     });
   } catch (error) {
-    console.error("🔥 Error in API:", error);
+    console.error("🔥 Error in GET:", error);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }
 
-export async function PUT(req: Request, context: { params: { id: string } }) {
+export async function PUT(req: Request, context: RouteContext) {
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await req.json();
 
     const docRef = doc(db, "ebooks", id);

@@ -1,19 +1,22 @@
 import { db } from "@/app/admin/firebase/firebaseAdmin";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  context: { params: { id: string } }
-) {
-  const { id: userId } = context.params;
+interface RouteContext {
+  params: Promise<{ id: string }>; // ต้องเป็น Promise ตาม type ของ Next.js
+}
 
-  if (!userId) {
+export async function GET(
+  request: Request,
+  context: RouteContext
+) {
+  const { id } = await context.params; // await ต้องตรงนี้
+
+  if (!id) {
     return NextResponse.json({ message: "ID not provided" }, { status: 400 });
   }
 
   try {
-    // อ่าน document ผู้ใช้
-    const userDoc = await db.collection("users").doc(userId).get();
+    const userDoc = await db.collection("users").doc(id).get();
 
     if (!userDoc.exists) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

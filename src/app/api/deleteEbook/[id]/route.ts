@@ -1,12 +1,15 @@
 import { db } from "@/app/admin/firebase/firebaseAdmin";
 import { NextResponse } from "next/server";
 
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } }
+  context: RouteContext
 ) {
-  const params = await context.params;
-  const { id } = params;
+  const { id } = await context.params;
   if (!id) {
     return NextResponse.json({ message: "ID not provided" }, { status: 400 });
   }

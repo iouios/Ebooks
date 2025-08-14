@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '../../../../../app/admin/firebase/firebaseConfig'; 
-import { doc, updateDoc, arrayRemove, getDoc } from 'firebase/firestore'; 
+import { db } from '../../../../../app/admin/firebase/firebaseConfig';
+import { doc, updateDoc, arrayRemove, getDoc } from 'firebase/firestore';
 
-export async function DELETE(req: NextRequest, { params }: { params: { book_id: string } }) {
+interface RouteContext {
+  params: Promise<{ book_id: string }>;
+}
+
+export async function POST(
+  req: NextRequest,
+  context: RouteContext
+) {
   try {
-
-    const { book_id } = await params; 
+    const { book_id: rawBookId } = await context.params;
     const body = await req.json();
     const { userId } = body;
+
+    // แปลง book_id เป็น number ถ้าเป็นตัวเลขล้วน
+    const book_id = /^\d+$/.test(rawBookId) ? Number(rawBookId) : rawBookId;
 
     console.log(`Received DELETE request to remove bookmark for user: ${userId}, book_id: ${book_id}`);
 
@@ -26,17 +35,15 @@ export async function DELETE(req: NextRequest, { params }: { params: { book_id: 
 
     console.log("Found bookmark data, removing book_id from array");
 
-    // ลบ book_id จาก array
-await updateDoc(bookmarkRef, {
-  book_ids: arrayRemove(Number(book_id), book_id)
-});
-
+    await updateDoc(bookmarkRef, {
+      book_ids: arrayRemove(book_id)
+    });
 
     console.log(`Bookmark removed for user ${userId}, book_id: ${book_id}`);
 
     return NextResponse.json({ message: "Bookmark removed successfully" }, { status: 200 });
   } catch (error) {
-    console.error("Error during DELETE request:", error); 
+    console.error("Error during DELETE request:", error);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
   }
 }

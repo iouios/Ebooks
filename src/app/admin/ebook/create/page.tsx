@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/navigation";
 import { auth } from "../../firebase/firebaseConfig";
-import { saveEbook } from "../../../api/ebook/route";
+import { saveEbook } from "../../../api/admins/ebooks";
 import Navbaradmin from "../../components/client/Navbaradmin";
 import Navbarhead from "../../components/client/Navbarhead";
 import CreateComponent, {

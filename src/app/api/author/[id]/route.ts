@@ -2,7 +2,16 @@ import { db } from "../../../admin/firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+
+export async function GET(
+  request: Request,
+  context: RouteContext
+) {
+  const params = await context.params;
   const { id } = params;
 
   try {
@@ -19,3 +28,4 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
+

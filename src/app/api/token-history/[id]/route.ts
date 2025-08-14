@@ -1,11 +1,12 @@
 import { db } from "@/app/admin/firebase/firebaseAdmin";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params;
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export async function GET(req: Request, context: RouteContext) {
+  const { id } = await context.params; // ✅ await เพราะ params เป็น Promise
 
   try {
     const logsRef = db.collection("token_log").doc(id).collection("logs");
@@ -18,7 +19,7 @@ export async function GET(
         ...data,
         timestamp: data.timestamp?._seconds
           ? data.timestamp._seconds * 1000
-          : null, 
+          : null,
       };
     });
 

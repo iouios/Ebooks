@@ -1,43 +1,13 @@
-import { db } from "../../admin/firebase/firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import { NextRequest, NextResponse } from "next/server";
+import { saveEbook, EbookData } from "../admins/ebooks";
 
-interface EbookData {
-  title: string;
-  authors: string;
-  summaries: string;
-  bookshelves: string[];
-  languages: string[];
-  price: number; 
-  ebook_url: string;
-  image_url: string;
-
-}
-
-export const saveEbook = async ({
-  title,
-  authors,
-  summaries,
-  bookshelves,
-  languages,
-  price,
-  ebook_url,
-  image_url,
-}: EbookData): Promise<{ success: boolean; id?: string; error?: string }> => {
+export async function POST(req: NextRequest) {
   try {
-    const docRef = await addDoc(collection(db, "ebooks"), {
-      title,
-      authors,
-      summaries,
-      bookshelves,
-      languages,
-      price,
-      ebook_url,
-      image_url,
-    });
-
-    return { success: true, id: docRef.id };
+    const body: EbookData = await req.json();
+    const result = await saveEbook(body);
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("Error saving ebook: ", error);
-    return { success: false, };
+    console.error("Error in POST /ebook:", error);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
   }
-};
+}
