@@ -1,3 +1,4 @@
+'use client';
 import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import styled from "styled-components";
@@ -52,6 +53,11 @@ const Logout = () => {
               <Link href="/Token" passHref>
                 <LogoutButton onClick={() => setDropdownVisible(false)}>
                   เติม Token
+                </LogoutButton>
+              </Link>
+              <Link href="/PremiumBooks" passHref>
+                <LogoutButton onClick={() => setDropdownVisible(false)}>
+                  หนังสือของฉัน
                 </LogoutButton>
               </Link>
               <LogoutButton
