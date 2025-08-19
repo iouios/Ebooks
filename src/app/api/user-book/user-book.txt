@@ -1,0 +1,55 @@
+[POST] /api/user/purchased
+
+🔍 Description
+
+ตรวจสอบว่า ผู้ใช้ซื้อ eBook ที่ระบุแล้วหรือยัง โดยตรวจสอบใน Firestore collection `user_book`
+
+📥 Request
+
+Method:POST
+URL: /api/user/purchased
+Auth required:✅ Yes
+Headers:
+
+    json
+  {
+    "Content-Type": "application/json"
+  }
+  
+
+🔸 Body Parameters
+
+  json
+{
+  "user_id": "string (User ID)",
+  "book_id": "string (eBook ID)"
+}
+
+📤 Response (Success)
+
+ json
+{
+  "purchased": true | false
+}
+
+
+* `true` → ผู้ใช้ซื้อ eBook แล้ว (และยังไม่ได้คืนเงิน)
+* `false` → ผู้ใช้ยังไม่ได้ซื้อ eBook หรือคืนเงินไปแล้ว
+
+❗️Error Responses
+
+| Status Code | Message               | Description                                     |
+| ----------- | --------------------- | ----------------------------------------------- |
+| `400`       | Missing input         | ไม่ส่ง `user_id` หรือ `book_id` ใน request body |
+| `500`       | Internal Server Error | ระบบขัดข้องหรือ Firestore มีปัญหา               |
+
+🗄 Database Schema (`user_book` collection)
+
+* **Collection:** `user_book` → **Doc ID:** `user_id`
+* **Subcollection:** `user_bookId`
+* **Fields:**
+
+| Field         | Type    | Description                                |
+| ------------- | ------- | ------------------------------------------ |
+| `book_id`     | string  | ID ของ eBook                               |
+| `is_refunded` | boolean | true → คืนเงินแล้ว / false → ยังไม่คืนเงิน |

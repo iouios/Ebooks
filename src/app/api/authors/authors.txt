@@ -1,0 +1,49 @@
+\[GET] `/api/authors`
+
+🔍 Description
+
+ดึงรายการ **Authors** ทั้งหมดจาก Firestore database แล้วส่งกลับมาเป็น JSON
+
+📥 Request
+
+Method: GET
+URL: /api/authors
+Auth required:❌ No 
+Headers:
+
+  json
+  {
+    "Content-Type": "application/json"
+  }
+  
+📤 Response (Success)
+
+json
+[
+  {
+    "id": "string (Firestore doc id)",
+    "name": "string",
+    "bio": "string",
+    "avatar": "string (URL)",
+    "createdAt": "timestamp"
+  }
+]
+
+
+❗️Error Responses
+
+| Status Code | Message              | Description                                     |
+| ----------- | -------------------- | ----------------------------------------------- |
+| `500`       | Something went wrong | ดึงข้อมูลจาก Firestore ไม่สำเร็จหรือระบบขัดข้อง |
+
+
+🗄 Database Schema (`authors` collection)
+
+| Field       | Type      | Description            |
+| ----------- | --------- | ---------------------- |
+| `id`        | string    | Firestore Document ID  |
+| `name`      | string    | ชื่อผู้เขียน           |
+| `bio`       | string    | ประวัติ/คำอธิบายสั้น ๆ |
+| `avatar`    | string    | URL ของรูปภาพผู้เขียน  |
+| `createdAt` | timestamp | วันที่สร้าง            |
+

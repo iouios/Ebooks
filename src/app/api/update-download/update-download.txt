@@ -1,0 +1,46 @@
+[POST] /api/ebooks/download
+
+🔍 Description
+
+เพิ่ม จำนวนดาวน์โหลด ของ eBook ที่ระบุใน Firestore (`ebooks` collection)
+
+📥 Request
+
+Method: POST
+URL: /api/ebooks/download
+Auth required:❌ No 
+Headers:
+
+   json
+  {
+    "Content-Type": "application/json"
+  }
+
+🔸 Body Parameters
+
+  json
+{
+  "bookId": "string (eBook ID)"
+}
+
+📤 Response (Success)
+
+ json
+{
+  "success": true
+}
+
+`success: true` → จำนวนดาวน์โหลดเพิ่มเรียบร้อย
+
+❗️Error Responses
+
+| Status Code | Message                    | Description                       |
+| ----------- | -------------------------- | --------------------------------- |
+| `500`       | Failed to update downloads | ระบบขัดข้องหรือ Firestore มีปัญหา |
+
+🗄 Database Schema (`ebooks` collection)
+
+| Field       | Type   | Description                      |
+| ----------- | ------ | -------------------------------- |
+| `downloads` | number | จำนวนครั้งที่ eBook ถูกดาวน์โหลด |
+

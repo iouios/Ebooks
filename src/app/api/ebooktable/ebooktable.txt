@@ -1,0 +1,55 @@
+[GET] `/api/ebooks`
+
+🔍 Description
+
+ดึงรายการ eBooks ทั้งหมดจาก Firestore (ผ่าน Firebase Admin SDK)
+
+📥 Request
+
+Method: GET
+URL: /api/ebooks
+Auth required: ❌ No 
+Headers:
+
+  json
+  {
+    "Content-Type": "application/json"
+  }
+  
+📤 Response (Success)
+
+json
+[
+  {
+    "id": "string",
+    "title": "string",
+    "authors": "string",
+    "summaries": "string",
+    "bookshelves": ["string"],
+    "price": "number",
+    "languages": ["string"],
+    "ebook_url": "string (URL)",
+    "image_url": "string (URL)"
+  }
+]
+
+❗️Error Responses
+
+| Status Code | Message               | Description                       |
+| ----------- | --------------------- | --------------------------------- |
+| `404`       | No documents found    | ไม่มีข้อมูลใน collection `ebooks` |
+| `500`       | Internal Server Error | ระบบขัดข้องหรือ Firestore มีปัญหา |
+
+🗄 Database Schema (`ebooks` collection)
+
+| Field         | Type      | Description                 |
+| ------------- | --------- | --------------------------- |
+| `id`          | string    | Firestore Document ID       |
+| `title`       | string    | ชื่อหนังสือ                 |
+| `authors`     | string    | รายชื่อผู้แต่ง              |
+| `summaries`   | string    | เนื้อหาย่อของหนังสือ        |
+| `bookshelves` | string\[] | หมวดหมู่หรือชั้นหนังสือ     |
+| `price`       | number    | ราคาของ eBook               |
+| `languages`   | string\[] | รายการภาษาที่มีให้ใช้งาน    |
+| `ebook_url`   | string    | ลิงก์ไปยังไฟล์ eBook        |
+| `image_url`   | string    | ลิงก์รูปภาพหน้าปกของหนังสือ |

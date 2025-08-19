@@ -1,0 +1,31 @@
+[GET] /api/auth/logout
+
+ออกจากระบบ (Logout) โดยลบ session ของผู้ใช้งานออกจาก Auth0 และ redirect กลับไปยังหน้าแรก (/)
+
+📥 Request
+
+Method: GET
+
+URL: /api/auth/logout
+
+Auth required: ✅ Yes 
+
+Headers:
+
+{
+  "Authorization": "Bearer <token>"  
+}
+
+📤 Response (Success)
+
+Redirect: 302 Found
+
+หลัง logout สำเร็จ จะถูก redirect ไปยัง /
+
+HTTP/1.1 302 Found
+Location: /
+
+❗️Error Responses
+Status Code	Message	Description
+401	Unauthorized	ยังไม่ได้ login หรือ session หมดอายุ
+500	Internal Server Error	เกิดข้อผิดพลาดภายในระบบของ Auth0 หรือ App

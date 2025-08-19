@@ -1,0 +1,52 @@
+[GET] `/api/ebooks/random`
+
+🔍 Description
+
+ดึงข้อมูล eBooks จำนวน 10 เล่มแบบสุ่มจาก Firestore collection `ebooks`
+
+📥 Request
+
+Method: GET
+URL: /api/ebooks/random
+Auth required:❌ No 
+Headers:
+json
+  {
+    "Content-Type": "application/json"
+  }
+
+📤 Response (Success)
+
+json
+[
+  {
+    "id": "string",
+    "title": "string",
+    "summaries": "string",
+    "authors": "string",
+    "languages": ["string"],
+    "bookshelves": ["string"],
+    "ebook_url": "string (URL)",
+    "image_url": "string (URL)"
+  }
+]
+❗️Error Responses
+
+| Status Code | Message              | Description                            |
+| ----------- | -------------------- | -------------------------------------- |
+| `500`       | Something went wrong | Firestore query ล้มเหลวหรือระบบขัดข้อง |
+
+
+🗄 Database Schema (`ebooks` collection)
+
+| Field         | Type      | Description                 |
+| ------------- | --------- | --------------------------- |
+| `id`          | string    | Firestore Document ID       |
+| `title`       | string    | ชื่อหนังสือ                 |
+| `summaries`   | string    | เนื้อหาย่อของหนังสือ        |
+| `authors`     | string    | รายชื่อผู้แต่ง              |
+| `languages`   | string\[] | รายการภาษาที่มีให้ใช้งาน    |
+| `bookshelves` | string\[] | หมวดหมู่หรือชั้นหนังสือ     |
+| `ebook_url`   | string    | ลิงก์ไปยังไฟล์ eBook        |
+| `image_url`   | string    | ลิงก์รูปภาพหน้าปกของหนังสือ |
+
