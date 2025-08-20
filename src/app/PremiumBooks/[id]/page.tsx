@@ -98,10 +98,13 @@ const BookPage = () => {
     checkIfPurchased();
   }, [user, book]);
 
+  
+
   const handleReadClick = async () => {
     if (!book?.ebook_url || !book?.id) return;
 
     try {
+      
       setBook((prev) =>
         prev ? { ...prev, downloads: (prev.downloads || 0) + 1 } : prev
       );
@@ -122,12 +125,17 @@ const BookPage = () => {
     console.log("handleBuyClick triggered");
     if (!book) return;
 
+    const confirmText =
+    !book?.price || book.price === 0
+      ? `ต้องการรับหนังสือ "${book.title}" ฟรีหรือไม่?`
+      : `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`;
+
     const result = await Swal.fire({
       title: "ยืนยันการซื้อหนังสือ?",
-      text: `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`,
+      text: confirmText,
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "ซื้อ",
+      confirmButtonText: book.price === 0 ? "รับฟรี" : "ซื้อ",
       cancelButtonText: "ยกเลิก",
     });
 

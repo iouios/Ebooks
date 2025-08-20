@@ -19,7 +19,7 @@ interface HamburgerProps {
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-    const { user } = useUser();
+  const { user } = useUser();
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
@@ -31,7 +31,7 @@ const Navbar = () => {
     <Nav>
       <Flex>
         <Icons>
-        <IconBook />
+          <IconBook />
         </Icons>
         <Text>
           <TextcolorNav>Gutendex</TextcolorNav>
@@ -57,34 +57,39 @@ const Navbar = () => {
             <Logout />
           </LogoutImage>
           <div className="text-center">
-          <Link href="/" passHref>
-            <Button $isActive={pathname === "/"}>Home</Button>
-          </Link>
+            <Link href="/" passHref>
+              <Button $isActive={pathname === "/"}>Home</Button>
+            </Link>
           </div>
           <div className="text-center">
-          <Link href="/book" passHref>
-            <Button $isActive={pathname === "/book"}>Public Library</Button>
-          </Link>     
-          </div>    
+            <Link href="/book" passHref>
+              <Button $isActive={pathname === "/book"}>Public Library</Button>
+            </Link>
+          </div>
           <div className="text-center">
-          <Link href="/EbookShop" passHref>
-            <Button $isActive={pathname === "/EbookShop"}>Premium Books</Button>
-          </Link>
+            <Link href="/EbookShop" passHref>
+              <Button $isActive={pathname === "/EbookShop"}>
+                Premium Books
+              </Button>
+            </Link>
           </div>
           <Link
             href={user ? "/bookmark" : "#"}
             passHref
             onClick={(e) => {
               if (!user) {
-                e.preventDefault(); 
-                alert("กรุณาเข้าสู่ระบบเพื่อเข้าถึง Bookmark");
+                e.preventDefault();
                 window.location.href = "/api/auth/login";
               }
             }}
           >
             <Button $isActive={pathname === "/bookmark"}>Bookmark</Button>
           </Link>
-          
+          <Link href="/PremiumBooks" passHref>
+            <MobileOnlyButton $isActive={pathname === "/PremiumBooks"}>
+              หนังสือของฉัน
+            </MobileOnlyButton>
+          </Link>
         </Menu>
       </HamburgerWrapper>
       <Icon>
@@ -142,7 +147,7 @@ const TextcolorNav = styled.div`
 const Menu = styled.div<MenuProps>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  
+
   gap: 20px;
 
   @media (max-width: 500px) {
@@ -217,7 +222,6 @@ const Icons = styled.div`
   }
 
   @media (max-width: 500px) {
-
     svg {
       width: 60px;
       height: 60px;
@@ -225,5 +229,12 @@ const Icons = styled.div`
   }
 `;
 
+const MobileOnlyButton = styled(Button)`
+  display: none;
+
+  @media (max-width: 500px) {
+    display: inline-block;
+  }
+`;
 
 export default Navbar;

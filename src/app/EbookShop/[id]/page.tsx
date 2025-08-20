@@ -119,79 +119,89 @@ const BookPage = () => {
     }
   };
 
-  const handleBuyClick = async () => {
-    console.log("handleBuyClick triggered");
-    if (!book) return;
+const handleBuyClick = async () => {
+  console.log("handleBuyClick triggered");
+  if (!book) return;
 
-    const result = await Swal.fire({
-      title: "ยืนยันการซื้อหนังสือ?",
-      text: `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "ซื้อ",
-      cancelButtonText: "ยกเลิก",
+
+  const confirmText =
+    !book?.price || book.price === 0
+      ? `ต้องการรับหนังสือ "${book.title}" ฟรีหรือไม่?`
+      : `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`;
+
+  const result = await Swal.fire({
+    title: "ยืนยันการซื้อหนังสือ?",
+    text: confirmText,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: book.price === 0 ? "รับฟรี" : "ซื้อ",
+    cancelButtonText: "ยกเลิก",
+  });
+
+  console.log("confirm result:", result);
+  if (!result.isConfirmed) return;
+
+  const userId = user?.sub;
+  console.log("userId:", userId);
+  if (!userId) {
+    await Swal.fire("กรุณาล็อกอินก่อนซื้อหนังสือ");
+    return;
+  }
+
+  try {
+    console.log("Sending purchase API request...");
+    const response = await fetch("/api/purchase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userId,
+        book_id: book.id,
+      }),
     });
+    console.log("API response:", response);
 
-    console.log("confirm result:", result);
-    if (!result.isConfirmed) return;
+    const data = await response.json();
+    console.log("API response data:", data);
 
-    const userId = user?.sub;
-    console.log("userId:", userId);
-    if (!userId) {
-      await Swal.fire("กรุณาล็อกอินก่อนซื้อหนังสือ");
+    if (!response.ok) {
+      if (data.message === "Token ไม่เพียงพอ") {
+        await Swal.fire({
+          icon: "warning",
+          title: "Token ไม่เพียงพอ",
+          text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
+        });
+      } else {
+        await Swal.fire({
+          icon: "error",
+          title: "ซื้อไม่สำเร็จ",
+          text: data.message || "เกิดข้อผิดพลาดบางอย่าง",
+        });
+      }
       return;
     }
 
-    try {
-      console.log("Sending purchase API request...");
-      const response = await fetch("/api/purchase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userId,
-          book_id: book.id,
-        }),
-      });
-      console.log("API response:", response);
+    await Swal.fire({
+      icon: "success",
+      title: !book?.price || book.price === 0 ? "รับฟรีสำเร็จ!" : "ซื้อสำเร็จ!",
+      text:
+        !book?.price || book.price === 0
+          ? `คุณได้รับ "${book.title}" เรียบร้อยแล้ว`
+          : `คุณซื้อ "${book.title}" เรียบร้อยแล้ว`,
+    });
 
-      const data = await response.json();
-      console.log("API response data:", data);
+    window.location.reload();
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "ไม่สามารถติดต่อ server ได้";
 
-      if (!response.ok) {
-        if (data.message === "Token ไม่เพียงพอ") {
-          await Swal.fire({
-            icon: "warning",
-            title: "Token ไม่เพียงพอ",
-            text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
-          });
-        } else {
-          await Swal.fire({
-            icon: "error",
-            title: "ซื้อไม่สำเร็จ",
-            text: data.message || "เกิดข้อผิดพลาดบางอย่าง",
-          });
-        }
-        return;
-      }
+    await Swal.fire({
+      icon: "error",
+      title: "เกิดข้อผิดพลาด",
+      text: message,
+    });
+  }
+};
 
-      await Swal.fire({
-        icon: "success",
-        title: "ซื้อสำเร็จ!",
-        text: `คุณซื้อ "${book.title}" เรียบร้อยแล้ว`,
-      });
-
-      window.location.reload();
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "ไม่สามารถติดต่อ server ได้";
-
-      await Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: message,
-      });
-    }
-  };
 
   if (isReading && book?.ebook_url) {
     const ext = book.ebook_url.split(".").pop()?.toLowerCase();

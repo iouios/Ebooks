@@ -30,13 +30,15 @@ export async function POST(req: Request) {
     }
 
     const ebookData = ebookSnap.data();
-    const price = ebookData?.price;
+    let price = ebookData?.price;
 
-    if (typeof price !== "number") {
-      return NextResponse.json({ message: "Invalid price data" }, { status: 500 });
+    // ✅ ถ้าไม่มีการตั้งราคา → ให้ถือว่าเป็นหนังสือฟรี
+    if (typeof price !== "number" || price < 0) {
+      price = 0;
     }
 
-    if (userData.token < price) {
+    // ถ้าไม่ใช่ฟรี และ token ไม่พอ
+    if (price > 0 && userData.token < price) {
       return NextResponse.json({ message: "Token ไม่เพียงพอ" }, { status: 400 });
     }
 
@@ -54,34 +56,44 @@ export async function POST(req: Request) {
 
     const batch = db.batch();
 
-    batch.update(userRef, {
-      token: userData.token - price,
-    });
+    // ถ้าไม่ใช่หนังสือฟรี → หัก token
+    if (price > 0) {
+      batch.update(userRef, {
+        token: userData.token - price,
+      });
+    }
 
-    const logRef = db.collection("token_log").doc(user_id).collection("logs").doc();
-    batch.set(logRef, {
-      user_id,
-      book_id,
-      amount: price,
-      type: "spend",
-      source: "purchase",
-      timestamp: new Date(),
-    });
+    // log token transaction (เฉพาะกรณีเสียเงิน)
+    if (price > 0) {
+      const logRef = db.collection("token_log").doc(user_id).collection("logs").doc();
+      batch.set(logRef, {
+        user_id,
+        book_id,
+        amount: price,
+        type: "spend",
+        source: "purchase",
+        timestamp: new Date(),
+      });
+    }
 
+    // เก็บว่า user รับ/ซื้อหนังสือ
     const userBookRef = db.collection("user_book").doc(user_id).collection("user_bookId").doc();
     batch.set(userBookRef, {
       user_id,
       book_id,
       purchase_date: new Date().toISOString(),
       price_at_purchase: price,
-      token_used: userData.token,
+      token_used: price > 0 ? price : 0, // ✅ ฟรี → 0
       is_refunded: false,
-      source: "token",
+      source: price > 0 ? "token" : "free", // ✅ เพิ่ม source free
     });
 
     await batch.commit();
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      message: price === 0 ? "ต้องการรับหนังสือ...หรือไม่" : "ซื้อสำเร็จ",
+    });
   } catch (err) {
     console.error("❌ Purchase failed:", err);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
