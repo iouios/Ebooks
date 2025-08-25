@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
     const { userId, tokenAmount } = body;
 
     if (!userId || !tokenAmount) {
-      return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing parameters" },
+        { status: 400 }
+      );
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -29,8 +32,8 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:3000/Token`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}`,
+      success_url: "http://localhost:3000/token-status?status=success",
+      cancel_url: "http://localhost:3000/token-status?status=fail",
       metadata: { userId, tokenAmount },
     });
 
