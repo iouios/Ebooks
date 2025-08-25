@@ -3,9 +3,8 @@ import React, { useState, useEffect } from "react";
 import { TextField } from "@mui/material";
 import styled from "styled-components";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import Swal from "sweetalert2";
 import TableToken from "@/components/client/tableToken";
-
+import { loadStripe } from "@stripe/stripe-js";
 const Token: React.FC = () => {
   const [token, setToken] = useState("");
   const [selectedToken, setSelectedToken] = useState<number | null>(null);
@@ -53,47 +52,36 @@ const Token: React.FC = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!user?.sub || !selectedToken) return;
-    setLoading(true);
-    setError(null);
 
-    try {
-      const res = await fetch("/api/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userSub: user.sub, amount: selectedToken }),
-      });
 
-      const data = await res.json();
+const handleSubmit = async () => {
+  if (!user?.sub || !selectedToken) return;
+  setLoading(true);
+  setError(null);
 
-      if (res.ok) {
-        await Swal.fire({
-          icon: "success",
-          title: "เติม Token สำเร็จ!",
-          text: `คุณเติม ${selectedToken} Token เรียบร้อยแล้ว`,
-          confirmButtonText: "ตกลง",
-        });
+  try {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.sub, tokenAmount: selectedToken }),
+    });
 
-        const balanceRes = await fetch(`/api/balance?parentId=${user.sub}`);
-        const balanceData = await balanceRes.json();
-        if (balanceRes.ok) {
-          setBalance(balanceData.balance);
-          setToken("");
-          setSelectedToken(null);
-        }
-      } else {
-        await Swal.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาด",
-          text: data.message || "เติม Token ไม่สำเร็จ",
-          confirmButtonText: "ตกลง",
-        });
-      }
-    } finally {
-      setLoading(false);
+    const data = await res.json();
+
+    if (res.ok && data.sessionId) {
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+      const { error } = await stripe!.redirectToCheckout({ sessionId: data.sessionId });
+      if (error) setError(error.message ?? null);
+    } else {
+      setError(data.message || "Failed to create checkout session");
     }
-  };
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : "Unknown error");
+  } finally {
+    setLoading(false);
+  }
+};
+
   
 
   return (
