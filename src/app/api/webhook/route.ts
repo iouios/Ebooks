@@ -1,74 +1,78 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { db } from "../../admin/firebase/firebaseConfig";
-import getRawBody from "raw-body";
+import { doc, setDoc, collection, addDoc, getDoc } from "firebase/firestore";
 import Stripe from "stripe";
-import { serverTimestamp, increment, doc, setDoc } from "firebase/firestore";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-07-30.basil",
 });
-export const config = { api: { bodyParser: false } };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") return res.status(405).end();
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-  const sig = req.headers["stripe-signature"] as string;
+export async function POST(req: Request) {
+  const sig = req.headers.get("stripe-signature");
+  if (!sig) return new NextResponse("Missing Stripe signature", { status: 400 });
+
   let event: Stripe.Event;
-
   try {
-    const rawBody = await getRawBody(req);
+    const rawBody = await req.text();
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return res.status(400).send(`Webhook Error: ${message}`);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return new NextResponse(`Webhook Error: ${message}`, { status: 400 });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-
   try {
+    console.log("Received event type:", event.type);
+
     if (event.type === "checkout.session.completed") {
-      if (session.id && session.metadata?.userId && session.metadata?.tokenAmount) {
-        const tokenLogRef = doc(db, "token_logs", session.id);
-        await setDoc(tokenLogRef, {
-          userId: session.metadata.userId,
-          tokenAmount: Number(session.metadata.tokenAmount),
-          status: "success",
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
+      const session = event.data.object as Stripe.Checkout.Session;
 
-        const userRef = doc(db, "users", session.metadata.userId);
-        await setDoc(
-          userRef,
-          {
-            tokens: increment(Number(session.metadata.tokenAmount)),
-          },
-          { merge: true }
-        );
+      if (!session.metadata?.userId || !session.metadata?.tokenAmount) {
+        console.warn(" Missing userId or tokenAmount in session metadata");
+        return NextResponse.json({ received: true });
       }
+
+      const userId = session.metadata.userId;
+      const tokenAmount = Number(session.metadata.tokenAmount);
+
+      console.log("User ID:", userId);
+      console.log("Token Amount:", tokenAmount);
+
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+
+      let currentToken = 0;
+      if (userSnap.exists()) {
+        currentToken = userSnap.data()?.token ?? 0;
+      }
+      const newTokenBalance = currentToken + tokenAmount;
+      await setDoc(userRef, { token: newTokenBalance, updatedAt: new Date().toISOString() }, { merge: true });
+
+      const logsRef = collection(db, "token_log", userId, "logs");
+      await addDoc(logsRef, {
+        uid: userId,
+        amount: tokenAmount,
+        type: "deposit",
+        balance: newTokenBalance,
+        timestamp: new Date(),
+        sessionId: session.id,
+        status: "success",
+      });
     }
 
-    if (event.type === "checkout.session.async_payment_failed") {
-      if (session.id) {
-        const tokenLogRef = doc(db, "token_logs", session.id);
-        await setDoc(
-          tokenLogRef,
-          {
-            status: "failed",
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-      }
-    }
-
-    res.json({ received: true });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    res.status(500).json({ message });
+    return NextResponse.json({ received: true });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Firestore Error:", message);
+    return new NextResponse(`Webhook handler failed: ${message}`, { status: 500 });
   }
 }

@@ -5,18 +5,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-07-30.basil",
 });
 
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { userId, tokenAmount } = body;
-
     if (!userId || !tokenAmount) {
       return NextResponse.json(
         { error: "Missing parameters" },
         { status: 400 }
       );
     }
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -36,7 +35,6 @@ export async function POST(req: NextRequest) {
       cancel_url: "http://localhost:3000/token-status?status=fail",
       metadata: { userId, tokenAmount },
     });
-
     return NextResponse.json({ sessionId: session.id });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

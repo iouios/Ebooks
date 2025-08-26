@@ -65,9 +65,7 @@ const handleSubmit = async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: user.sub, tokenAmount: selectedToken }),
     });
-
     const data = await res.json();
-
     if (res.ok && data.sessionId) {
       const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
       const { error } = await stripe!.redirectToCheckout({ sessionId: data.sessionId });
@@ -81,8 +79,6 @@ const handleSubmit = async () => {
     setLoading(false);
   }
 };
-
-  
 
   return (
     <Main>
