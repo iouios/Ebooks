@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "../../admin/firebase/firebaseConfig";
-import { doc, setDoc, collection, addDoc, getDoc } from "firebase/firestore";
+import { db } from "../../admin/firebase/firebaseAdmin"; 
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-07-30.basil",
 });
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const config = { api: { bodyParser: false } };
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature");
@@ -20,45 +15,28 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
   try {
     const rawBody = await req.text();
-    event = stripe.webhooks.constructEvent(
-      rawBody,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new NextResponse(`Webhook Error: ${message}`, { status: 400 });
+    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (err) {
+    return new NextResponse(`Webhook Error: ${err instanceof Error ? err.message : "Unknown error"}`, { status: 400 });
   }
 
   try {
-    console.log("Received event type:", event.type);
-
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
+      const userId = session.metadata?.userId;
+      const tokenAmount = Number(session.metadata?.tokenAmount);
 
-      if (!session.metadata?.userId || !session.metadata?.tokenAmount) {
-        console.warn(" Missing userId or tokenAmount in session metadata");
-        return NextResponse.json({ received: true });
-      }
+      if (!userId || !tokenAmount) return NextResponse.json({ received: true });
 
-      const userId = session.metadata.userId;
-      const tokenAmount = Number(session.metadata.tokenAmount);
-
-      console.log("User ID:", userId);
-      console.log("Token Amount:", tokenAmount);
-
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-
-      let currentToken = 0;
-      if (userSnap.exists()) {
-        currentToken = userSnap.data()?.token ?? 0;
-      }
+      const userRef = db.collection("users").doc(userId);
+      const userSnap = await userRef.get();
+      const currentToken = userSnap.exists ? userSnap.data()?.token ?? 0 : 0;
       const newTokenBalance = currentToken + tokenAmount;
-      await setDoc(userRef, { token: newTokenBalance, updatedAt: new Date().toISOString() }, { merge: true });
 
-      const logsRef = collection(db, "token_log", userId, "logs");
-      await addDoc(logsRef, {
+      await userRef.set({ token: newTokenBalance, updatedAt: new Date().toISOString() }, { merge: true });
+
+      const logsRef = db.collection("token_log").doc(userId).collection("logs");
+      await logsRef.add({
         uid: userId,
         amount: tokenAmount,
         type: "deposit",
@@ -70,9 +48,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("Firestore Error:", message);
-    return new NextResponse(`Webhook handler failed: ${message}`, { status: 500 });
+  } catch (err) {
+    return new NextResponse(`Webhook handler failed: ${err instanceof Error ? err.message : "Unknown error"}`, { status: 500 });
   }
 }
