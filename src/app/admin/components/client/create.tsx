@@ -248,7 +248,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
         />
         <Languagesflex>
           <Languages>Languages</Languages>
-          {["English", "French", "Chinese"].map((lang) => (
+          {["English", "French", "Chinese" , "Thai"].map((lang) => (
             <FormControlLabel
               key={lang}
               control={<Checkbox onChange={() => handleLanguageChange(lang)} />}

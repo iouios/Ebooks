@@ -160,7 +160,7 @@ const Create = () => {
                           {ebook.price ? ebook.price.toLocaleString() : "ฟรี"}
                         </TableCell>
                         <TableCell>{ebook.authors || "null"}</TableCell>
-                        <TableCell>{ebook.summaries || "null"}</TableCell>
+                        <TableCell>{ebook.summaries.substring(0, 50) || "null"}</TableCell>
                         <TableCell>
                           {Array.isArray(ebook.bookshelves)
                             ? ebook.bookshelves.join(", ")
