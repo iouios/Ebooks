@@ -4,8 +4,8 @@ import styled from "styled-components";
 import BookCardEbook from "@/components/client/bookCardebook";
 import SearchInput from "@/components/client/searchInput";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { useSearchParams } from "next/navigation";
-
+import { Suspense } from "react";
+import { SearchParamsHandler } from "../../components/client/Suspense";
 interface Author {
   name: string;
 }
@@ -85,7 +85,6 @@ const EbookShop: React.FC = () => {
   const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const searchParams = useSearchParams();
   const { user } = useUser();
   const [purchasedList, setPurchasedList] = useState<(string | number)[]>([]);
 
@@ -110,16 +109,6 @@ const EbookShop: React.FC = () => {
 
     fetchPurchasedBooks();
   }, [user]);
-
-  // Get ?search from URL
-  useEffect(() => {
-    const query = searchParams.get("search");
-    if (query) {
-      setSearchQuery(query);
-      setInputValue(query);
-      setIsSearchClicked(true);
-    }
-  }, [searchParams]);
 
   // Fetch book data
   const fetchBooks = useCallback(async (pageUrl: string | null) => {
@@ -200,21 +189,28 @@ const EbookShop: React.FC = () => {
     setSearchQuery(inputValue.trim());
   };
 
-const filteredBooks =
-  isSearchClicked && searchQuery.trim() !== ""
-    ? books
-        .filter((b) => purchasedList.includes(b.id)) 
-        .filter(
-          (b) =>
-            b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            b.id.toString().includes(searchQuery.toLowerCase())
-        )
-    : books.filter((b) => purchasedList.includes(b.id));
+  const filteredBooks =
+    isSearchClicked && searchQuery.trim() !== ""
+      ? books
+          .filter((b) => purchasedList.includes(b.id))
+          .filter(
+            (b) =>
+              b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              b.id.toString().includes(searchQuery.toLowerCase())
+          )
+      : books.filter((b) => purchasedList.includes(b.id));
 
   return (
     <Container>
       <Main> My Books </Main>
       <CenterSearch>
+      <Suspense fallback={null}>
+        <SearchParamsHandler
+          setSearchQuery={setSearchQuery}
+          setInputValue={setInputValue}
+          setIsSearchClicked={setIsSearchClicked}
+        />
+      </Suspense>
         <SearchInput
           searchQuery={inputValue}
           setSearchQuery={setInputValue}

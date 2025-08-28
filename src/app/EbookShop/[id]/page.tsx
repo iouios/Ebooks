@@ -119,89 +119,88 @@ const BookPage = () => {
     }
   };
 
-const handleBuyClick = async () => {
-  console.log("handleBuyClick triggered");
-  if (!book) return;
+  const handleBuyClick = async () => {
+    console.log("handleBuyClick triggered");
+    if (!book) return;
 
+    const confirmText =
+      !book?.price || book.price === 0
+        ? `ต้องการรับหนังสือ "${book.title}" ฟรีหรือไม่?`
+        : `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`;
 
-  const confirmText =
-    !book?.price || book.price === 0
-      ? `ต้องการรับหนังสือ "${book.title}" ฟรีหรือไม่?`
-      : `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`;
-
-  const result = await Swal.fire({
-    title: "ยืนยันการซื้อหนังสือ?",
-    text: confirmText,
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: book.price === 0 ? "รับฟรี" : "ซื้อ",
-    cancelButtonText: "ยกเลิก",
-  });
-
-  console.log("confirm result:", result);
-  if (!result.isConfirmed) return;
-
-  const userId = user?.sub;
-  console.log("userId:", userId);
-  if (!userId) {
-    await Swal.fire("กรุณาล็อกอินก่อนซื้อหนังสือ");
-    return;
-  }
-
-  try {
-    console.log("Sending purchase API request...");
-    const response = await fetch("/api/purchase", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: userId,
-        book_id: book.id,
-      }),
+    const result = await Swal.fire({
+      title: "ยืนยันการซื้อหนังสือ?",
+      text: confirmText,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: book.price === 0 ? "รับฟรี" : "ซื้อ",
+      cancelButtonText: "ยกเลิก",
     });
-    console.log("API response:", response);
 
-    const data = await response.json();
-    console.log("API response data:", data);
+    console.log("confirm result:", result);
+    if (!result.isConfirmed) return;
 
-    if (!response.ok) {
-      if (data.message === "Token ไม่เพียงพอ") {
-        await Swal.fire({
-          icon: "warning",
-          title: "Token ไม่เพียงพอ",
-          text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
-        });
-      } else {
-        await Swal.fire({
-          icon: "error",
-          title: "ซื้อไม่สำเร็จ",
-          text: data.message || "เกิดข้อผิดพลาดบางอย่าง",
-        });
-      }
+    const userId = user?.sub;
+    console.log("userId:", userId);
+    if (!userId) {
+      await Swal.fire("กรุณาล็อกอินก่อนซื้อหนังสือ");
       return;
     }
 
-    await Swal.fire({
-      icon: "success",
-      title: !book?.price || book.price === 0 ? "รับฟรีสำเร็จ!" : "ซื้อสำเร็จ!",
-      text:
-        !book?.price || book.price === 0
-          ? `คุณได้รับ "${book.title}" เรียบร้อยแล้ว`
-          : `คุณซื้อ "${book.title}" เรียบร้อยแล้ว`,
-    });
+    try {
+      console.log("Sending purchase API request...");
+      const response = await fetch("/api/purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          book_id: book.id,
+        }),
+      });
+      console.log("API response:", response);
 
-    window.location.reload();
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "ไม่สามารถติดต่อ server ได้";
+      const data = await response.json();
+      console.log("API response data:", data);
 
-    await Swal.fire({
-      icon: "error",
-      title: "เกิดข้อผิดพลาด",
-      text: message,
-    });
-  }
-};
+      if (!response.ok) {
+        if (data.message === "Token ไม่เพียงพอ") {
+          await Swal.fire({
+            icon: "warning",
+            title: "Token ไม่เพียงพอ",
+            text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
+          });
+        } else {
+          await Swal.fire({
+            icon: "error",
+            title: "ซื้อไม่สำเร็จ",
+            text: data.message || "เกิดข้อผิดพลาดบางอย่าง",
+          });
+        }
+        return;
+      }
 
+      await Swal.fire({
+        icon: "success",
+        title:
+          !book?.price || book.price === 0 ? "รับฟรีสำเร็จ!" : "ซื้อสำเร็จ!",
+        text:
+          !book?.price || book.price === 0
+            ? `คุณได้รับ "${book.title}" เรียบร้อยแล้ว`
+            : `คุณซื้อ "${book.title}" เรียบร้อยแล้ว`,
+      });
+
+      window.location.reload();
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "ไม่สามารถติดต่อ server ได้";
+
+      await Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: message,
+      });
+    }
+  };
 
   if (isReading && book?.ebook_url) {
     const ext = book.ebook_url.split(".").pop()?.toLowerCase();
@@ -302,10 +301,52 @@ const handleBuyClick = async () => {
                   {book.downloads ?? 0}
                 </FlexDownload>
               </DownloadCount>
+              <Categoryon>
+                <strong>
+                  <FlexCategoryon>
+                    <StyledIconMargin>
+                      <BookIcon
+                        width={30}
+                        height={30}
+                        color="var(--FONT_YELLOW)"
+                      />
+                    </StyledIconMargin>
+                    Category
+                  </FlexCategoryon>
+                </strong>
+                <CategorysContainer>
+                  {book.bookshelves.map((shelf, index) => (
+                    <Categorys key={index}>
+                      {shelf.replace("Browsing: ", "")}
+                    </Categorys>
+                  ))}
+                </CategorysContainer>
+              </Categoryon>
             </CenterImage>
           </BookInfo>
 
           <BookDetails>
+            <Category>
+              <strong>
+                <FlexCategory>
+                  <StyledIconMargin>
+                    <BookIcon
+                      width={40}
+                      height={40}
+                      color="var(--FONT_YELLOW)"
+                    />
+                  </StyledIconMargin>
+                  Category
+                </FlexCategory>
+              </strong>
+              <CategorysContainer>
+                {book.bookshelves.map((shelf, index) => (
+                  <Categorys key={index}>
+                    {shelf.replace("Browsing: ", "")}
+                  </Categorys>
+                ))}
+              </CategorysContainer>
+            </Category>
             <Flex>
               <LeftSide>About This Book</LeftSide>
               <RightSide>
@@ -505,6 +546,71 @@ const Download = styled.div`
 
 const DownloadLabel = styled.strong`
   margin-right: 8px;
+`;
+
+const Categoryon = styled.div`
+  font-size: 12px;
+  font-weight: bold;
+  @media (min-width: 500px) {
+    display: none;
+  }
+`;
+
+const FlexCategoryon = styled.div`
+  display: flex;
+  color: var(--FONT_WHITE);
+  margin: 10px;
+  padding-top: 12px;
+  text-decoration: none;
+  font-size: 20px;
+`;
+
+const StyledIconMargin = styled.div`
+  margin-right: 20px;
+`;
+const CategorysContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+`;
+
+const Categorys = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin: 5px;
+  background: var(--ELEMENT_BROWN);
+  color: var(--FONT_WHITE);
+  text-decoration: none;
+  border-radius: 25px;
+  min-width: 100px;
+  text-align: center;
+  @media (max-width: 500px) {
+    padding: 10px;
+    margin-left: 45px;
+  }
+`;
+
+const Category = styled.div`
+  display: flex;
+  font-size: 16px;
+  font-weight: bold;
+  @media (max-width: 500px) {
+    display: none;
+  }
+`;
+
+const FlexCategory = styled.div`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  background: var(--FONT_WHITE);
+  margin: 10px;
+  padding-top: 12px;
+  text-decoration: none;
+  font-size: 24px;
 `;
 
 export default BookPage;

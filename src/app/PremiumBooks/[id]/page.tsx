@@ -98,13 +98,10 @@ const BookPage = () => {
     checkIfPurchased();
   }, [user, book]);
 
-  
-
   const handleReadClick = async () => {
     if (!book?.ebook_url || !book?.id) return;
 
     try {
-      
       setBook((prev) =>
         prev ? { ...prev, downloads: (prev.downloads || 0) + 1 } : prev
       );
@@ -126,9 +123,9 @@ const BookPage = () => {
     if (!book) return;
 
     const confirmText =
-    !book?.price || book.price === 0
-      ? `ต้องการรับหนังสือ "${book.title}" ฟรีหรือไม่?`
-      : `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`;
+      !book?.price || book.price === 0
+        ? `ต้องการรับหนังสือ "${book.title}" ฟรีหรือไม่?`
+        : `ต้องการซื้อ "${book.title}" ในราคา ${book.price} tokens หรือไม่?`;
 
     const result = await Swal.fire({
       title: "ยืนยันการซื้อหนังสือ?",
@@ -299,10 +296,52 @@ const BookPage = () => {
                   {book.downloads ?? 0}
                 </FlexDownload>
               </DownloadCount>
+              <Categoryon>
+                <strong>
+                  <FlexCategoryon>
+                    <StyledIconMargin>
+                      <BookIcon
+                        width={30}
+                        height={30}
+                        color="var(--FONT_YELLOW)"
+                      />
+                    </StyledIconMargin>
+                    Category
+                  </FlexCategoryon>
+                </strong>
+                <CategorysContainer>
+                  {book.bookshelves.map((shelf, index) => (
+                    <Categorys key={index}>
+                      {shelf.replace("Browsing: ", "")}
+                    </Categorys>
+                  ))}
+                </CategorysContainer>
+              </Categoryon>
             </CenterImage>
           </BookInfo>
 
           <BookDetails>
+            <Category>
+              <strong>
+                <FlexCategory>
+                  <StyledIconMargin>
+                    <BookIcon
+                      width={40}
+                      height={40}
+                      color="var(--FONT_YELLOW)"
+                    />
+                  </StyledIconMargin>
+                  Category
+                </FlexCategory>
+              </strong>
+              <CategorysContainer>
+                {book.bookshelves.map((shelf, index) => (
+                  <Categorys key={index}>
+                    {shelf.replace("Browsing: ", "")}
+                  </Categorys>
+                ))}
+              </CategorysContainer>
+            </Category>
             <Flex>
               <LeftSide>About This Book</LeftSide>
               <RightSide>
@@ -502,6 +541,71 @@ const Download = styled.div`
 
 const DownloadLabel = styled.strong`
   margin-right: 8px;
+`;
+
+const Categoryon = styled.div`
+  font-size: 12px;
+  font-weight: bold;
+  @media (min-width: 500px) {
+    display: none;
+  }
+`;
+
+const FlexCategoryon = styled.div`
+  display: flex;
+  color: var(--FONT_WHITE);
+  margin: 10px;
+  padding-top: 12px;
+  text-decoration: none;
+  font-size: 20px;
+`;
+
+const StyledIconMargin = styled.div`
+  margin-right: 20px;
+`;
+const CategorysContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+`;
+
+const Categorys = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  margin: 5px;
+  background: var(--ELEMENT_BROWN);
+  color: var(--FONT_WHITE);
+  text-decoration: none;
+  border-radius: 25px;
+  min-width: 100px;
+  text-align: center;
+  @media (max-width: 500px) {
+    padding: 10px;
+    margin-left: 45px;
+  }
+`;
+
+const Category = styled.div`
+  display: flex;
+  font-size: 16px;
+  font-weight: bold;
+  @media (max-width: 500px) {
+    display: none;
+  }
+`;
+
+const FlexCategory = styled.div`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  background: var(--FONT_WHITE);
+  margin: 10px;
+  padding-top: 12px;
+  text-decoration: none;
+  font-size: 24px;
 `;
 
 export default BookPage;

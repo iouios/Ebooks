@@ -4,8 +4,8 @@ import styled from "styled-components";
 import BookCardEbook from "@/components/client/bookCardebook";
 import SearchInput from "@/components/client/searchInput";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { useSearchParams } from "next/navigation";
-
+import { Suspense } from "react";
+import { SearchParamsHandler } from "../../components/client/Suspense";
 interface Author {
   name: string;
 }
@@ -85,7 +85,6 @@ const EbookShop: React.FC = () => {
   const [bookmarkList, setBookmarkList] = useState<(number | string)[]>([]);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const searchParams = useSearchParams();
   const { user } = useUser();
   const [purchasedList, setPurchasedList] = useState<(string | number)[]>([]);
 
@@ -104,24 +103,12 @@ const EbookShop: React.FC = () => {
         const data = await response.json();
         setPurchasedList(data.book_ids || []);
       } catch (error) {
-        console.error("❌ Error fetching purchased books:", error);
+        console.error("Error fetching purchased books:", error);
       }
     };
 
     fetchPurchasedBooks();
   }, [user]);
-
-  // Get ?search from URL
-  useEffect(() => {
-    const query = searchParams.get("search");
-    if (query) {
-      setSearchQuery(query);
-      setInputValue(query);
-      setIsSearchClicked(true);
-    }
-  }, [searchParams]);
-
-  // Fetch book data
   const fetchBooks = useCallback(async (pageUrl: string | null) => {
     if (!pageUrl) return;
     setLoading(true);
@@ -213,11 +200,20 @@ const EbookShop: React.FC = () => {
     <Container>
       <Main> Explore Premium Books </Main>
       <CenterSearch>
-        <SearchInput
-          searchQuery={inputValue}
-          setSearchQuery={setInputValue}
-          searchBooks={handleSearch}
+    <Suspense fallback={null}>
+        <SearchParamsHandler
+          setSearchQuery={setSearchQuery}
+          setInputValue={setInputValue}
+          setIsSearchClicked={setIsSearchClicked}
         />
+      </Suspense>
+        <Suspense fallback={null}>
+          <SearchInput
+            searchQuery={inputValue}
+            setSearchQuery={setInputValue}
+            searchBooks={handleSearch}
+          />
+        </Suspense>
       </CenterSearch>
 
       <GridContainer>

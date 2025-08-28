@@ -4,16 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBooks } from "../../store/bookSlice";
 import { searchBooks } from "../../store/searchSlice";
 import { RootState, AppDispatch } from "../../store/store";
-import { useSearchParams } from "next/navigation";
 import { useUser } from "@auth0/nextjs-auth0/client";
-
+import { Suspense } from "react";
+import { SearchParamsHandler } from "../../components/client/Suspense";
 import BookCard from "@/components/client/bookCard";
 import SearchInput from "@/components/client/searchInput";
 import styled from "styled-components";
 
 const AllBook: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const searchParams = useSearchParams();
   const { user } = useUser();
 
   const {
@@ -60,12 +59,6 @@ const AllBook: React.FC = () => {
     fetchBookmarks();
   }, [user]);
 
-  useEffect(() => {
-    const query = searchParams.get("search");
-    if (query) {
-      setSearchQuery(query);
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     if (!firstLoad && !loading && !searchLoading) {
@@ -117,6 +110,13 @@ const AllBook: React.FC = () => {
     <Container>
       <Main>Free Books From Guteburg Project</Main>
       <CenterSearch>
+      <Suspense fallback={null}>
+        <SearchParamsHandler
+          setSearchQuery={setSearchQuery}
+          setInputValue={setSearchQuery}
+          setIsSearchClicked={setIsSearchClicked}
+        />
+      </Suspense>
         <SearchInput
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
