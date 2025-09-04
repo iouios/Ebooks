@@ -32,17 +32,14 @@ export async function POST(req: Request) {
     const ebookData = ebookSnap.data();
     let price = ebookData?.price;
 
-    // ✅ ถ้าไม่มีการตั้งราคา → ให้ถือว่าเป็นหนังสือฟรี
     if (typeof price !== "number" || price < 0) {
       price = 0;
     }
 
-    // ถ้าไม่ใช่ฟรี และ token ไม่พอ
     if (price > 0 && userData.token < price) {
       return NextResponse.json({ message: "Token ไม่เพียงพอ" }, { status: 400 });
     }
 
-    // เช็คว่าผู้ใช้ซื้อหนังสือเล่มนี้แล้วหรือยัง
     const existing = await db
       .collection("user_book")
       .where("user_id", "==", user_id)
@@ -56,14 +53,12 @@ export async function POST(req: Request) {
 
     const batch = db.batch();
 
-    // ถ้าไม่ใช่หนังสือฟรี → หัก token
     if (price > 0) {
       batch.update(userRef, {
         token: userData.token - price,
       });
     }
 
-    // log token transaction (เฉพาะกรณีเสียเงิน)
     if (price > 0) {
       const logRef = db.collection("token_log").doc(user_id).collection("logs").doc();
       batch.set(logRef, {
@@ -76,16 +71,15 @@ export async function POST(req: Request) {
       });
     }
 
-    // เก็บว่า user รับ/ซื้อหนังสือ
     const userBookRef = db.collection("user_book").doc(user_id).collection("user_bookId").doc();
     batch.set(userBookRef, {
       user_id,
       book_id,
       purchase_date: new Date().toISOString(),
       price_at_purchase: price,
-      token_used: price > 0 ? price : 0, // ✅ ฟรี → 0
+      token_used: price > 0 ? price : 0, 
       is_refunded: false,
-      source: price > 0 ? "token" : "free", // ✅ เพิ่ม source free
+      source: price > 0 ? "token" : "free", 
     });
 
     await batch.commit();

@@ -160,7 +160,9 @@ const Create = () => {
                           {ebook.price ? ebook.price.toLocaleString() : "ฟรี"}
                         </TableCell>
                         <TableCell>{ebook.authors || "null"}</TableCell>
-                        <TableCell>{ebook.summaries.substring(0, 50) || "null"}</TableCell>
+                        <TableCell>
+                          {ebook.summaries.substring(0, 50) || "null"}
+                        </TableCell>
                         <TableCell>
                           {Array.isArray(ebook.bookshelves)
                             ? ebook.bookshelves.join(", ")
@@ -174,7 +176,17 @@ const Create = () => {
                         <TableCell>
                           {ebook.ebook_url &&
                             (ebook.ebook_url.toLowerCase().endsWith(".epub") ? (
-                              <EpubReader url={ebook.ebook_url} />
+                              <div
+                                style={{
+                                  width: "100px",
+                                  height: "150px",
+                                  border: "1px solid #ccc",
+                                  borderRadius: "8px",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <EpubReader url={ebook.ebook_url} />
+                              </div>
                             ) : (
                               <iframe
                                 src={ebook.ebook_url}

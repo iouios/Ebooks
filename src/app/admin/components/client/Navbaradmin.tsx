@@ -47,6 +47,18 @@ const Navbaradmin: React.FC = () => {
           </ListItemButton>
         </Link>
       </List>
+      <List>
+        <Link href="/admin/transaction" passHref>
+          <ListItemButton selected={pathname === "/admin/transaction"}>
+            <ListItemText
+              primary="transaction"
+              sx={{
+                color: pathname === "/admin/transaction" ? "blue" : "inherit",
+              }}
+            />
+          </ListItemButton>
+        </Link>
+      </List>
     </div>
   );
 

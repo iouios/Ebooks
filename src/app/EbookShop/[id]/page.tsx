@@ -35,7 +35,6 @@ const BookPage = () => {
 
   const { user } = useUser();
 
-  // ดึงข้อมูลหนังสือ
   useEffect(() => {
     if (!id) return;
     console.log("Book id to find:", id);
@@ -120,7 +119,6 @@ const BookPage = () => {
   };
 
   const handleBuyClick = async () => {
-    console.log("handleBuyClick triggered");
     if (!book) return;
 
     const confirmText =
@@ -148,7 +146,6 @@ const BookPage = () => {
     }
 
     try {
-      console.log("Sending purchase API request...");
       const response = await fetch("/api/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -157,11 +154,8 @@ const BookPage = () => {
           book_id: book.id,
         }),
       });
-      console.log("API response:", response);
 
       const data = await response.json();
-      console.log("API response data:", data);
-
       if (!response.ok) {
         if (data.message === "Token ไม่เพียงพอ") {
           await Swal.fire({
@@ -213,9 +207,6 @@ const BookPage = () => {
     }
 
     if (ext === "epub") {
-      const proxyUrl = `/api/proxy-epub?url=${encodeURIComponent(
-        book.ebook_url
-      )}`;
       return (
         <div style={{ height: "100vh", position: "relative" }}>
           <button
@@ -236,7 +227,7 @@ const BookPage = () => {
             ← Back
           </button>
           <ReactReader
-            url={proxyUrl}
+            url={book.ebook_url}
             title={book.title}
             location={location}
             locationChanged={setLocation}
@@ -277,7 +268,7 @@ const BookPage = () => {
                 </ImageWrapper>
               )}
 
-              {hasPurchased || book.price === 0 ? (
+              {hasPurchased ? (
                 <DownloadLink onClick={handleReadClick}>
                   <Flexread>
                     <StyledBookIcon>
@@ -288,7 +279,9 @@ const BookPage = () => {
                 </DownloadLink>
               ) : (
                 <DownloadLink onClick={handleBuyClick}>
-                  <Flexread>{book.price ? `${book.price}฿` : "ฟรี"}</Flexread>
+                  <Flexread>
+                    {book.price === 0 ? "ฟรี" : `${book.price}฿`}
+                  </Flexread>
                 </DownloadLink>
               )}
 

@@ -124,7 +124,7 @@ const Nav = styled.nav`
 const Flex = styled.div`
   display: flex;
   align-items: center;
-  padding-right: 350px;
+  padding-right: 200px;
   @media (max-width: 500px) {
     padding-right: 0px;
   }

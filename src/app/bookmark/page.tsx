@@ -81,6 +81,7 @@ const BookList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"bookmarks" | "shop">("bookmarks");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+    const [purchasedList, setPurchasedList] = useState<(string | number)[]>([]);
 
   const fetchBookmarksFromAPI = async (
     userSub: string
@@ -105,6 +106,28 @@ const BookList: React.FC = () => {
       return [];
     }
   };
+
+    useEffect(() => {
+      if (!user) return;
+      const fetchPurchasedBooks = async () => {
+        try {
+          const response = await fetch("/api/purchased-books", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user.sub }),
+          });
+  
+          if (!response.ok) throw new Error("Failed to fetch purchased books");
+  
+          const data = await response.json();
+          setPurchasedList(data.book_ids || []);
+        } catch (error) {
+          console.error("❌ Error fetching purchased books:", error);
+        }
+      };
+  
+      fetchPurchasedBooks();
+    }, [user]);
 
   const fetchBooksByIds = async (ids: (number | string)[]) => {
     const cleanIds = ids.map(Number).filter((id) => !isNaN(id));
@@ -225,6 +248,7 @@ const BookList: React.FC = () => {
                     bookmarkList={bookmarkList}
                     setBookmarkList={setBookmarkList}
                     onBookmarkClick={handleBookmarkClick}
+                    purchasedList={purchasedList}
                   />
                 ))}
             </GridContainer>
