@@ -10,6 +10,7 @@ import { uploadFiles } from "../../../supabase/upload";
 import Swal from "sweetalert2";
 import EpubReader from "../../../components/client/epub";
 import Autocomplete from "@mui/material/Autocomplete";
+import { MenuItem, Select, InputLabel, FormControl } from "@mui/material";
 
 interface EbookData {
   id: string;
@@ -23,12 +24,21 @@ interface EbookData {
   image_url: string;
 }
 
+interface AuthorData {
+  id: string;
+  name: string;
+  birth_year: string;
+  death_year: string;
+}
+
 const EbookDetail: React.FC = () => {
   const [ebook, setEbook] = useState<EbookData | null>(null);
   const [uploadingEbook, setUploadingEbook] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [showCover, setShowCover] = useState(true);
   const [showEbook, setShowEbook] = useState(true);
+  const [authors, setAuthors] = useState<AuthorData[]>([]);
+  const [priceError, setPriceError] = useState("");
   const params = useParams();
   const ebookId = params?.id as string;
   const router = useRouter();
@@ -54,6 +64,22 @@ const EbookDetail: React.FC = () => {
 
     fetchEbook();
   }, [ebookId]);
+
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const res = await fetch("/api/authors");
+        const data = await res.json();
+        if (res.ok) {
+          setAuthors(data);
+        }
+      } catch (error) {
+        console.error("Error fetching authors:", error);
+      }
+    };
+
+    fetchAuthors();
+  }, []);
 
   const handleInputChange = <K extends keyof EbookData>(
     field: K,
@@ -178,13 +204,33 @@ const EbookDetail: React.FC = () => {
           fullWidth
           style={inputStyle}
         />
-        <TextField
-          label="Authors"
-          value={ebook.authors}
-          onChange={(e) => handleInputChange("authors", e.target.value)}
-          fullWidth
-          style={inputStyle}
-        />
+        <Form>
+          <InputLabel id="select-label">Authors</InputLabel>
+          <Select
+            labelId="select-label"
+            value={ebook.authors}
+            onChange={(e) => handleInputChange("authors", e.target.value)}
+            label="Authors"
+            disabled={authors.length === 0}
+            style={{
+              marginBottom: "16px",
+              width: "700px",
+              display: "block",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          >
+            {authors.length > 0 ? (
+              authors.map((author) => (
+                <MenuItem key={author.id} value={author.name}>
+                  {author.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No authors available</MenuItem>
+            )}
+          </Select>
+        </Form>
         <TextField
           label="Summaries"
           value={ebook.summaries}
@@ -201,19 +247,32 @@ const EbookDetail: React.FC = () => {
           value={ebook.bookshelves}
           onChange={(_, newValue) => handleInputChange("bookshelves", newValue)}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Bookshelves"
-              style={inputStyle}
-            />
+            <TextField {...params} label="Bookshelves" style={inputStyle} />
           )}
         />
         <TextField
           label="Price"
           type="number"
           value={ebook.price || ""}
-          onChange={(e) => handleInputChange("price", Number(e.target.value))}
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            handleInputChange("price", value);
+            if (value >= 0) {
+              setPriceError("");
+            }
+          }}
+          onBlur={() => {
+            const value = Number(ebook.price);
+            if (isNaN(value) || value < 0) {
+              setPriceError("Price must be greater than 0");
+            } else {
+              handleInputChange("price", parseFloat(value.toFixed(2))); // format 2 ตำแหน่ง
+              setPriceError("");
+            }
+          }}
           fullWidth
+          error={!!priceError}
+          helperText={priceError}
           style={inputStyle}
         />
         <TextField
@@ -330,4 +389,8 @@ const Titlehead = styled.div`
   justify-content: center;
   font-size: 20px;
   margin-bottom: 10px;
+`;
+
+const Form = styled(FormControl)`
+  margin-bottom: 20px;
 `;

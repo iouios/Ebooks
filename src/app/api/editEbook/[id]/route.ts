@@ -45,6 +45,13 @@ export async function PUT(req: Request, context: RouteContext) {
     const { id } = await context.params;
     const body = await req.json();
 
+      if (typeof body.price !== "number" || body.price < 0) {
+      return NextResponse.json(
+        { message: "Validation error: price must be greater than or equal to 0" },
+        { status: 400 }
+      );
+    }
+
     const docRef = doc(db, "ebooks", id);
     await updateDoc(docRef, {
       title: body.title,

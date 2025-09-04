@@ -6,7 +6,7 @@ interface RouteContext {
 }
 
 export async function GET(req: Request, context: RouteContext) {
-  const { id } = await context.params; // ✅ await เพราะ params เป็น Promise
+  const { id } = await context.params;
 
   try {
     const logsRef = db.collection("token_log").doc(id).collection("logs");

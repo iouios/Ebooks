@@ -53,7 +53,7 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
   const [authors, setAuthors] = useState<AuthorData[]>([]);
   const [fileUrls, setFileUrls] = useState<string[]>(["", ""]);
   const [bookshelves, setBookshelves] = useState<string[]>([]);
-
+  const [error, setError] = useState("");
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
@@ -230,14 +230,21 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
             setprice(e.target.value);
           }}
           onBlur={() => {
-            if (price === "" || isNaN(Number(price))) {
+            const num = Number(price);
+
+            if (price === "" || isNaN(num)) {
               setprice("0.00");
+            } else if (num < 0) {
+              setError("Price must be greater than 0");
             } else {
-              setprice(parseFloat(price).toFixed(2));
+              setprice(num.toFixed(2));
+              setError(""); 
             }
           }}
           fullWidth
           required
+          error={!!error}
+          helperText={error}
           style={{
             marginBottom: "16px",
             width: "700px",
@@ -246,9 +253,10 @@ const CreateComponent = forwardRef<CreateComponentRef>((_, ref) => {
             marginRight: "auto",
           }}
         />
+
         <Languagesflex>
           <Languages>Languages</Languages>
-          {["English", "French", "Chinese" , "Thai"].map((lang) => (
+          {["English", "French", "Chinese", "Thai"].map((lang) => (
             <FormControlLabel
               key={lang}
               control={<Checkbox onChange={() => handleLanguageChange(lang)} />}
