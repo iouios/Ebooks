@@ -19,7 +19,7 @@ export async function GET(
     const userDoc = await db.collection("users").doc(id).get();
 
     if (!userDoc.exists) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json({ token: 0, message: "Token not found" });
     }
 
     const data = userDoc.data();

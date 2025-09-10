@@ -7,11 +7,10 @@ export async function POST(request: Request) {
       const body = await request.json();
       const { userSub } = body;
   
-      if (!userSub) {
-        return NextResponse.json({ error: 'Missing userSub' }, { status: 400 });
-      }
+    if (!userSub) {
+      return NextResponse.json({ book_ids: [] }); 
+    }
   
-      // ดึง document ของ user นี้
       const userRef = doc(db, 'bookmarks', userSub);
       const userSnap = await getDoc(userRef);
   

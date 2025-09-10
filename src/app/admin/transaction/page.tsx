@@ -19,13 +19,20 @@ interface Details {
   timestamp: { _seconds: number };
   amount: number;
   id: string;
+  sessionId: string;
+  paymentMethod: string;
+  balance: number;
+  email?: string;
 }
 
 const columns = [
-  { id: "เวลา", label: "เวลา", minWidth: 170 },
-  { id: "ประเภท", label: "ประเภท", minWidth: 170 },
-  { id: "ผู้ใช้", label: "ผู้ใช้", minWidth: 170 },
-  { id: "จำนวน", label: "จำนวน", minWidth: 170 },
+  { id: "Log ID", label: "Log ID", minWidth: 170 },
+  { id: "Session ID", label: "Session ID", minWidth: 170 },
+  { id: "User ", label: "User ", minWidth: 170 },
+  { id: "Token", label: "Token", minWidth: 170 },
+  { id: "Price", label: "Price", minWidth: 170 },
+  { id: "Payment method", label: "Payment method", minWidth: 170 },
+  { id: "Created At", label: "Created At", minWidth: 170 },
 ];
 
 function toDateString(timestamp: { _seconds: number; _nanoseconds?: number }) {
@@ -38,8 +45,11 @@ function toDateString(timestamp: { _seconds: number; _nanoseconds?: number }) {
 const TransactionData = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [details, setdetails] = React.useState<Details[]>([]);
-
+  const [details, setDetails] = React.useState<Details[]>([]);
+  const [searchEmail, setSearchEmail] = React.useState("");
+  const [startDate, setStartDate] = React.useState("");
+  const [endDate, setEndDate] = React.useState("");
+  const [filteredLogs, setFilteredLogs] = React.useState<Details[]>([]);
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -56,14 +66,53 @@ const TransactionData = () => {
       try {
         const res = await fetch("/api/transactionData");
         const data = await res.json();
-        setdetails(data.token_log);
+        const depositLogs = data.token_log.filter(
+          (log: { type: string }) => log.type === "deposit"
+        );
+
+        setDetails(depositLogs);
+        setFilteredLogs(depositLogs);
       } catch (error) {
-        console.error("Error fetching authors:", error);
+        console.error("Error fetching transaction logs:", error);
       }
     };
 
     fetchdetails();
   }, []);
+
+  const handleSearch = () => {
+    let tempLogs = [...details];
+
+    if (searchEmail.trim() !== "") {
+      tempLogs = tempLogs.filter((log) =>
+        (log.email || "").toLowerCase().includes(searchEmail.toLowerCase())
+      );
+    }
+
+    if (startDate) {
+      tempLogs = tempLogs.filter((log) => {
+        const logDate = new Date(log.timestamp._seconds * 1000);
+        console.log(
+          "Checking log:",
+          logDate,
+          ">= StartDate:",
+          new Date(startDate)
+        );
+        return logDate >= new Date(startDate);
+      });
+    }
+
+    if (endDate) {
+      tempLogs = tempLogs.filter((log) => {
+        const logDate = new Date(log.timestamp._seconds * 999);
+        console.log("Checking log:", logDate, "<= EndDate:", new Date(endDate));
+        return logDate <= new Date(endDate);
+      });
+    }
+
+    console.log("Filtered result:", tempLogs);
+    setFilteredLogs(tempLogs);
+  };
 
   return (
     <Main>
@@ -74,8 +123,27 @@ const TransactionData = () => {
       <Top>
         <Navbar>
           <Ebook>TransactionData</Ebook>
-          <ButtonRow>
-          </ButtonRow>
+          <FilterBar>
+            <input
+              type="text"
+              placeholder="Search by user email"
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+            />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            <button onClick={handleSearch}>Search</button>
+          </FilterBar>
+
+          <ButtonRow></ButtonRow>
         </Navbar>
         <Content>
           <Paper>
@@ -94,7 +162,7 @@ const TransactionData = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {details
+                  {filteredLogs
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((details) => (
                       <TableRow
@@ -107,11 +175,13 @@ const TransactionData = () => {
                           cursor: "pointer",
                         }}
                       >
-                        <TableCell>{details.type}</TableCell>
-                        <TableCell>{details.uid}</TableCell>
-                        <TableCell>{toDateString(details.timestamp)}</TableCell>
+                        <TableCell>{details.id}</TableCell>
+                        <TableCell>{details.sessionId}</TableCell>
+                        <TableCell>{details.email}</TableCell>
                         <TableCell>{details.amount}</TableCell>
-
+                        <TableCell>{details.amount}</TableCell>
+                        <TableCell>{details.paymentMethod}</TableCell>
+                        <TableCell>{toDateString(details.timestamp)}</TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
@@ -164,4 +234,34 @@ const Navbar = styled.div`
 
 const Ebook = styled.div`
   font-size: 36px;
+`;
+
+// ✨ ใส่ไว้ด้านล่างไฟล์เหมือนที่คุณทำกับ Main, Top, Content
+const FilterBar = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+  align-items: center;
+
+  input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 8px 16px;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+
+    &:hover {
+      background-color: #005bb5;
+    }
+  }
 `;
