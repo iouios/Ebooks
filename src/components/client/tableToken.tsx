@@ -118,8 +118,6 @@ const TableToken = () => {
     setPage(0);
   };
 
-  console.log("Mapped Rows:", mappedRows);
-
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
       <TableContainer sx={{ maxHeight: 440 }}>
@@ -138,22 +136,30 @@ const TableToken = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mappedRows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, rowIndex) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
-                  {columns.map((column) => {
-                    const value = row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {column.format && typeof value === "number"
-                          ? column.format(value)
-                          : value}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
+            {mappedRows.length > 0 ? (
+              mappedRows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, rowIndex) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell key={column.id} align={column.align}>
+                          {column.format && typeof value === "number"
+                            ? column.format(value)
+                            : value}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  ยังไม่มีประวัติการทำรายการ
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

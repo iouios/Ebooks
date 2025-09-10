@@ -52,38 +52,40 @@ const Token: React.FC = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    if (!user?.sub || !selectedToken) return;
+    setLoading(true);
+    setError(null);
 
-
-const handleSubmit = async () => {
-  if (!user?.sub || !selectedToken) return;
-  setLoading(true);
-  setError(null);
-
-  try {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.sub, tokenAmount: selectedToken }),
-    });
-    const data = await res.json();
-    if (res.ok && data.sessionId) {
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-      const { error } = await stripe!.redirectToCheckout({ sessionId: data.sessionId });
-      if (error) setError(error.message ?? null);
-    } else {
-      setError(data.message || "Failed to create checkout session");
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.sub, tokenAmount: selectedToken }),
+      });
+      const data = await res.json();
+      if (res.ok && data.sessionId) {
+        const stripe = await loadStripe(
+          process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+        );
+        const { error } = await stripe!.redirectToCheckout({
+          sessionId: data.sessionId,
+        });
+        if (error) setError(error.message ?? null);
+      } else {
+        setError(data.message || "Failed to create checkout session");
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
     }
-  } catch (err: unknown) {
-    setError(err instanceof Error ? err.message : "Unknown error");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <Main>
       <div>
-        <Text>จำนวน Token: {balance}</Text>
+        <Text>จำนวน Token: {balance || 0}</Text>
       </div>
       <TextToken>เติม Token</TextToken>
       <TextField

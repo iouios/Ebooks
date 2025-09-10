@@ -8,6 +8,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import BookIcon from "../../../icon/book";
 import DownloadIcon from "../../../icon/download";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 interface Book {
   id: string;
@@ -34,6 +35,7 @@ const BookPage = () => {
   const [hasPurchased, setHasPurchased] = useState(false);
 
   const { user } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
     if (!id) return;
@@ -135,11 +137,9 @@ const BookPage = () => {
       cancelButtonText: "ยกเลิก",
     });
 
-    console.log("confirm result:", result);
     if (!result.isConfirmed) return;
 
     const userId = user?.sub;
-    console.log("userId:", userId);
     if (!userId) {
       await Swal.fire("กรุณาล็อกอินก่อนซื้อหนังสือ");
       return;
@@ -156,23 +156,31 @@ const BookPage = () => {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
-        if (data.message === "Token ไม่เพียงพอ") {
-          await Swal.fire({
-            icon: "warning",
-            title: "Token ไม่เพียงพอ",
-            text: "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้",
-          });
-        } else {
-          await Swal.fire({
-            icon: "error",
-            title: "ซื้อไม่สำเร็จ",
-            text: data.message || "เกิดข้อผิดพลาดบางอย่าง",
-          });
+        const message =
+          data.message === "Token ไม่เพียงพอ"
+            ? "กรุณาซื้อ token เพิ่มเพื่อทำรายการนี้"
+            : "Token ของคุณไม่เพียงพอสำหรับการซื้อหนังสือ กรุณาเติม Token เพื่อทำรายการต่อไป";
+
+        const result = await Swal.fire({
+          icon: "warning",
+          title: "Token ไม่เพียงพอ",
+          text: message,
+          showCancelButton: true,
+          confirmButtonText: "เติม Token",
+          cancelButtonText: "ปิด",
+          reverseButtons: true,
+        });
+
+        if (result.isConfirmed) {
+          router.push("/Token");
         }
+
         return;
       }
 
+      // ซื้อสำเร็จ / รับฟรี
       await Swal.fire({
         icon: "success",
         title:
