@@ -236,7 +236,6 @@ const Ebook = styled.div`
   font-size: 36px;
 `;
 
-// ✨ ใส่ไว้ด้านล่างไฟล์เหมือนที่คุณทำกับ Main, Top, Content
 const FilterBar = styled.div`
   display: flex;
   gap: 10px;

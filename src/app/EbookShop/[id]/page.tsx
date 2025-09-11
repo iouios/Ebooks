@@ -9,6 +9,8 @@ import BookIcon from "../../../icon/book";
 import DownloadIcon from "../../../icon/download";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import CommentList from "../../../components/client/commentList";
+import CommentModal from "../../../components/client/commentModal";
 
 interface Book {
   id: string;
@@ -24,6 +26,15 @@ interface Book {
   token: number;
 }
 
+export interface Comment {
+  id: string;
+  uid: string;
+  displayName: string;
+  text: string;
+  rating: number;
+  createdAt?: { seconds?: number; nanoseconds?: number };
+}
+
 const BookPage = () => {
   const params = useParams();
   const id = params.id as string;
@@ -33,7 +44,9 @@ const BookPage = () => {
   const [isReading, setIsReading] = useState(false);
   const [location, setLocation] = useState<string | null>(null);
   const [hasPurchased, setHasPurchased] = useState(false);
-
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [editingComment, setEditingComment] = useState<Comment | null>(null);
+  const [commentKey, setCommentKey] = useState(0);
   const { user } = useUser();
   const router = useRouter();
 
@@ -180,7 +193,6 @@ const BookPage = () => {
         return;
       }
 
-      // ซื้อสำเร็จ / รับฟรี
       await Swal.fire({
         icon: "success",
         title:
@@ -250,6 +262,46 @@ const BookPage = () => {
       );
     }
   }
+
+  const handleEditComment = (comment: Comment) => {
+    setEditingComment(comment);
+    setIsCommentOpen(true);
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    const result = await Swal.fire({
+      title: "คุณแน่ใจว่าจะลบคอมเมนต์นี้?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "ลบ",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await fetch(
+        `/api/commentDelete/${commentId}?uid=${user?.sub}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!res.ok) throw new Error("ลบไม่สำเร็จ");
+      Swal.fire({
+        icon: "success",
+        title: "ลบคอมเมนต์สำเร็จ",
+      });
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: err instanceof Error ? err.message : "ไม่สามารถลบคอมเมนต์ได้",
+      });
+    }
+  };
 
   return (
     <Main>
@@ -359,6 +411,30 @@ const BookPage = () => {
               </RightSide>
             </Flex>
             <Summary>{book.summaries}</Summary>
+            <div style={{ marginTop: "2rem" }}>
+              <Buttoncomment onClick={() => setIsCommentOpen(true)}>
+                Comment
+              </Buttoncomment>
+              {user && (
+                <CommentModal
+                  open={isCommentOpen}
+                  onClose={() => setIsCommentOpen(false)}
+                  bookId={book.id}
+                  uid={user?.sub ?? undefined}
+                  email={user.email ?? ""}
+                  displayName={user.sub ?? undefined}
+                  commentToEdit={editingComment}
+                  onCommentSaved={() => setCommentKey((prev) => prev + 1)}
+                />
+              )}
+            </div>
+            <CommentList
+              key={commentKey}
+              bookId={book.id}
+              userId={user?.sub ?? undefined}
+              onEditComment={handleEditComment}
+              onDeleteComment={handleDeleteComment}
+            />
           </BookDetails>
         </BookContainer>
       )}
@@ -612,6 +688,10 @@ const FlexCategory = styled.div`
   padding-top: 12px;
   text-decoration: none;
   font-size: 24px;
+`;
+
+const Buttoncomment = styled.button`
+  font-size: 48px;
 `;
 
 export default BookPage;

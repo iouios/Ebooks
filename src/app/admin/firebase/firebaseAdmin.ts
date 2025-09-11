@@ -1,5 +1,5 @@
 import { getApps, initializeApp, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue as AdminFieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 
@@ -15,4 +15,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { auth, db, storage }; 
+// Export FieldValue จาก firestore
+export const FieldValue = AdminFieldValue;
+
+export { auth, db, storage };
