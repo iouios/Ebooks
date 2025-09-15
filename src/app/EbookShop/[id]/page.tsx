@@ -47,6 +47,8 @@ const BookPage = () => {
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const [commentKey, setCommentKey] = useState(0);
+  const [comments, setComments] = useState<Comment[]>([]);
+
   const { user } = useUser();
   const router = useRouter();
 
@@ -270,7 +272,8 @@ const BookPage = () => {
 
   const handleDeleteComment = async (commentId: string) => {
     const result = await Swal.fire({
-      title: "คุณแน่ใจว่าจะลบคอมเมนต์นี้?",
+      title: "คุณแน่ใจหรือไม่?",
+      text: "ลบคอมเมนต์นี้จะไม่สามารถกู้คืนได้",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "ลบ",
@@ -282,24 +285,15 @@ const BookPage = () => {
     try {
       const res = await fetch(
         `/api/commentDelete/${commentId}?uid=${user?.sub}`,
-        {
-          method: "DELETE",
-        }
+        { method: "DELETE" }
       );
-
       if (!res.ok) throw new Error("ลบไม่สำเร็จ");
-      Swal.fire({
-        icon: "success",
-        title: "ลบคอมเมนต์สำเร็จ",
-      });
-      router.refresh();
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      Swal.fire("ลบสำเร็จ!", "", "success");
+      window.location.reload();
     } catch (err) {
       console.error(err);
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: err instanceof Error ? err.message : "ไม่สามารถลบคอมเมนต์ได้",
-      });
+      Swal.fire("เกิดข้อผิดพลาด", "ไม่สามารถลบคอมเมนต์ได้", "error");
     }
   };
 
@@ -412,8 +406,22 @@ const BookPage = () => {
             </Flex>
             <Summary>{book.summaries}</Summary>
             <div style={{ marginTop: "2rem" }}>
-              <Buttoncomment onClick={() => setIsCommentOpen(true)}>
-                Comment
+              <Buttoncomment
+                onClick={() => {
+                  if (!hasPurchased) {
+                    Swal.fire({
+                      icon: "info",
+                      title: "ต้องซื้อหนังสือก่อน",
+                      text: "คุณต้องซื้อหนังสือเล่มนี้ก่อนจึงจะสามารถเขียนรีวิวได้",
+                      confirmButtonText: "ตกลง",
+                    });
+                    return;
+                  }
+                  setEditingComment(null);
+                  setIsCommentOpen(true);
+                }}
+              >
+                Review
               </Buttoncomment>
               {user && (
                 <CommentModal
@@ -430,6 +438,7 @@ const BookPage = () => {
             </div>
             <CommentList
               key={commentKey}
+              comments={comments}
               bookId={book.id}
               userId={user?.sub ?? undefined}
               onEditComment={handleEditComment}
@@ -464,6 +473,7 @@ const BookContainer = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     width: 100%;
+    height: 100vh;
   }
 `;
 
@@ -480,6 +490,7 @@ const BookInfo = styled.div`
   }
   @media (max-width: 400px) {
     padding: 0px 2px;
+    height: auto;
     margin: 0 auto;
     min-height: 100vh;
     overflow: auto;

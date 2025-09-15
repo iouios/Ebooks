@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import StarRating from "./starRating";
 import styled from "styled-components";
 import AverageRating from "../../components/client/averageRating";
-
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Comment {
   id: string;
@@ -20,6 +21,7 @@ interface CommentListProps {
   userId?: string;
   onEditComment?: (comment: Comment) => void;
   onDeleteComment?: (id: string) => void;
+  comments: Comment[];
 }
 
 const CommentList: React.FC<CommentListProps> = ({
@@ -59,23 +61,23 @@ const CommentList: React.FC<CommentListProps> = ({
             (b.createdAt?._seconds ?? b.createdAt?.seconds ?? 0) -
             (a.createdAt?._seconds ?? a.createdAt?.seconds ?? 0)
         )
-        .map((comments) => (
+        .map((comment) => (
           <div
-            key={comments.id}
+            key={comment.id}
             style={{ borderBottom: "1px solid #ddd", marginBottom: 8 }}
           >
             <FlexComment>
-              <strong>{comments.email}</strong>
-              {comments.uid === userId && (
+              <strong>{comment.email}</strong>
+              {comment.uid === userId && (
                 <div>
                   {onEditComment && (
-                    <Button onClick={() => onEditComment(comments)}>
-                      Edit
+                    <Button onClick={() => onEditComment(comment)}>
+                      <EditIcon fontSize="small" />
                     </Button>
                   )}
                   {onDeleteComment && (
-                    <Button onClick={() => onDeleteComment(comments.id)}>
-                      Delete
+                    <Button onClick={() => onDeleteComment(comment.id)}>
+                      <DeleteIcon fontSize="small" /> 
                     </Button>
                   )}
                 </div>
@@ -83,13 +85,13 @@ const CommentList: React.FC<CommentListProps> = ({
             </FlexComment>
             <Flex>
               <div>
-                <StarRating value={comments.rating} readOnly />
+                <StarRating value={comment.rating} readOnly />
               </div>
               <Time>
-                <small>{formatTimestamp(comments.createdAt)}</small>
+                <small>{formatTimestamp(comment.createdAt)}</small>
               </Time>
             </Flex>
-            <p>{comments.text}</p>
+            <p>{comment.text}</p>
           </div>
         ))}
     </div>
@@ -108,6 +110,18 @@ const FlexComment = styled.div`
 
 const Button = styled.button`
   margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: #fff;
+  cursor: pointer;
+  gap: 4px;
+
+  &:hover {
+    background: #f5f5f5;
+  }
 `;
 
 const Flex = styled.div`

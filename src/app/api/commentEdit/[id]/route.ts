@@ -1,7 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db, FieldValue } from "../../../admin/firebase/firebaseAdmin";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+export async function PATCH(
+  request: Request,
+  context: RouteContext
+)  {
+  const params = await context.params;
   const { id } = params;
   const { uid, text, rating } = await request.json();
 

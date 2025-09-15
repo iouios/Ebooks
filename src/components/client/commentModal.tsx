@@ -69,7 +69,7 @@ const handleSubmit = async () => {
       });
       if (!res.ok) throw new Error("สร้างคอมเมนต์ไม่สำเร็จ");
     }
-    
+    location.reload();
     setText("");
     setRating(0);
     onClose(); 
